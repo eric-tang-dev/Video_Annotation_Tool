@@ -1,0 +1,242 @@
+
+body, html { 
+    height: 100%; 
+    width: 100%;
+    margin: 0;
+    padding: 0; 
+    overflow: hidden; 
+    display: flex;
+    flex-direction: column; 
+}
+
+/* Video and Step List */
+.top-section {
+    display: flex;    
+    flex: 1;          
+    overflow: hidden; 
+    width: 100%;
+}
+
+/* Video Player */
+.video-wrapper {
+    flex-grow: 1;       
+    min-height: 0;       
+    background: #000; 
+    position: relative;
+    overflow: hidden; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+video { 
+    width: auto;      
+    height: auto;     
+    object-fit: contain; 
+    box-shadow: none;    
+}
+
+/* Step List/Sidebar */
+.sidebar {
+    width: 300px;     
+    height: 100%;   
+    overflow-y: auto;  
+    background: #fff;   
+    border-left: 1px solid #ccc; 
+    box-sizing: border-box; 
+    padding: 10px;     
+}
+
+/* Blocks in Step List */
+.action-item {
+    position: relative; 
+    overflow: hidden;  
+    cursor: pointer;
+    border-left: 4px solid transparent;
+    transition: all 0.2s;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background-color: #f8f9fa; 
+    border-radius: 6px;
+    color: #404040;
+}
+.action-item:hover { background: #f0f0f0; }
+.action-item.active {
+    background: #e2e6ea;
+    border-left: 4px solid #8A2BE2; 
+}
+
+/* Delete Button (hidden, slides in when hovered over) */
+.list-delete-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 40px;       
+    background: #dc3545;   
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 10;
+    
+    /* Animation */
+    transform: translateX(100%);
+    transition: transform 0.2s ease-out;
+}
+
+.action-item:hover .list-delete-btn {
+    transform: translateX(0); 
+}
+
+.list-delete-btn:hover {
+    background: #bb2d3b;
+}
+
+/* Timeline */
+.timeline-container {
+    height: 80px;      
+    width: 100%;
+    cursor: pointer;    
+    overflow: hidden;
+    user-select: none;  
+    border-top: 1px solid #333;
+    background: #222;
+    flex-shrink: 0;     
+    position: relative;
+    z-index: 50;       
+}
+
+/* Middle track inside timeline */
+.timeline-track {
+    position: relative;
+    top: 20px;          
+    height: 40px;
+    width: 100%;
+    background: #444;
+}
+
+/* Timeline Block (The single active segment) */
+.t-block {
+    position: absolute; 
+    height: 100%;
+    z-index: 10; 
+    overflow: visible !important;  /* very important for the needle to push out the top/bottom */
+    cursor: pointer;
+    
+    /* color gradient for highlighting timeline blocks */
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(33, 150, 243, 0.25), /* Light Blue */
+      rgba(33, 150, 243, 0.25) 10px,
+      rgba(33, 150, 243, 0.1) 10px,
+      rgba(33, 150, 243, 0.1) 20px
+    );
+    
+    /* border to frame the gradient */
+    border-top: 2px solid #8A2BE2; 
+    border-bottom: 2px solid #8A2BE2;
+}
+
+/* Needle for timeline blocks */
+.t-handle {
+    position: absolute;
+    width: 2px;
+    height: 150%;
+    top: -25%; 
+    background: #03ecfc;
+    cursor: col-resize; 
+    z-index: 20;
+}
+
+/* Extra hitbox for timeline needle */
+.t-handle::after {
+    content: '';
+    position: absolute;
+    top: 0; 
+    bottom: 0;
+    left: -10px;
+    right: -10px;
+    background: transparent; 
+}
+
+
+/* Red Bar for Timeline */
+.playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 8px;                    
+    margin-left: -4px;             
+    border-left: 2px solid transparent;  
+    border-right: 2px solid transparent; 
+    background-color: red;          
+    background-clip: content-box;   
+    cursor: ew-resize;
+    z-index: 30;
+    pointer-events: auto !important;
+}
+
+.temp-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #00ff00; 
+    border-left: 2px dashed #00ff00;
+    z-index: 25;
+    pointer-events: none; 
+}
+
+.input-mono {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+/* Hide the red playhead when dragging */
+.timeline-container.is-dragging .playhead {
+    opacity: 0;
+    transition: opacity 0.1s; /* Smooth fade out/in */
+}
+
+/* NEW: Forces the two groups to sit side-by-side */
+.timestamp-row {
+    display: flex;
+    justify-content: space-between; /* Pushes them apart slightly */
+    gap: 10px;                      /* Adds space between Start and End */
+    margin-bottom: 15px;
+}
+
+/* Update: Ensure labels sit nicely above the inputs */
+.control-group {
+    display: flex;
+    flex-direction: column; /* Stacks "Start:" on top of the buttons */
+    align-items: flex-start;
+}
+
+/* Update: Smaller Font for the numbers */
+.time-input {
+    width: 80px;        /* Slightly narrower to fit side-by-side better */
+    height: 30px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-left: none; border-right: none;
+    
+    font-size: 11px;    /* Much smaller, cleaner look */
+    font-family: monospace;
+}
+
+/* (Optional) Adjust button size to match the smaller text feel */
+.nudge-btn {
+    width: 25px;       /* Slightly smaller buttons */
+    height: 32px;
+    background: #e9ecef;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;   /* Smaller +/- icons */
+}

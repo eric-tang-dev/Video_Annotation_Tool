@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nursing Annotation Tool</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+   
+</head>
+
+<body class="bg-dark">
+
+<div class="container-fluid h-100 d-flex flex-column p-0">
+
+    <!--   This is the HEADER. Includes: SAVE button, Next/Prev Buttons for Video Selection   -->
+    <div class="row bg-dark text-white p-2 align-items-center m-0 border-bottom border-secondary" style="height: 50px; flex-shrink: 0;">
+        <div class="col">
+            <strong>Nursing</strong> Video Annotation System
+        </div>
+
+        <!-- Next/Prev Buttons for Video Selection-->
+        <div class="col d-flex justify-content-center align-items-center gap-3">
+            {% if video_file %}
+                <button class="btn btn-outline-light btn-sm py-0" onclick="switchVideo('prev')">&lt;</button>
+                
+                <span class="font-monospace text-warning small">{{ video_name }}</span>
+                
+                <button class="btn btn-outline-light btn-sm py-0" onclick="switchVideo('next')">&gt;</button>
+            {% endif %}
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-success btn-sm" onclick="saveData()">Save</button>
+        </div>
+    </div>
+    <!--    END HEADER      -->
+
+    <div class="row flex-grow-1 m-0" style="overflow: hidden;">
+        
+        <!--    This is the VIDEO PLAYER. Includes: vid player, buttons, video timestamp, speed control     -->
+        <div class="col-md-9 d-flex flex-column p-0 bg-black border-end border-secondary position-relative">
+            
+            <!-- Video Player -->
+            <div class="video-wrapper flex-grow-1 d-flex justify-content-center align-items-center w-100 bg-black">
+                {% if video_file %}
+                    <video id="mainVideo" src="/video/{{ video_file }}" style="max-height: 100%; max-width: 100%; outline: none;"></video>
+                {% else %}
+                    <class="text-white">No video found in /data folder.</div>
+                {% endif %}
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="controls-bar bg-dark text-white p-2 d-flex gap-2 justify-content-center border-top border-secondary" style="flex-shrink: 0;">
+                <button class="btn btn-secondary btn-sm" onclick="skip(-10)">-10s</button>
+                <button class="btn btn-primary btn-sm px-4" id="btnPlayPause" onclick="togglePlay()">Play</button>
+                <button class="btn btn-secondary btn-sm" onclick="skip(10)">+10s</button>
+                
+                <!-- Speed Control Dropdown -->
+                <div class="btn-group dropup ms-2">
+                    <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="btnSpeed">
+                        1x
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="setSpeed(1.0)">1.0x (Normal)</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setSpeed(1.25)">1.25x</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setSpeed(1.5)">1.5x</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setSpeed(1.75)">1.75x</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setSpeed(2.0)">2.0x</a></li>
+                        
+                        <li><hr class="dropdown-divider"></li>
+                        
+                        <li>
+                            <div class="px-3 py-1" style="min-width: 180px;">
+                                <label for="speedRange" class="form-label small text-muted mb-0">
+                                    Custom: <span id="lblSpeedVal">1.0</span>x
+                                </label>
+                                <input type="range" class="form-range" min="0.5" max="2" step="0.1" value="1" id="speedRange" oninput="setSpeed(this.value)">
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <span class="ms-3 align-self-center font-monospace" id="timeDisplay">00:00 / 00:00</span>
+                
+                <span class="ms-3 badge bg-danger align-self-center" id="recIndicator" style="display:none;">LOGGING STEP...</span>
+            </div>
+        </div>
+        <!--    END VIDEO PLAYER    -->
+
+        <!--    This is the ACTIONS LIST. Includes: Logged steps and Evaluation Form    -->
+        <div class="col-md-3 bg-white d-flex flex-column p-0 border-start position-relative" id="sidebar" style="height: 100%; overflow-y: auto;">
+    
+            <div class="p-3 border-bottom bg-light sticky-top" style="z-index: 1020;">
+                <h5>Recorded Actions</h5>
+                <small class="text-muted">Shortcuts: <strong>[</strong> to Start, <strong>]</strong> to End</small>
+            </div>
+            
+            <!-- List of Logged Steps (Dynamically added via main.js) -->
+            <div class="p-2" id="actionList">
+                </div>
+        
+            <!-- Evaluation Form -->
+            <div class="p-3 bg-light border-top" id="editForm" style="display:none;">
+                <h6>Edit Selected Action</h6>
+                
+                <div class="timestamp-row">
+
+                    <!-- Start and End Timestamps with Buttons-->
+                    <div class="control-group">
+                        <label>Start:</label>
+                        <div class="input-wrapper">
+                            <button class="nudge-btn" onclick="nudgeTime('start', -0.5)">-</button>
+                            <input type="text" id="inpStart" class="time-input">
+                            <button class="nudge-btn" onclick="nudgeTime('start', 0.5)">+</button>
+                        </div>
+                    </div>
+                
+                    <div class="control-group">
+                        <label>End:</label>
+                        <div class="input-wrapper">
+                            <button class="nudge-btn" onclick="nudgeTime('end', -0.5)">-</button>
+                            <input type="text" id="inpEnd" class="time-input">
+                            <button class="nudge-btn" onclick="nudgeTime('end', 0.5)">+</button>
+                        </div>
+                    </div>
+                
+                </div>
+        
+                <div class="mb-2">
+                    <label class="form-label small">Action Name</label>
+                    <input type="text" class="form-control form-control-sm" id="inpActionName" placeholder="e.g. Wash Hands">
+                </div>
+                
+                <div class="mb-2">
+                    <label class="form-label small">Evaluation</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="rating" id="rateS" value="S">
+                        <label class="btn btn-outline-success btn-sm" for="rateS">Satisfactory</label>
+                        
+                        <input type="radio" class="btn-check" name="rating" id="rateU" value="U">
+                        <label class="btn btn-outline-danger btn-sm" for="rateU">Unsatisfactory</label>
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <textarea class="form-control form-control-sm" id="inpComment" rows="2" placeholder="Comments..."></textarea>
+                </div>
+                
+                <button class="btn btn-primary w-100 btn-sm" onclick="commitEdit()">Confirm (Enter)</button>
+            </div>
+
+        </div>
+        <!--    END ACTIONS LIST    -->
+    </div>
+
+    <!--    This is the TIMELINE. Includes: Red bar (playhead)  -->
+    <div class="timeline-container bg-secondary position-relative border-top border-dark" id="timelineContainer" style="height: 100px; flex-shrink: 0; width: 100%;">
+        
+        <div class="timeline-track" id="timelineTrack"></div>
+        
+        <div class="playhead" id="playhead"></div>
+    
+    </div>
+    <!--    END TIMELINE    -->
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const CURRENT_VIDEO_NAME = "{{ video_name }}"; 
+    const SAVED_DATA = {{ saved_data | tojson }};
+</script>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>
