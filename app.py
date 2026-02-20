@@ -23,11 +23,14 @@ def index():
     videos = sorted([v.name for v in video_directory.iterdir()
                 if v.suffix.lower() in [".mp4", ".mov"]])    # find all .mp4 and .mov (apple) files in data/
 
-    if current_video_index > len(videos):
+    if current_video_index >= len(videos):
         current_video_index = 0
 
     video_file = videos[current_video_index] if videos else None 
-    video_name = os.path.splitext(video_file)[0]
+    if video_file:
+        video_name = os.path.splitext(video_file)[0]
+    else:
+        video_name = None
 
     saved_data = None
     path = results_directory / "results.json"
