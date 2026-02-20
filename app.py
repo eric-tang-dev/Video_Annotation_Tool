@@ -98,4 +98,5 @@ def save_results():
 
 if __name__ == '__main__':
     print(f"Flask App running.")
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(debug=False, host='0.0.0.0', port=port)   # code not used in production, but helps BuilderPack auto-detect our code needs
