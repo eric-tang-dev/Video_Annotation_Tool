@@ -18,7 +18,7 @@
 
 ### Recording Steps
 * Press `[` to mark the **start time** of the step. 
-* Press `]` to mark the **end time** of the step. This creates the step and pauses the video.
+* Press `]` to mark the **end time** of the step. This finalizes the step and pauses the video.
 
 ### Editing
 * **Adjust Time:** Click a step to select it, then drag the **white handles** on the left/right of the timeline block to fine-tune timing.
