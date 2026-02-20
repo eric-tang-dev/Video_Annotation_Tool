@@ -545,9 +545,6 @@ function deleteStep(id) {
 */
 function switchVideo(direction) {
     // Remind user to save changes 
-    if (all_steps.length > 0) {
-        if(!confirm("REMINDER: If you made edits/logged steps, please press Save before continuing. Continue?")) return;
-    }
 
     fetch('/switch_video', {
         method: 'POST',
