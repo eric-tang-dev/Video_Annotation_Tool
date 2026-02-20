@@ -148,7 +148,7 @@ function finishCapture() {
         name: "Untitled Action",
         start: temp_start_time,
         end: Math.max(end_time, temp_start_time + 0.5), // minimum 0.5-second step
-        rating: 'U', 
+        rating: 0.5, 
         comment: ''
     };
 
@@ -221,8 +221,9 @@ function selectStep(id) {
     document.getElementById('inpComment').value = step.comment;
     document.getElementById('inpStart').value = formatTime(step.start);
     document.getElementById('inpEnd').value = formatTime(step.end);
-    if(step.rating === 'S') document.getElementById('rateS').checked = true;
-    else document.getElementById('rateU').checked = true;
+    const slider = document.getElementById('inpRating');
+    slider.value = step.rating !== null ? step.rating : 0.5; 
+    document.getElementById('lblRatingVal').innerText = slider.value;
 
     // scroll down to form 
     setTimeout(() => {
@@ -246,9 +247,7 @@ function commitEdit() {
         step.name = document.getElementById('inpActionName').value;
         step.comment = document.getElementById('inpComment').value;
         
-        if (document.getElementById('rateS').checked) step.rating = 'S';
-        else if (document.getElementById('rateU').checked) step.rating = 'U';
-        else step.rating = null;
+        step.rating = parseFloat(document.getElementById('inpRating').value);
 
         let rawStart = document.getElementById('inpStart').value;
         let rawEnd = document.getElementById('inpEnd').value;
@@ -334,17 +333,18 @@ function renderList() {
     all_steps.sort((a,b) => a.start - b.start).forEach(step => {
         const div = document.createElement('div');
         div.className = `action-item p-2 mb-1 border rounded ${step.id === active_step_id ? 'active' : ''}`;
-        
+
+        const hue = step.rating * 120; 
+        const badgeColor = `style="background-color: hsl(${hue}, 70%, 45%); color: white;"`;
+
         div.innerHTML = `
             <div class="d-flex justify-content-between">
                 <strong>${step.name}</strong>
-                <span class="badge ${step.rating === 'S' ? 'bg-success' : 'bg-danger'}">${step.rating}</span>
+                <span class="badge" ${badgeColor}>${step.rating.toFixed(1)}</span>
             </div>
             <div class="small text-muted">
                 ${formatTime(step.start)} - ${formatTime(step.end)}
-            </div>
-        `;
-        
+            </div>`;
         // Add onclick to entire block (click to select it)
         div.onclick = () => selectStep(step.id);
 
