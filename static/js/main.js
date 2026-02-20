@@ -340,7 +340,7 @@ function renderList() {
         div.innerHTML = `
             <div class="d-flex justify-content-between">
                 <strong>${step.name}</strong>
-                <span class="badge" ${badgeColor}>${step.rating.toFixed(1)}</span>
+                <span class="badge" ${badgeColor}>${step.rating.toFixed(2)}</span>
             </div>
             <div class="small text-muted">
                 ${formatTime(step.start)} - ${formatTime(step.end)}
