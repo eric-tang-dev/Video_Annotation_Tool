@@ -4,40 +4,117 @@ let active_step_id = null
 let temp_start_time = null
 let video_length = 1
 
-// DOM elements
-const video = document.getElementById("mainVideo")
-const timeline = document.getElementById("timelineContainer")
+// // DOM elements
+// const video = document.getElementById("mainVideo")
+// const timeline = document.getElementById("timelineContainer")
 
-// save video length into variable before playback starts
-video.addEventListener('loadedmetadata', () => {
-    video_length = video.duration;
-    initPlayheadDrag();
-    loadSavedData();
-    renderTimeline(); 
+// // save video length into variable before playback starts
+// video.addEventListener('loadedmetadata', () => {
+//     video_length = video.duration;
+//     initPlayheadDrag();
+//     loadSavedData();
+//     renderTimeline(); 
+// });
+
+// // update timeline's red bar as video plays
+// video.addEventListener('timeupdate', () => {
+//     const pos = (video.currentTime / video_length) * 100;
+//     document.getElementById('playhead').style.left = `${pos}%`;
+//     document.getElementById('timeDisplay').innerText = 
+//         `${formatTime(video.currentTime)} / ${formatTime(video_length)}`;
+// });
+
+// // Clicking the video screen plays/pauses
+// video.addEventListener('click', togglePlay);
+
+// video.addEventListener('play', () => {      // pause button appears when vid 'playing'
+//     const btn = document.getElementById('btnPlayPause');
+//     btn.innerText = "Pause";
+//     btn.classList.replace('btn-primary', 'btn-secondary'); 
+// });
+
+// video.addEventListener('pause', () => {     // play button appears when 'paused'
+//     const btn = document.getElementById('btnPlayPause');
+//     btn.innerText = "Play";
+//     btn.classList.replace('btn-secondary', 'btn-primary'); 
+// });
+
+// =============================
+// KALTURA PLAYER ADAPTER
+// =============================
+
+// =============================
+// KALTURA IFRAME ADAPTER
+// =============================
+
+const timeline = document.getElementById("timelineContainer");
+const iframe = document.getElementById("kaltura_player");
+
+let video = {
+    currentTime: 0,
+    duration: 0,
+    paused: true,
+
+    play() {
+        iframe.contentWindow.postMessage({ type: "play" }, "*");
+    },
+
+    pause() {
+        iframe.contentWindow.postMessage({ type: "pause" }, "*");
+    },
+
+    set currentTime(t) {
+        this._time = t;
+        iframe.contentWindow.postMessage({ type: "seek", value: t }, "*");
+    },
+
+    get currentTime() {
+        return this._time || 0;
+    }
+};
+
+// receive events from the player
+window.addEventListener("message", (event) => {
+
+    if (!event.data) return;
+
+    const msg = event.data;
+
+    if (msg.type === "timeupdate") {
+        video._time = msg.currentTime;
+
+        const pos = (video.currentTime / video_length) * 100;
+        document.getElementById('playhead').style.left = `${pos}%`;
+
+        document.getElementById('timeDisplay').innerText =
+            `${formatTime(video.currentTime)} / ${formatTime(video_length)}`;
+    }
+
+    if (msg.type === "loadedmetadata") {
+        video_length = msg.duration;
+        video.duration = msg.duration;
+
+        initPlayheadDrag();
+        loadSavedData();
+        renderTimeline();
+    }
+
+    if (msg.type === "play") {
+        video.paused = false;
+        const btn = document.getElementById('btnPlayPause');
+        btn.innerText = "Pause";
+        btn.classList.replace('btn-primary','btn-secondary');
+    }
+
+    if (msg.type === "pause") {
+        video.paused = true;
+        const btn = document.getElementById('btnPlayPause');
+        btn.innerText = "Play";
+        btn.classList.replace('btn-secondary','btn-primary');
+    }
+
 });
 
-// update timeline's red bar as video plays
-video.addEventListener('timeupdate', () => {
-    const pos = (video.currentTime / video_length) * 100;
-    document.getElementById('playhead').style.left = `${pos}%`;
-    document.getElementById('timeDisplay').innerText = 
-        `${formatTime(video.currentTime)} / ${formatTime(video_length)}`;
-});
-
-// Clicking the video screen plays/pauses
-video.addEventListener('click', togglePlay);
-
-video.addEventListener('play', () => {      // pause button appears when vid 'playing'
-    const btn = document.getElementById('btnPlayPause');
-    btn.innerText = "Pause";
-    btn.classList.replace('btn-primary', 'btn-secondary'); 
-});
-
-video.addEventListener('pause', () => {     // play button appears when 'paused'
-    const btn = document.getElementById('btnPlayPause');
-    btn.innerText = "Play";
-    btn.classList.replace('btn-secondary', 'btn-primary'); 
-});
 
 // Keyboard Shortcuts
 document.addEventListener('keydown', (e) => {
