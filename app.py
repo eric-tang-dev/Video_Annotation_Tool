@@ -53,28 +53,92 @@ KALTURA_VIDEOS = [
         "entry_id": "1_db5y1w1d"
     },
     {
-        "category": "iv-insertion",
-        "video_name": "iv_insertion_demo_01",
+        "category": "sterile-gloves",
+        "video_name": "S12_compressed_gloves",
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_iv0001"
+        "entry_id": "1_0xox0f5v"
     },
     {
-        "category": "iv-insertion",
-        "video_name": "iv_vein_selection_demo_02",
+        "category": "sterile-gloves",
+        "video_name": "S13_compressed_gloves",
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_iv0002"
+        "entry_id": "1_8b1ax3dm"
     },
     {
-        "category": "iv-insertion",
-        "video_name": "iv_securement_demo_03",
+        "category": "sterile-gloves",
+        "video_name": "S14_compressed_gloves",
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_iv0003"
+        "entry_id": "1_xv3090hc"
+    },
+    {
+        "category": "sterile-gloves",
+        "video_name": "S15_compressed_gloves",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_bcsjp5p4"
+    },
+    {
+        "category": "sterile-gloves",
+        "video_name": "S16_compressed_gloves",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_3qk65el8"
+    },
+    {
+        "category": "sterile-gloves",
+        "video_name": "S17_compressed_gloves",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_yc3r5qe0"
+    },
+    {
+        "category": "sterile-gloves",
+        "video_name": "S18_compressed_gloves",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_yc3r5qe0"
+    },
+    {
+        "category": "sterile-gloves",
+        "video_name": "S19_compressed_gloves",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_yc3r5qe0"
+    },
+    {
+        "category": "sterile-gloves",
+        "video_name": "S20_compressed_gloves",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_yc3r5qe0"
+    },
+    {
+        "category": "sterile-gloves",
+        "video_name": "S21_compressed_gloves",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_yc3r5qe0"
+    },
+    {
+        "category": "sterile-gloves",
+        "video_name": "S22_compressed_gloves",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_yc3r5qe0"
     }
 ]
 
