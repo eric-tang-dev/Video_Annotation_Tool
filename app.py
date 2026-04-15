@@ -37,12 +37,12 @@ KALTURA_VIDEOS = [
         "entry_id": "1_pc9nnlfe"
     },
     {
-        "category": "ostomy-skills",
-        "video_name": "ostomy_skin_prep_demo_02",
+        "category": "sterile-gloves",
+        "video_name": "S10_compressed_gloves",
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_ostomy002"
+        "entry_id": "1_0ukvx295"
     },
     {
         "category": "ostomy-skills",
