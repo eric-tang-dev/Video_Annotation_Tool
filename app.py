@@ -16,22 +16,66 @@ video_directory.mkdir(parents=True, exist_ok=True)
 results_directory.mkdir(parents=True, exist_ok=True)
 
 
-# global to keep track of current video
-current_video_index = 0
-
-
 # -----------------------------
-# KALTURA VIDEO INDEX (NEW)
+# KALTURA VIDEO INDEX
 # -----------------------------
 KALTURA_VIDEOS = [
     {
+        "category": "ostomy-skills",
         "video_name": "S3_compressed",
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
         "entry_id": "1_ifhnx26b"
+    },
+    {
+        "category": "ostomy-skills",
+        "video_name": "S1_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57908202,
+        "entry_id": "1_pc9nnlfe"
+    },
+    {
+        "category": "ostomy-skills",
+        "video_name": "ostomy_skin_prep_demo_02",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_ostomy002"
+    },
+    {
+        "category": "ostomy-skills",
+        "video_name": "ostomy_measurement_demo_03",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_ostomy003"
+    },
+    {
+        "category": "iv-insertion",
+        "video_name": "iv_insertion_demo_01",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_iv0001"
+    },
+    {
+        "category": "iv-insertion",
+        "video_name": "iv_vein_selection_demo_02",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_iv0002"
+    },
+    {
+        "category": "iv-insertion",
+        "video_name": "iv_securement_demo_03",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_iv0003"
     }
-    # Add more videos here later
 ]
 
 
@@ -79,38 +123,37 @@ def save_annotation_to_gcs(entry_id: str, payload: dict):
     )
 
 
-"""
-This function renders the HTML page and attaches the desired video file and previously logged data (steps)
-"""
 @app.route('/')
 def index():
-    global current_video_index
+    # Read the selected entry_id from the query string
+    requested_entry_id = request.args.get("entry_id")
 
+    # Default to the first video if no query param is provided
+    video = KALTURA_VIDEOS[0]
 
-    # Use Kaltura list instead of local directory
-    if current_video_index >= len(KALTURA_VIDEOS):
-        current_video_index = 0
-
-
-    video = KALTURA_VIDEOS[current_video_index]
-
+    # If entry_id is provided, find the matching video in the hardcoded catalog
+    if requested_entry_id:
+        matched_video = next(
+            (v for v in KALTURA_VIDEOS if v["entry_id"] == requested_entry_id),
+            None
+        )
+        if matched_video:
+            video = matched_video
 
     video_file = True   # keep template logic intact
     video_name = video["video_name"]
 
-
-    # CHANGED:
-    # Old behavior loaded saved data from local results/results.json using video_name.
-    # New behavior loads one annotation JSON object from GCS using entry_id.
+    # Load saved annotation data from GCS using the selected video's entry_id
     saved_data = load_annotation_from_gcs(video["entry_id"])
-
 
     return render_template(
         'index.html',
         video_file=video_file,
         video_name=video_name,
         saved_data=saved_data,
-        kaltura_video=video
+        kaltura_video=video,
+        all_videos=KALTURA_VIDEOS,
+        selected_entry_id=video["entry_id"]
     )
 
 
@@ -123,27 +166,19 @@ def send_video(filename):
 
 
 """
-This function accepts a POST request to go to the 'prev' or 'next' video
+This function renders a full-page video picker.
+It groups all hardcoded Kaltura videos by category and highlights the current selection.
+Clicking a video card returns the user to the main annotation page with ?entry_id=...
 """
-@app.route('/switch_video', methods=['POST'])
-def switch_video():
-    global current_video_index
+@app.route('/select-video')
+def select_video():
+    selected_entry_id = request.args.get("entry_id")
 
-
-    # Use Kaltura list instead of local files
-    if not KALTURA_VIDEOS:
-        return jsonify(success=False)
-
-    direction = request.json.get('direction')
-
-    if direction == 'next':
-        current_video_index = (current_video_index + 1) % len(KALTURA_VIDEOS)
-
-    elif direction == 'prev':
-        current_video_index = (current_video_index - 1) % len(KALTURA_VIDEOS)
-
-    return jsonify(success=True)
-
+    return render_template(
+        'select_video.html',
+        all_videos=KALTURA_VIDEOS,
+        selected_entry_id=selected_entry_id
+    )
 
 """
 This function accepts JSON data from the frontend and saves it.

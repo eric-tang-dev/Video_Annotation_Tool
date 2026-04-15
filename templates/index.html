@@ -22,19 +22,21 @@
             <strong>Nursing</strong> Video Annotation System
         </div>
 
-        <!-- Next/Prev Buttons for Video Selection-->
+        <!-- Current Selected Video (showing its name on top right)-->
         <div class="col d-flex justify-content-center align-items-center gap-3">
             {% if video_file %}
-                <button class="btn btn-outline-light btn-sm py-0" onclick="switchVideo('prev')">&lt;</button>
-                
-                <span class="font-monospace text-warning small">{{ video_name }}</span>
-                
-                <button class="btn btn-outline-light btn-sm py-0" onclick="switchVideo('next')">&gt;</button>
+                <span class="font-monospace text-warning small">
+                    {{ kaltura_video.category }} / {{ video_name }}
+                </span>
             {% endif %}
         </div>
 
-        <div class="col-auto">
-            <button class="btn btn-success btn-sm" onclick="saveData()">Save</button>
+        <!-- Switch Video (brings us to grid) and Save (to GCS) Buttons -->
+        <div class="col d-flex justify-content-end align-items-center gap-2">
+            <a href="/select-video?entry_id={{ selected_entry_id }}" class="btn btn-outline-light btn-sm">
+                Switch Video
+            </a>
+            <button class="btn btn-warning btn-sm" onclick="saveData()">Save</button>
         </div>
     </div>
     <!--    END HEADER      -->
