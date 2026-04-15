@@ -305,14 +305,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Load GCS annotations on Page Load
-document.addEventListener("DOMContentLoaded", function () {
-    if (savedData && savedData.actions) {
-        allActions = savedData.actions;
-        renderActions();
-    }
-});
-
 /*
     This function pre-loads the timeline and step list with saved data.
     The saved data is already available (sent by app.py's index() function).
