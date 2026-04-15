@@ -3,10 +3,14 @@ let all_steps = []
 let active_step_id = null
 let temp_start_time = null
 let video_length = 1
+let kalturaReady = false
+let playerState = 'paused'
+
 
 // // DOM elements
 // const video = document.getElementById("mainVideo")
 // const timeline = document.getElementById("timelineContainer")
+
 
 // // save video length into variable before playback starts
 // video.addEventListener('loadedmetadata', () => {
@@ -16,6 +20,7 @@ let video_length = 1
 //     renderTimeline(); 
 // });
 
+
 // // update timeline's red bar as video plays
 // video.addEventListener('timeupdate', () => {
 //     const pos = (video.currentTime / video_length) * 100;
@@ -24,8 +29,10 @@ let video_length = 1
 //         `${formatTime(video.currentTime)} / ${formatTime(video_length)}`;
 // });
 
+
 // // Clicking the video screen plays/pauses
 // video.addEventListener('click', togglePlay);
+
 
 // video.addEventListener('play', () => {      // pause button appears when vid 'playing'
 //     const btn = document.getElementById('btnPlayPause');
@@ -33,86 +40,183 @@ let video_length = 1
 //     btn.classList.replace('btn-primary', 'btn-secondary'); 
 // });
 
+
 // video.addEventListener('pause', () => {     // play button appears when 'paused'
 //     const btn = document.getElementById('btnPlayPause');
 //     btn.innerText = "Play";
 //     btn.classList.replace('btn-secondary', 'btn-primary'); 
 // });
 
+
 // =============================
 // KALTURA PLAYER ADAPTER
 // =============================
 
-// =============================
-// KALTURA IFRAME ADAPTER
-// =============================
 
 const timeline = document.getElementById("timelineContainer");
-const iframe = document.getElementById("kaltura_player");
+
 
 let video = {
-    currentTime: 0,
-    duration: 0,
-    paused: true,
-
     play() {
-        iframe.contentWindow.postMessage({ type: "play" }, "*");
+        if (!window.kalturaPlayerInstance || !kalturaReady) return;
+        window.kalturaPlayerInstance.play();
     },
+
 
     pause() {
-        iframe.contentWindow.postMessage({ type: "pause" }, "*");
+        if (!window.kalturaPlayerInstance || !kalturaReady) return;
+        window.kalturaPlayerInstance.pause();
     },
+
 
     set currentTime(t) {
-        this._time = t;
-        iframe.contentWindow.postMessage({ type: "seek", value: t }, "*");
+        if (!window.kalturaPlayerInstance || !kalturaReady) return;
+        window.kalturaPlayerInstance.currentTime = t;
     },
 
+
     get currentTime() {
-        return this._time || 0;
+        if (!window.kalturaPlayerInstance) return 0;
+        return Number(window.kalturaPlayerInstance.currentTime || 0);
+    },
+
+
+    get duration() {
+        if (!window.kalturaPlayerInstance) return 0;
+        return Number(window.kalturaPlayerInstance.duration || 0);
+    },
+
+
+    get paused() {
+        return playerState !== 'playing';
     }
 };
 
-// receive events from the player
-window.addEventListener("message", (event) => {
 
-    if (!event.data) return;
+function updatePlayPauseButton(isPaused) {
+    const btn = document.getElementById('btnPlayPause');
+    if (!btn) return;
 
-    const msg = event.data;
-
-    if (msg.type === "timeupdate") {
-        video._time = msg.currentTime;
-
-        const pos = (video.currentTime / video_length) * 100;
-        document.getElementById('playhead').style.left = `${pos}%`;
-
-        document.getElementById('timeDisplay').innerText =
-            `${formatTime(video.currentTime)} / ${formatTime(video_length)}`;
-    }
-
-    if (msg.type === "loadedmetadata") {
-        video_length = msg.duration;
-        video.duration = msg.duration;
-
-        initPlayheadDrag();
-        loadSavedData();
-        renderTimeline();
-    }
-
-    if (msg.type === "play") {
-        video.paused = false;
-        const btn = document.getElementById('btnPlayPause');
-        btn.innerText = "Pause";
-        btn.classList.replace('btn-primary','btn-secondary');
-    }
-
-    if (msg.type === "pause") {
-        video.paused = true;
-        const btn = document.getElementById('btnPlayPause');
+    if (isPaused) {
         btn.innerText = "Play";
-        btn.classList.replace('btn-secondary','btn-primary');
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-primary');
+    } else {
+        btn.innerText = "Pause";
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-secondary');
     }
+}
 
+
+function updateTimeUI() {
+    const current = video.currentTime;
+    const duration = video_length || video.duration || 1;
+    const pos = (current / duration) * 100;
+
+    document.getElementById('playhead').style.left = `${Math.max(0, Math.min(pos, 100))}%`;
+    document.getElementById('timeDisplay').innerText =
+        `${formatTime(current)} / ${formatTime(duration)}`;
+}
+
+
+function initializeKalturaBindings() {
+    const player = window.kalturaPlayerInstance;
+    if (!player || !player.addEventListener) return;
+
+    player.addEventListener('timeupdate', () => {
+        updateTimeUI();
+    });
+
+    player.addEventListener('loadedmetadata', () => {
+        if (player.duration) {
+            video_length = player.duration;
+        }
+
+        if (!kalturaReady) {
+            kalturaReady = true;
+            initPlayheadDrag();
+            loadSavedData();
+            renderTimeline();
+            updateTimeUI();
+        }
+    });
+
+    player.addEventListener('durationchange', () => {
+        if (player.duration) {
+            video_length = player.duration;
+            updateTimeUI();
+        }
+    });
+
+    player.addEventListener('playing', () => {
+        playerState = 'playing';
+        updatePlayPauseButton(false);
+    });
+
+    player.addEventListener('play', () => {
+        playerState = 'playing';
+        updatePlayPauseButton(false);
+    });
+
+    player.addEventListener('pause', () => {
+        playerState = 'paused';
+        updatePlayPauseButton(true);
+    });
+
+    player.addEventListener('ended', () => {
+        playerState = 'paused';
+        updatePlayPauseButton(true);
+    });
+
+    player.addEventListener('playerStateChanged', (event) => {
+        const newState = event && event.payload && event.payload.newState
+            ? event.payload.newState.type
+            : null;
+
+        if (!newState) return;
+
+        if (newState.toLowerCase() === 'playing') {
+            playerState = 'playing';
+            updatePlayPauseButton(false);
+        }
+
+        if (newState.toLowerCase() === 'paused' || newState.toLowerCase() === 'ready' || newState.toLowerCase() === 'ended') {
+            playerState = 'paused';
+            updatePlayPauseButton(true);
+        }
+    });
+
+    player.addEventListener('error', (event) => {
+        console.error('Kaltura player error:', event);
+    });
+
+    const metadataPoll = setInterval(() => {
+        if (player.duration && player.duration > 0) {
+            video_length = player.duration;
+
+            if (!kalturaReady) {
+                kalturaReady = true;
+                initPlayheadDrag();
+                loadSavedData();
+                renderTimeline();
+            }
+
+            updateTimeUI();
+            clearInterval(metadataPoll);
+        }
+    }, 250);
+}
+
+
+if (window.kalturaPlayerInstance) {
+    initializeKalturaBindings();
+}
+
+window.addEventListener('load', () => {
+    if (window.kalturaPlayerInstance) {
+        initializeKalturaBindings();
+    }
 });
 
 
@@ -126,11 +230,13 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
+
     // Spacebar = Toggle Play/Pause
     if (e.key === ' ') {
         e.preventDefault(); // stop page from scrolling down
         togglePlay();
     }
+
 
     // '[' = Start Logging Step
     if (e.key === '[') {
@@ -146,10 +252,12 @@ document.addEventListener('keydown', (e) => {
         const old = document.getElementById('tempMarker');
         if (old) old.remove();
 
+
         // Create new marker
         const marker = document.createElement('div');
         marker.id = 'tempMarker';
         marker.className = 'temp-marker';
+
 
         // Calculate position
         const pos = (temp_start_time / video_length) * 100;
@@ -159,15 +267,18 @@ document.addEventListener('keydown', (e) => {
         track.appendChild(marker);
     }
 
+
     // ']' = Mark End
     if (e.key === ']') {
         e.preventDefault();
+
 
         if (temp_start_time !== null) {
             finishCapture();
         }
     }
 });
+
 
 /*
     This function pre-loads the timeline and step list with saved data.
@@ -180,6 +291,8 @@ document.addEventListener('keydown', (e) => {
 */
 function loadSavedData() {
     if (!SAVED_DATA) return; 
+    if (all_steps.length > 0) return;
+
 
     // Find the number of steps 
     const count = SAVED_DATA.timestamps.length;
@@ -201,6 +314,7 @@ function loadSavedData() {
     renderList();
 }
 
+
 /*
    This function is called when ']' is pressed. 
    Tasks:
@@ -214,6 +328,7 @@ function loadSavedData() {
 function finishCapture() {
     video.pause();
     const end_time = video.currentTime;
+
 
     // Remove the Green Marker
     const marker = document.getElementById('tempMarker');
@@ -229,6 +344,7 @@ function finishCapture() {
         comment: ''
     };
 
+
     // Add to Global Array 
     all_steps.push(newStep);
     
@@ -239,6 +355,7 @@ function finishCapture() {
     // Open the Evaluation Form with the new step
     selectStep(newStep.id); 
 }
+
 
 /*
     This function is called when the top-right 'Save' button is pressed.
@@ -257,6 +374,7 @@ function saveData() {
         "comments": all_steps.map(a => a.comment)
     };
 
+
     const payload = {}
     payload[CURRENT_VIDEO_NAME] = video_data;
     
@@ -268,6 +386,7 @@ function saveData() {
     })
     .then(response => response.json())
 }
+
 
 /*
     This function is called when a new step is created OR
@@ -283,11 +402,13 @@ function selectStep(id) {
     const step = all_steps.find(a => a.id === id);
     if (!step) return;
 
+
     active_step_id = id;
     
     // Re-render timeline and step list 
     renderTimeline();
     renderList(); 
+
 
     // Show the form
     const form = document.getElementById('editForm');
@@ -302,11 +423,13 @@ function selectStep(id) {
     slider.value = step.rating !== null ? step.rating : 0.5; 
     document.getElementById('lblRatingVal').innerText = slider.value;
 
+
     // scroll down to form 
     setTimeout(() => {
         form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 10);
 }
+
 
 /*
     This function is called when 'Enter' is pressed in the Evaluation Form.
@@ -326,10 +449,12 @@ function commitEdit() {
         
         step.rating = parseFloat(document.getElementById('inpRating').value);
 
+
         let rawStart = document.getElementById('inpStart').value;
         let rawEnd = document.getElementById('inpEnd').value;
         let tStart = parseTimeStr(rawStart);
         let tEnd = parseTimeStr(rawEnd);
+
 
         // validate timestamps (parseTimeStr can return null)
         if ((tStart !== null) && (tEnd !== null) && (tEnd > tStart)) {
@@ -345,13 +470,16 @@ function commitEdit() {
     active_step_id = null;
     document.getElementById('editForm').style.display = 'none';
 
+
     // Save the step's data to JSON
     saveData();
+
 
     // Re-render timeline and step list 
     renderTimeline();
     renderList();
 }
+
 
 /*
     This function is called multiple times in the program by other functions.
@@ -370,23 +498,26 @@ function renderTimeline() {
     const track = document.getElementById('timelineTrack');
     track.innerHTML = ''; // wipe original timeline 
 
-    // find the current active step, if there is
-    const activeStep = all_steps.find(step => step.id === active_step_id);
-    if (!activeStep) return;
 
-    // calculate position on the timeline for the block 
-    const left = (activeStep.start / video_length) * 100;
-    const width = ((activeStep.end - activeStep.start) / video_length) * 100;
+    all_steps.forEach(step => {
+        const left = (step.start / video_length) * 100;
+        const width = ((step.end - step.start) / video_length) * 100;
 
-    // create the block for the active step
-    const el = document.createElement('div');
-    el.className = 't-block active';
-    el.style.left = `${left}%`;
-    el.style.width = `${width}%`;
-    addHandle(el, activeStep, 'left'); // add drag handles 
-    addHandle(el, activeStep, 'right');
-    track.appendChild(el);
+        const el = document.createElement('div');
+        el.className = `t-block ${step.id === active_step_id ? 'active' : ''}`;
+        el.style.left = `${left}%`;
+        el.style.width = `${width}%`;
+        el.onclick = () => selectStep(step.id);
+
+        if (step.id === active_step_id) {
+            addHandle(el, step, 'left'); // add drag handles 
+            addHandle(el, step, 'right');
+        }
+
+        track.appendChild(el);
+    });
 }
+
 
 /*
     This function is called multiple times in the program by other functions.
@@ -411,8 +542,10 @@ function renderList() {
         const div = document.createElement('div');
         div.className = `action-item p-2 mb-1 border rounded ${step.id === active_step_id ? 'active' : ''}`;
 
+
         const hue = step.rating * 120; 
         const badgeColor = `style="background-color: hsl(${hue}, 70%, 45%); color: white;"`;
+
 
         div.innerHTML = `
             <div class="d-flex justify-content-between">
@@ -425,6 +558,7 @@ function renderList() {
         // Add onclick to entire block (click to select it)
         div.onclick = () => selectStep(step.id);
 
+
         // Add Delete button, 'x' is the text inside the button
         const delBtn = document.createElement('div');
         delBtn.className = 'list-delete-btn';
@@ -436,10 +570,12 @@ function renderList() {
             deleteStep(step.id);
         };
 
+
         div.appendChild(delBtn);
         list.appendChild(div);
     });
 }
+
 
 /*
     This function adds handles to active steps on the timeline.
@@ -455,12 +591,14 @@ function addHandle(parent, step, side) {
     const h = document.createElement('div');
     h.className = `t-handle`;
 
+
     // Add needle to appropriate position based on side
     if (side === 'left') {
         h.style.left = '0%'; 
     } else {
         h.style.right = '0%';
     }
+
 
     parent.appendChild(h);
     
@@ -471,6 +609,7 @@ function addHandle(parent, step, side) {
         const startX = e.clientX;
         const originalTime = (side === 'left') ? step.start : step.end;
         const trackWidth = document.getElementById('timelineTrack').offsetWidth;
+
 
         // Hide red currentTime bar 
         document.querySelector('.timeline-container').classList.add('is-dragging');
@@ -496,6 +635,7 @@ function addHandle(parent, step, side) {
             
             renderTimeline(); // Re-render timeline to update block 
 
+
             // Update the step's start/end timestamps
             document.getElementById('inpStart').value = formatTime(step.start);
             document.getElementById('inpEnd').value = formatTime(step.end);
@@ -513,6 +653,7 @@ function addHandle(parent, step, side) {
         window.addEventListener('mouseup', onUp);
     };
 }
+
 
 /*
     This event listener deselects steps from the timeline and list of steps
@@ -533,6 +674,7 @@ document.addEventListener('mousedown', (e) => {
     }
 });
 
+
 // When the timeline is clicked, jump to the specified timestamp in the video 
 timeline.onmousedown = (e) => {
     if ((e.target === timeline) || (e.target.id === 'timelineTrack')) {
@@ -541,6 +683,7 @@ timeline.onmousedown = (e) => {
         video.currentTime = pos * video_length;
     }
 };
+
 
 /*
     This function makes the red bar on the timeline draggable. 
@@ -554,9 +697,11 @@ function initPlayheadDrag() {
     const playhead = document.getElementById('playhead');
     const track = document.getElementById('timelineTrack');
 
+
     playhead.onmousedown = (e) => {
         e.stopPropagation();
         e.preventDefault(); 
+
 
         const onMove = (m) => {
             const rect = track.getBoundingClientRect();
@@ -571,17 +716,20 @@ function initPlayheadDrag() {
             // The existing 'timeupdate' listener will handle moving the red bar visually
         };
 
+
         // Remove window event listeners 
         const onUp = () => {
             window.removeEventListener('mousemove', onMove);
             window.removeEventListener('mouseup', onUp);
         };
 
+
         // Attach to Window to allow mouse to go anywhere, and keep dragging
         window.addEventListener('mousemove', onMove);
         window.addEventListener('mouseup', onUp);
     };
 }
+
 
 /*
     This function deletes a step from the global all_steps.
@@ -594,6 +742,7 @@ function initPlayheadDrag() {
 function deleteStep(id) {
     if (!confirm("Delete this step?")) return;
 
+
     // Remove the step from the global all_steps
     all_steps = all_steps.filter(s => s.id !== id);
     
@@ -603,13 +752,16 @@ function deleteStep(id) {
         document.getElementById('editForm').style.display = 'none';
     }
 
+
     // auto-save the deletion
     saveData();
+
 
     // Re-render the timeline and step list 
     renderTimeline();
     renderList();
 }
+
 
 /*
     This function switches the current video in the video player. 
@@ -622,6 +774,7 @@ function deleteStep(id) {
 */
 function switchVideo(direction) {
     // Remind user to save changes 
+
 
     fetch('/switch_video', {
         method: 'POST',
@@ -637,11 +790,13 @@ function switchVideo(direction) {
     });
 }
 
+
 function nudgeTime(type, amount) {
     // 1. Get the Active Step
     // (Assuming you have a global variable 'active_step_id' or similar)
     const step = all_steps.find(s => s.id === active_step_id);
     if (!step) return;
+
 
     // 2. Calculate New Time
     let newTime;
@@ -657,6 +812,7 @@ function nudgeTime(type, amount) {
         step.end = newTime;
     }
 
+
     // 3. Update the UI
     document.getElementById('inpStart').value = formatTime(step.start);
     document.getElementById('inpEnd').value = formatTime(step.end);
@@ -671,16 +827,19 @@ function nudgeTime(type, amount) {
     saveData(true);
 }
 
+
 // This function is called to play/pause the video 
 function togglePlay() {
     if (video.paused) video.play();
     else video.pause();
 }
 
+
 // This function skips 'amt' seconds 
 function skip(amt) {
     video.currentTime += amt;
 }
+
 
 // This function converts a floating point number into MM:SS.mm format (human-readable time)
 function formatTime(seconds) {
@@ -690,12 +849,15 @@ function formatTime(seconds) {
     let s = Math.floor(seconds % 60);
     let ms = Math.floor((seconds % 1) * 1000); // milliseconds
 
+
     let mStr = m < 10 ? "0" + m : m;
     let sStr = s < 10 ? "0" + s : s;
     let msStr = ms < 100 ? (ms < 10 ? "00" + ms : "0" + ms) : ms;
 
+
     return `${mStr}:${sStr}.${msStr}`;
 }
+
 
 // This function converts a string like "01:01.011" back to seconds 
 function parseTimeStr(str) {
@@ -706,15 +868,12 @@ function parseTimeStr(str) {
     return (min * 60) + sec;
 }
 
+
 // This function sets the playback speed of the video 
 function setSpeed(rate) {
-    const video = document.getElementById("mainVideo");
-    
-    rate = parseFloat(rate); 
-    
-    video.playbackRate = rate;
-    
-    // Update buttons to show new speed
+    // Playback speed is intentionally disabled for now in the Kaltura refactor.
+    // UI still updates so the controls do not break visually.
+    rate = parseFloat(rate);
     document.getElementById("btnSpeed").innerText = rate + "x";
     document.getElementById("speedRange").value = rate;
     document.getElementById("lblSpeedVal").innerText = rate;

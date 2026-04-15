@@ -32,3 +32,5 @@ Hover over the item in the sidebar list and click the **red X**.
 Click the green **Save** button in the top right. This saves all work to `results.json`. \
 You should be able to access `results.json` in the **results/** folder. \
 *Note: Switching videos or closing the browser without clicking Save will lose unsaved progress.*
+
+smbclient //bmelab.ecn.purdue.edu/kong -U tang695 -W BOILERAD

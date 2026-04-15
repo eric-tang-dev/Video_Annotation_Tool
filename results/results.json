@@ -71,5 +71,29 @@
             "",
             ""
         ]
+    },
+    "S3_compressed": {
+        "timestamps": [
+            [
+                0.385,
+                3.05
+            ],
+            [
+                5.09,
+                12.269
+            ]
+        ],
+        "actions": [
+            "Untitled Action",
+            "Untitled Action"
+        ],
+        "evaluation": [
+            0.5,
+            0.5
+        ],
+        "comments": [
+            "",
+            ""
+        ]
     }
 }
