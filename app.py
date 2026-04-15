@@ -45,12 +45,12 @@ KALTURA_VIDEOS = [
         "entry_id": "1_0ukvx295"
     },
     {
-        "category": "ostomy-skills",
-        "video_name": "ostomy_measurement_demo_03",
+        "category": "sterile-gloves",
+        "video_name": "S11_compressed_gloves",
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_ostomy003"
+        "entry_id": "1_db5y1w1d"
     },
     {
         "category": "iv-insertion",
