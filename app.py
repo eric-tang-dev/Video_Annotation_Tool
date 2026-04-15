@@ -38,7 +38,7 @@ KALTURA_VIDEOS = [
 # -----------------------------
 # GCS CONFIGURATION (NEW)
 # -----------------------------
-GCS_BUCKET_NAME = "annotation_nursing_json"
+GCS_BUCKET_NAME = "annotations_nursing_json"
 GCS_PREFIX = "annotations"
 
 
