@@ -145,6 +145,9 @@ function updateTimeUI() {
         `${formatTime(current)} / ${formatTime(duration)}`;
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    loadSavedData();
+});
 
 function initializeKalturaBindings() {
     const player = window.kalturaPlayerInstance;
@@ -162,7 +165,6 @@ function initializeKalturaBindings() {
         if (!kalturaReady) {
             kalturaReady = true;
             initPlayheadDrag();
-            loadSavedData();
             renderTimeline();
             updateTimeUI();
         }
@@ -224,7 +226,6 @@ function initializeKalturaBindings() {
             if (!kalturaReady) {
                 kalturaReady = true;
                 initPlayheadDrag();
-                loadSavedData();
                 renderTimeline();
             }
 

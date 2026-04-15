@@ -106,7 +106,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_yc3r5qe0"
+        "entry_id": "1_hxpqt5l2"
     },
     {
         "category": "sterile-gloves",
@@ -114,7 +114,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_yc3r5qe0"
+        "entry_id": "1_k7f8r6ha"
     },
     {
         "category": "sterile-gloves",
