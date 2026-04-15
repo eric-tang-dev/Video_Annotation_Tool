@@ -6,51 +6,77 @@ let video_length = 1
 let kalturaReady = false
 let playerState = 'paused'
 
-
-// // DOM elements
-// const video = document.getElementById("mainVideo")
-// const timeline = document.getElementById("timelineContainer")
-
-
-// // save video length into variable before playback starts
-// video.addEventListener('loadedmetadata', () => {
-//     video_length = video.duration;
-//     initPlayheadDrag();
-//     loadSavedData();
-//     renderTimeline(); 
-// });
+// This function returns the current video's stable browser draft key
+function getDraftStorageKey() {
+    const entryId = (window.CURRENT_ENTRY_ID || "").trim();
+    if (!entryId) return null;
+    return `draft:${entryId}`;
+}
 
 
-// // update timeline's red bar as video plays
-// video.addEventListener('timeupdate', () => {
-//     const pos = (video.currentTime / video_length) * 100;
-//     document.getElementById('playhead').style.left = `${pos}%`;
-//     document.getElementById('timeDisplay').innerText = 
-//         `${formatTime(video.currentTime)} / ${formatTime(video_length)}`;
-// });
+/*
+    This function builds the current video's annotation payload.
+    It keeps the same structure currently used by the app for JSON saves.
+*/
+function buildCurrentVideoPayload() {
+    return {
+        timestamps: all_steps.map(a => [a.start, a.end]),
+        actions: all_steps.map(a => a.name),
+        evaluation: all_steps.map(a => a.rating),
+        comments: all_steps.map(a => a.comment)
+    };
+}
 
 
-// // Clicking the video screen plays/pauses
-// video.addEventListener('click', togglePlay);
+/*
+    This function saves the current in-progress annotation draft to browser localStorage.
+    It is used for draft recovery if the page refreshes or the browser is interrupted.
+*/
+function saveDraftToLocal() {
+    const key = getDraftStorageKey();
+    if (!key) return;
+
+    const draft = {
+        entry_id: window.CURRENT_ENTRY_ID,
+        video_name: CURRENT_VIDEO_NAME,
+        updated_at: new Date().toISOString(),
+        data: buildCurrentVideoPayload()
+    };
+
+    localStorage.setItem(key, JSON.stringify(draft));
+}
 
 
-// video.addEventListener('play', () => {      // pause button appears when vid 'playing'
-//     const btn = document.getElementById('btnPlayPause');
-//     btn.innerText = "Pause";
-//     btn.classList.replace('btn-primary', 'btn-secondary'); 
-// });
+/*
+    This function tries to load a saved browser draft for the current entry_id.
+    It returns the inner annotation JSON structure if found, otherwise null.
+*/
+function loadDraftFromLocal() {
+    const key = getDraftStorageKey();
+    if (!key) return null;
+
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+
+    try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || !parsed.data) return null;
+        return parsed.data;
+    } catch (err) {
+        console.error("Failed to parse local draft:", err);
+        return null;
+    }
+}
 
 
-// video.addEventListener('pause', () => {     // play button appears when 'paused'
-//     const btn = document.getElementById('btnPlayPause');
-//     btn.innerText = "Play";
-//     btn.classList.replace('btn-secondary', 'btn-primary'); 
-// });
-
-
-// =============================
-// KALTURA PLAYER ADAPTER
-// =============================
+/*
+    This function clears the local browser draft after a successful durable save.
+*/
+function clearDraftFromLocal() {
+    const key = getDraftStorageKey();
+    if (!key) return;
+    localStorage.removeItem(key);
+}
 
 
 const timeline = document.getElementById("timelineContainer");
@@ -279,37 +305,42 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-
 /*
     This function pre-loads the timeline and step list with saved data.
     The saved data is already available (sent by app.py's index() function).
     Tasks:
-        1. Count the number of steps 
-        2. For each step, extract their data and format into a new object
-        3. Add the step to the global all_steps
-        4. Refresh the timeline and step list to reflect the new data
+        1. Prefer browser local draft data if it exists
+        2. Otherwise use backend-provided saved data
+        3. Count the number of steps 
+        4. For each step, extract their data and format into a new object
+        5. Add the step to the global all_steps
+        6. Refresh the timeline and step list to reflect the new data
 */
 function loadSavedData() {
-    if (!SAVED_DATA) return; 
     if (all_steps.length > 0) return;
 
+    const preferredData = loadDraftFromLocal() || SAVED_DATA;
+    if (!preferredData) return;
 
-    // Find the number of steps 
-    const count = SAVED_DATA.timestamps.length;
-    
+    const timestamps = preferredData.timestamps || [];
+    const actions = preferredData.actions || [];
+    const evaluation = preferredData.evaluation || [];
+    const comments = preferredData.comments || [];
+
+    const count = timestamps.length;
+
     for (let i = 0; i < count; i++) {
         const newStep = {
-            id: Date.now() + i, // unique ID
-            start: SAVED_DATA.timestamps[i][0],
-            end: SAVED_DATA.timestamps[i][1],
-            name: SAVED_DATA.actions[i],
-            rating: SAVED_DATA.evaluation[i],
-            comment: SAVED_DATA.comments[i]
+            id: Date.now() + i,
+            start: timestamps[i][0],
+            end: timestamps[i][1],
+            name: actions[i] ?? "Untitled Action",
+            rating: evaluation[i] ?? 0.5,
+            comment: comments[i] ?? ""
         };
         all_steps.push(newStep);
     }
-    
-    // Refresh 
+
     renderTimeline();
     renderList();
 }
@@ -351,6 +382,9 @@ function finishCapture() {
     // Reset "Logging" State
     temp_start_time = null;
     document.getElementById('recIndicator').style.display = 'none';
+
+    // Save draft locally
+    saveDraftToLocal();
     
     // Open the Evaluation Form with the new step
     selectStep(newStep.id); 
@@ -360,31 +394,38 @@ function finishCapture() {
 /*
     This function is called when the top-right 'Save' button is pressed.
     Its purpose is to save the logged steps into JSON format.
-    It is saved into ../results/results.json
+    It is saved into the backend persistence layer and then to GCS.
     Tasks:
-        1. Create the payload by formatting global all_steps into JSON  
+        1. Create the payload by formatting global all_steps into JSON
         2. Send POST request to the endpoint /save (defined in app.py)
+        3. If successful, clear the local browser draft
 */
 function saveData() {
-    // Format all_steps into JSON 
-    const video_data =  {
+    // Format all_steps into JSON
+    const payload = {
+        "entry_id": CURRENT_ENTRY_ID,
+        "video_name": CURRENT_VIDEO_NAME,
         "timestamps": all_steps.map(a => [a.start, a.end]),
         "actions": all_steps.map(a => a.name),
         "evaluation": all_steps.map(a => a.rating),
         "comments": all_steps.map(a => a.comment)
     };
 
-
-    const payload = {}
-    payload[CURRENT_VIDEO_NAME] = video_data;
-    
-    // Send POST request to /save endpoint 
+    // Send POST request to /save endpoint
     fetch('/save', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload)
     })
     .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            clearDraftFromLocal();
+        }
+    })
+    .catch(err => {
+        console.error("Save failed:", err);
+    });
 }
 
 
@@ -470,10 +511,8 @@ function commitEdit() {
     active_step_id = null;
     document.getElementById('editForm').style.display = 'none';
 
-
-    // Save the step's data to JSON
-    saveData();
-
+    // Save the step's data locally only
+    saveDraftToLocal();
 
     // Re-render timeline and step list 
     renderTimeline();
@@ -646,6 +685,9 @@ function addHandle(parent, step, side) {
             document.querySelector('.timeline-container').classList.remove('is-dragging'); // un-hide red bar 
             window.removeEventListener('mousemove', onMove);
             window.removeEventListener('mouseup', onUp);
+
+            // Save updated draft after timestamp drag completes
+            saveDraftToLocal();
         };
         
         // Attach to Window to allow mouse to go anywhere, and keep dragging
@@ -752,10 +794,8 @@ function deleteStep(id) {
         document.getElementById('editForm').style.display = 'none';
     }
 
-
-    // auto-save the deletion
-    saveData();
-
+    // Save the step's data locally only
+    saveDraftToLocal();
 
     // Re-render the timeline and step list 
     renderTimeline();
@@ -823,8 +863,8 @@ function nudgeTime(type, amount) {
     // 5. Jump video to show the change (Optional but helpful)
     video.currentTime = newTime; 
     
-    // 6. Auto-save
-    saveData(true);
+    // 6. Save browser draft
+    saveDraftToLocal();
 }
 
 
