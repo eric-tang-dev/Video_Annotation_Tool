@@ -29,9 +29,13 @@
                     {{ kaltura_video.category }} / {{ video_name }}
                 </span>
         
-                {% if saved_data and saved_data.completed %}
-                    <span class="badge rounded-pill bg-secondary">Completed</span>
-                {% endif %}
+                <span
+                    id="completedBadge"
+                    class="badge rounded-pill bg-secondary"
+                    style="display: {% if saved_data and saved_data.completed %}inline-block{% else %}none{% endif %};"
+                >
+                    Completed
+                </span>
             {% endif %}
         </div>
 

@@ -917,6 +917,15 @@ function updateCompletionButtons() {
         btnSaveComplete.style.display = 'inline-block';
         btnMarkIncomplete.style.display = 'none';
     }
+
+    updateCompletedBadge();
+}
+
+function updateCompletedBadge() {
+    const badge = document.getElementById('completedBadge');
+    if (!badge) return;
+
+    badge.style.display = isCompleted ? 'inline-block' : 'none';
 }
 
 function nudgeTime(type, amount) {
