@@ -207,6 +207,7 @@
     const CURRENT_VIDEO_NAME = "{{ video_name }}";
     const CURRENT_ENTRY_ID = "{{ kaltura_video.entry_id }}";
     window.CURRENT_VIDEO_CATEGORY = {{ kaltura_video.category | tojson | safe }};
+    window.STEP_OPTIONS_BY_CATEGORY = {{ step_options_by_category | tojson | safe }};
     const SAVED_DATA = {{ saved_data | tojson }};
     window.CURRENT_ENTRY_ID = CURRENT_ENTRY_ID;
   </script>

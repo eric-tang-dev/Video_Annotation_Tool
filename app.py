@@ -320,6 +320,7 @@ def index():
         saved_data=saved_data,
         kaltura_video=video,
         all_videos=KALTURA_VIDEOS,
+        step_options_by_category=STEP_OPTIONS_BY_CATEGORY,
         selected_entry_id=video["entry_id"]
     )
 

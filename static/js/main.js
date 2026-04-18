@@ -439,7 +439,7 @@ function populateStepOptions() {
     const select = document.getElementById('inpActionSelect');
     if (!select) return;
 
-    const options = STEP_OPTIONS_BY_CATEGORY[window.CURRENT_VIDEO_CATEGORY] || [];
+    const options = (window.STEP_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
 
     select.innerHTML = '';
 
