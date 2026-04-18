@@ -461,20 +461,16 @@ function populateStepOptions() {
     select.appendChild(custom);
 }
 
+/*
+    This function is called when the user clicks "Custom..." 
+    on the dropdown menu. 
+    Tasks:
+        1. Checks if "Custom..." was selected in the dropdown
+        2. If so, display the text field allowing user to type.
+*/
 function handleStepSelectChange() {
     const select = document.getElementById('inpActionSelect');
     const input = document.getElementById('inpActionName');
-    const options = STEP_OPTIONS_BY_CATEGORY[window.CURRENT_VIDEO_CATEGORY] || [];
-
-    if (options.includes(step.name)) {
-        select.value = step.name;
-        input.style.display = 'none';
-        input.value = step.name;
-    } else {
-        select.value = '__custom__';
-        input.style.display = 'block';
-        input.value = step.name;
-    }
     if (!select || !input) return;
 
     if (select.value === '__custom__') {
@@ -486,7 +482,6 @@ function handleStepSelectChange() {
         input.value = select.value || '';
     }
 }
-
 
 /*
     This function is called when a new step is created OR
