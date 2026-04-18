@@ -147,6 +147,12 @@ function updateTimeUI() {
 
 document.addEventListener("DOMContentLoaded", function () {
     loadSavedData();
+    populateStepOptions();
+
+    const select = document.getElementById('inpActionSelect');
+    if (select) {
+        select.addEventListener('change', handleStepSelectChange);
+    }
 });
 
 function initializeKalturaBindings() {
@@ -429,6 +435,58 @@ function saveData() {
     });
 }
 
+function populateStepOptions() {
+    const select = document.getElementById('inpActionSelect');
+    if (!select) return;
+
+    const options = STEP_OPTIONS_BY_CATEGORY[window.CURRENT_VIDEO_CATEGORY] || [];
+
+    select.innerHTML = '';
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select a step...';
+    select.appendChild(placeholder);
+
+    options.forEach(stepName => {
+        const opt = document.createElement('option');
+        opt.value = stepName;
+        opt.textContent = stepName;
+        select.appendChild(opt);
+    });
+
+    const custom = document.createElement('option');
+    custom.value = '__custom__';
+    custom.textContent = 'Custom...';
+    select.appendChild(custom);
+}
+
+function handleStepSelectChange() {
+    const select = document.getElementById('inpActionSelect');
+    const input = document.getElementById('inpActionName');
+    const options = STEP_OPTIONS_BY_CATEGORY[window.CURRENT_VIDEO_CATEGORY] || [];
+
+    if (options.includes(step.name)) {
+        select.value = step.name;
+        input.style.display = 'none';
+        input.value = step.name;
+    } else {
+        select.value = '__custom__';
+        input.style.display = 'block';
+        input.value = step.name;
+    }
+    if (!select || !input) return;
+
+    if (select.value === '__custom__') {
+        input.style.display = 'block';
+        input.value = '';
+        input.focus();
+    } else {
+        input.style.display = 'none';
+        input.value = select.value || '';
+    }
+}
+
 
 /*
     This function is called when a new step is created OR
@@ -486,7 +544,13 @@ function commitEdit() {
     let step = all_steps.find(a => a.id === active_step_id);
     if (step) {
         // Edit the step's data based on the Evaluation Form's data 
-        step.name = document.getElementById('inpActionName').value;
+        const selectedStepValue = document.getElementById('inpActionSelect').value;
+        const customStepValue = document.getElementById('inpActionName').value.trim();
+
+        step.name =
+            selectedStepValue === '__custom__'
+                ? (customStepValue || "Untitled Action")
+                : (selectedStepValue || customStepValue || "Untitled Action");
         step.comment = document.getElementById('inpComment').value;
         
         step.rating = parseFloat(document.getElementById('inpRating').value);

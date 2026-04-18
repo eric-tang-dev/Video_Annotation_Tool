@@ -147,7 +147,8 @@
         
                 <div class="mb-2">
                     <label class="form-label small">Action Name</label>
-                    <input type="text" class="form-control form-control-sm" id="inpActionName" placeholder="e.g. Wash Hands">
+                    <select id="inpActionSelect" class="form-select mb-2"></select>
+                    <input type="text" id="inpActionName" class="form-control" placeholder="Custom step name" style="display: none;">
                 </div>
                 
                 <div class="mb-2">
@@ -205,6 +206,7 @@
     const savedData = {{ saved_data | tojson | safe }};
     const CURRENT_VIDEO_NAME = "{{ video_name }}";
     const CURRENT_ENTRY_ID = "{{ kaltura_video.entry_id }}";
+    window.CURRENT_VIDEO_CATEGORY = {{ kaltura_video.category | tojson | safe }};
     const SAVED_DATA = {{ saved_data | tojson }};
     window.CURRENT_ENTRY_ID = CURRENT_ENTRY_ID;
   </script>

@@ -22,6 +22,22 @@ results_directory.mkdir(parents=True, exist_ok=True)
 KALTURA_VIDEOS = [
     {
         "category": "ostomy-skills",
+        "video_name": "S1_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57908202,
+        "entry_id": "1_pc9nnlfe"
+    },
+    {
+        "category": "ostomy-skills",
+        "video_name": "S2_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_ifhnx26b"
+    },
+    {
+        "category": "ostomy-skills",
         "video_name": "S3_compressed",
         "target_id": "kaltura_player",
         "wid": "_6489582",
@@ -30,11 +46,43 @@ KALTURA_VIDEOS = [
     },
     {
         "category": "ostomy-skills",
-        "video_name": "S1_compressed",
+        "video_name": "S4_compressed",
         "target_id": "kaltura_player",
         "wid": "_6489582",
-        "uiconf_id": 57908202,
-        "entry_id": "1_pc9nnlfe"
+        "uiconf_id": 57873862,
+        "entry_id": "1_ifhnx26b"
+    },
+    {
+        "category": "ostomy-skills",
+        "video_name": "S5_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_5k6laa17"
+    },
+    {
+        "category": "ostomy-skills",
+        "video_name": "S6_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_ifhnx26b"
+    },
+    {
+        "category": "ostomy-skills",
+        "video_name": "S7_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_ifhnx26b"
+    },
+    {
+        "category": "ostomy-skills",
+        "video_name": "S8_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_ifhnx26b"
     },
     {
         "category": "sterile-gloves",
@@ -130,7 +178,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_yc3r5qe0"
+        "entry_id": "1_gw7va375"
     },
     {
         "category": "sterile-gloves",
@@ -138,10 +186,18 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_yc3r5qe0"
+        "entry_id": "1_7p7029hd"
     },
     {
         "category": "TEST VIDEO FOR DEVELOPER",
+        "video_name": "test_1",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_jyzyakxa"
+    },
+    {
+        "category": "",
         "video_name": "test_1",
         "target_id": "kaltura_player",
         "wid": "_6489582",
@@ -151,6 +207,44 @@ KALTURA_VIDEOS = [
     
 ]
 
+STEP_OPTIONS_BY_CATEGORY = {
+    "ostomy-skills": [
+        "Provide Privacy",
+        "Introduce yourself",
+        "Perform hand hygiene and don gloves",
+        "Verify patient name and DOB",
+        "Obtain proper supplies and review physician order",
+        "Place a waterproof barrier under stoma appliance",
+        "Empty ostomy appliance using proper technique",
+        "Remove the appliance carefully",
+        "Dispose of appliance according to agency policy",
+        "Remove excess stool or urine from stoma site",
+        "Pat dry",
+        "Assess stoma site and area around site",
+        "Apply skin protectant if applicable",
+        "Measure stoma site and cut barrier",
+        "Apply barrier around site",
+        "Apply pressure around barrier to ensure adhesive is sealed",
+        "Attach appliance pouch to barrier",
+        "Ensure pouch is closed",
+        "Remove gloves and perform hand hygiene",
+        "Ensure patient is safe before leaving room"
+    ],
+    "sterile-gloves": [
+        "Provide privacy as needed",
+        "Introduce yourself",
+        "Perform hand hygiene",
+        "Verify the patient's name and DOB",
+        "Provide patient education about the procedure",
+        "Gather equipment at the bedside",
+        "Raise the bed to a comfortable height and place equipment on a side table or clean area near the patient",
+        "Lift the glove off the wrapper by touching only the outside surface of the glove",
+        "Apply the glove to the non-dominant hand",
+        "Once the second glove is applied, adjust the gloves as necessary",
+        "Ensure that the patient is in a safe position prior to leaving the room and has the call light within reach",
+        "Document the procedure"
+    ]
+}
 
 # -----------------------------
 # GCS CONFIGURATION (NEW)
