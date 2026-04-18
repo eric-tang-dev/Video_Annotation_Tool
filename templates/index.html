@@ -23,11 +23,15 @@
         </div>
 
         <!-- Current Selected Video (showing its name on top right)-->
-        <div class="col d-flex justify-content-center align-items-center gap-3">
+        <div class="col d-flex justify-content-center align-items-center gap-2">
             {% if video_file %}
                 <span class="font-monospace text-warning small">
                     {{ kaltura_video.category }} / {{ video_name }}
                 </span>
+        
+                {% if saved_data and saved_data.completed %}
+                    <span class="badge rounded-pill bg-secondary">Completed</span>
+                {% endif %}
             {% endif %}
         </div>
 
