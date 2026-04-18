@@ -196,14 +196,6 @@ KALTURA_VIDEOS = [
         "uiconf_id": 57873862,
         "entry_id": "1_jyzyakxa"
     },
-    {
-        "category": "",
-        "video_name": "test_1",
-        "target_id": "kaltura_player",
-        "wid": "_6489582",
-        "uiconf_id": 57873862,
-        "entry_id": "1_jyzyakxa"
-    }
     
 ]
 
