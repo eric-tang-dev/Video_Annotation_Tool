@@ -49,6 +49,29 @@
             display: block;
         }
 
+
+        .video-card.completed {
+            background: #e9ecef;
+            border-color: #adb5bd;
+            opacity: 0.9;
+        }
+
+        .video-card.completed:hover {
+            border-color: #6c757d;
+            box-shadow: 0 0.25rem 0.75rem rgba(108, 117, 125, 0.12);
+        }
+
+        .completed-badge {
+            display: inline-block;
+            margin-top: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #495057;
+            background: #d3d9df;
+            border-radius: 999px;
+            padding: 0.2rem 0.55rem;
+        }
+
         .category-title {
             font-weight: 700;
             font-size: 1rem;
@@ -83,11 +106,16 @@
                         {% for item in category_group.list %}
                             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
                                 <a href="/?entry_id={{ item.entry_id }}" class="video-link">
-                                    <div class="video-card {% if item.entry_id == selected_entry_id %}selected{% endif %}">
+                                    <div class="video-card {% if item.entry_id == selected_entry_id %}selected{% endif %} {% if item.completed %}completed{% endif %}">
                                         <div>
                                             <div class="fw-semibold">{{ item.video_name }}</div>
+                                        
                                             {% if item.entry_id == selected_entry_id %}
                                                 <div class="small text-primary mt-1">Currently selected</div>
+                                            {% endif %}
+                                        
+                                            {% if item.completed %}
+                                                <div class="completed-badge">Completed</div>
                                             {% endif %}
                                         </div>
                                     </div>

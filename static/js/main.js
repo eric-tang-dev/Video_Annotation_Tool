@@ -5,6 +5,7 @@ let temp_start_time = null
 let video_length = 1
 let kalturaReady = false
 let playerState = 'paused'
+let isCompleted = !!window.IS_COMPLETED;
 
 // This function returns the current video's stable browser draft key
 function getDraftStorageKey() {
@@ -147,6 +148,7 @@ function updateTimeUI() {
 
 document.addEventListener("DOMContentLoaded", function () {
     loadSavedData();
+    updateCompletionButtons();
     populateStepOptions();
 
     const select = document.getElementById('inpActionSelect');
@@ -407,11 +409,17 @@ function finishCapture() {
         2. Send POST request to the endpoint /save (defined in app.py)
         3. If successful, clear the local browser draft
 */
-function saveData() {
+function saveData(markComplete = false) {
+    // check completion status
+    if (markComplete) {
+        isCompleted = true;
+    }
+
     // Format all_steps into JSON
     const payload = {
         "entry_id": CURRENT_ENTRY_ID,
         "video_name": CURRENT_VIDEO_NAME,
+        "completed": isCompleted,
         "timestamps": all_steps.map(a => [a.start, a.end]),
         "actions": all_steps.map(a => a.name),
         "evaluation": all_steps.map(a => a.rating),
@@ -428,11 +436,17 @@ function saveData() {
     .then(data => {
         if (data.success) {
             clearDraftFromLocal();
+            updateCompletionButtons();
         }
     })
     .catch(err => {
         console.error("Save failed:", err);
     });
+}
+
+function markIncomplete() {
+    isCompleted = false;
+    saveData(false);
 }
 
 function populateStepOptions() {
@@ -890,6 +904,20 @@ function switchVideo(direction) {
     });
 }
 
+function updateCompletionButtons() {
+    const btnSaveComplete = document.getElementById('btnSaveComplete');
+    const btnMarkIncomplete = document.getElementById('btnMarkIncomplete');
+
+    if (!btnSaveComplete || !btnMarkIncomplete) return;
+
+    if (isCompleted) {
+        btnSaveComplete.style.display = 'none';
+        btnMarkIncomplete.style.display = 'inline-block';
+    } else {
+        btnSaveComplete.style.display = 'inline-block';
+        btnMarkIncomplete.style.display = 'none';
+    }
+}
 
 function nudgeTime(type, amount) {
     // 1. Get the Active Step

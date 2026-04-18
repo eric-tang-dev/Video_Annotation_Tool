@@ -247,7 +247,7 @@ STEP_OPTIONS_BY_CATEGORY = {
 }
 
 # -----------------------------
-# GCS CONFIGURATION (NEW)
+# GCS CONFIGURATION 
 # -----------------------------
 GCS_BUCKET_NAME = "annotations_nursing_json"
 GCS_PREFIX = "annotations"
@@ -259,12 +259,10 @@ storage_client = storage.Client()
 
 
 # -----------------------------
-# GCS HELPERS (NEW)
+# GCS HELPERS 
 # -----------------------------
 def get_annotation_blob_name(entry_id: str) -> str:
     return f"{GCS_PREFIX}/{entry_id}.json"
-
-
 
 def load_annotation_from_gcs(entry_id: str):
     bucket = storage_client.bucket(GCS_BUCKET_NAME)
@@ -289,7 +287,36 @@ def save_annotation_to_gcs(entry_id: str, payload: dict):
         content_type="application/json"
     )
 
+def get_completion_index_blob_name() -> str:
+    return f"{GCS_PREFIX}/completion_index.json"
 
+
+def load_completion_index():
+    bucket = storage_client.bucket(GCS_BUCKET_NAME)
+    blob = bucket.blob(get_completion_index_blob_name())
+
+    try:
+        raw = blob.download_as_text()
+        return json.loads(raw)
+    except NotFound:
+        return {}
+    except Exception as exc:
+        print(f"Failed to load completion index from GCS: {exc}")
+        return {}
+
+
+def save_completion_index(index_data: dict):
+    bucket = storage_client.bucket(GCS_BUCKET_NAME)
+    blob = bucket.blob(get_completion_index_blob_name())
+    blob.upload_from_string(
+        json.dumps(index_data, indent=4),
+        content_type="application/json"
+    )
+
+
+# -----------------------------
+# REST ENDPOINTS
+# -----------------------------
 @app.route('/')
 def index():
     # Read the selected entry_id from the query string
@@ -341,12 +368,21 @@ Clicking a video card returns the user to the main annotation page with ?entry_i
 @app.route('/select-video')
 def select_video():
     selected_entry_id = request.args.get("entry_id")
+    completion_index = load_completion_index()
+
+    videos_with_status = []
+
+    for video in KALTURA_VIDEOS:
+        video_copy = video.copy()
+        video_copy["completed"] = bool(completion_index.get(video["entry_id"], False))
+        videos_with_status.append(video_copy)
 
     return render_template(
         'select_video.html',
-        all_videos=KALTURA_VIDEOS,
+        all_videos=videos_with_status,
         selected_entry_id=selected_entry_id
     )
+
 
 """
 This function accepts JSON data from the frontend and saves it.
@@ -370,6 +406,10 @@ def save_results():
             return jsonify({"success": False, "message": "missing entry_id"}), 400
 
         save_annotation_to_gcs(entry_id, data)
+
+        completion_index = load_completion_index()
+        completion_index[entry_id] = bool(data.get("completed", False))
+        save_completion_index(completion_index)
 
         return jsonify({
             "success": True,

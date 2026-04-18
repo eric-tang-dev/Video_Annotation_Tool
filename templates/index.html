@@ -36,7 +36,18 @@
             <a href="/select-video?entry_id={{ selected_entry_id }}" class="btn btn-outline-light btn-sm">
                 Switch Video
             </a>
-            <button class="btn btn-warning btn-sm" onclick="saveData()">Save</button>
+        
+            <button class="btn btn-warning btn-sm" onclick="saveData(false)">
+                Save
+            </button>
+        
+            <button id="btnSaveComplete" class="btn btn-success btn-sm" onclick="saveData(true)">
+                Save and Complete
+            </button>
+        
+            <button id="btnMarkIncomplete" class="btn btn-outline-secondary btn-sm" onclick="markIncomplete()" style="display: none;">
+                Mark Incomplete
+            </button>
         </div>
     </div>
     <!--    END HEADER      -->
@@ -210,6 +221,7 @@
     window.STEP_OPTIONS_BY_CATEGORY = {{ step_options_by_category | tojson | safe }};
     const SAVED_DATA = {{ saved_data | tojson }};
     window.CURRENT_ENTRY_ID = CURRENT_ENTRY_ID;
+    window.IS_COMPLETED = {{ (saved_data.completed if saved_data else false) | tojson | safe }};
   </script>
 
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
