@@ -278,9 +278,9 @@ def load_annotation_from_gcs(entry_id: str, expert_id: str):
 
 
 
-def save_annotation_to_gcs(entry_id: str, payload: dict):
+def save_annotation_to_gcs(entry_id: str, expert_id: str, payload: dict):
     bucket = storage_client.bucket(GCS_BUCKET_NAME)
-    blob = bucket.blob(get_annotation_blob_name(entry_id, ex))
+    blob = bucket.blob(get_annotation_blob_name(entry_id, expert_id))
     blob.upload_from_string(
         json.dumps(payload, indent=4),
         content_type="application/json"
