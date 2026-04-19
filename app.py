@@ -16,6 +16,12 @@ results_directory = Path("results")
 video_directory.mkdir(parents=True, exist_ok=True)
 results_directory.mkdir(parents=True, exist_ok=True)
 
+# -----------------------------
+# EXPERT IDS 
+# -----------------------------
+
+VALID_EXPERT_IDS = {"1183456", "2234567", "3345678"}
+
 
 # -----------------------------
 # KALTURA VIDEO INDEX
@@ -444,6 +450,9 @@ def save_results():
 
 @app.route('/expert-login', methods=['GET', 'POST'])
 def expert_login():
+    if expert_id not in VALID_EXPERT_IDS:
+        return render_template('expert_login.html', error="Invalid expert ID.")
+ 
     if request.method == 'POST':
         expert_id = request.form.get('expert_id', '').strip()
 
