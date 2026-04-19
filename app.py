@@ -1,12 +1,13 @@
 import json
 import os
 from pathlib import Path
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, session, redirect, url_for
 from google.cloud import storage
 from google.api_core.exceptions import NotFound
 
 
 app = Flask(__name__)   # start instance of Flask
+app.secret_key = "replace-this-with-a-long-random-secret"
 
 
 # define path names for ease, create folders if not existing
@@ -253,12 +254,12 @@ storage_client = storage.Client()
 # -----------------------------
 # GCS HELPERS 
 # -----------------------------
-def get_annotation_blob_name(entry_id: str) -> str:
-    return f"{GCS_PREFIX}/{entry_id}.json"
+def get_annotation_blob_name(entry_id: str, expert_id: str) -> str:
+    return f"{GCS_PREFIX}/{entry_id}/{expert_id}.json"
 
-def load_annotation_from_gcs(entry_id: str):
+def load_annotation_from_gcs(entry_id: str, expert_id: str):
     bucket = storage_client.bucket(GCS_BUCKET_NAME)
-    blob = bucket.blob(get_annotation_blob_name(entry_id))
+    blob = bucket.blob(get_annotation_blob_name(entry_id, expert_id))
 
     try:
         raw = blob.download_as_text()
@@ -266,26 +267,26 @@ def load_annotation_from_gcs(entry_id: str):
     except NotFound:
         return None
     except Exception as exc:
-        print(f"Failed to load annotation from GCS for entry_id={entry_id}: {exc}")
+        print(f"Failed to load annotation from GCS for entry_id={entry_id}, expert_id={expert_id}: {exc}")
         return None
 
 
 
 def save_annotation_to_gcs(entry_id: str, payload: dict):
     bucket = storage_client.bucket(GCS_BUCKET_NAME)
-    blob = bucket.blob(get_annotation_blob_name(entry_id))
+    blob = bucket.blob(get_annotation_blob_name(entry_id, ex))
     blob.upload_from_string(
         json.dumps(payload, indent=4),
         content_type="application/json"
     )
 
-def get_completion_index_blob_name() -> str:
-    return f"{GCS_PREFIX}/completion_index.json"
+def get_completion_index_blob_name(expert_id: str) -> str:
+    return f"{GCS_PREFIX}/completion_index/{expert_id}.json"
 
 
-def load_completion_index():
+def load_completion_index(expert_id: str):
     bucket = storage_client.bucket(GCS_BUCKET_NAME)
-    blob = bucket.blob(get_completion_index_blob_name())
+    blob = bucket.blob(get_completion_index_blob_name(expert_id))
 
     try:
         raw = blob.download_as_text()
@@ -293,17 +294,27 @@ def load_completion_index():
     except NotFound:
         return {}
     except Exception as exc:
-        print(f"Failed to load completion index from GCS: {exc}")
+        print(f"Failed to load completion index from GCS for expert_id={expert_id}: {exc}")
         return {}
 
 
-def save_completion_index(index_data: dict):
+def save_completion_index(expert_id: str, index_data: dict):
     bucket = storage_client.bucket(GCS_BUCKET_NAME)
-    blob = bucket.blob(get_completion_index_blob_name())
+    blob = bucket.blob(get_completion_index_blob_name(expert_id))
     blob.upload_from_string(
         json.dumps(index_data, indent=4),
         content_type="application/json"
     )
+
+# -----------------------------
+# EXPERT ID HELPERS
+# -----------------------------
+
+def require_expert_id():
+    expert_id = session.get("expert_id")
+    if not expert_id:
+        return None
+    return expert_id
 
 
 # -----------------------------
@@ -311,6 +322,11 @@ def save_completion_index(index_data: dict):
 # -----------------------------
 @app.route('/')
 def index():
+    # Require expert ID to access annotation page
+    expert_id = require_expert_id()
+    if not expert_id:
+        return redirect(url_for('expert_login'))
+
     # Read the selected entry_id from the query string
     requested_entry_id = request.args.get("entry_id")
 
@@ -330,7 +346,7 @@ def index():
     video_name = video["video_name"]
 
     # Load saved annotation data from GCS using the selected video's entry_id
-    saved_data = load_annotation_from_gcs(video["entry_id"])
+    saved_data = load_annotation_from_gcs(video['entry_id'], expert_id)
 
     return render_template(
         'index.html',
@@ -340,7 +356,8 @@ def index():
         kaltura_video=video,
         all_videos=KALTURA_VIDEOS,
         step_options_by_category=STEP_OPTIONS_BY_CATEGORY,
-        selected_entry_id=video["entry_id"]
+        selected_entry_id=video["entry_id"],
+        expert_id=expert_id
     )
 
 
@@ -359,8 +376,12 @@ Clicking a video card returns the user to the main annotation page with ?entry_i
 """
 @app.route('/select-video')
 def select_video():
+    expert_id = require_expert_id()
+    if not expert_id:
+        return redirect(url_for('expert_login'))
+
     selected_entry_id = request.args.get("entry_id")
-    completion_index = load_completion_index()
+    completion_index = load_completion_index(expert_id)
 
     videos_with_status = []
 
@@ -372,7 +393,8 @@ def select_video():
     return render_template(
         'select_video.html',
         all_videos=videos_with_status,
-        selected_entry_id=selected_entry_id
+        selected_entry_id=selected_entry_id,
+        expert_id=expert_id
     )
 
 
@@ -387,6 +409,10 @@ Tasks:
 """
 @app.route('/save', methods=['POST'])
 def save_results():
+    expert_id = require_expert_id()
+    if not expert_id:
+        return jsonify({"success": False, "message": "missing expert session"}), 401
+
     data = request.get_json()
 
     try:
@@ -397,22 +423,46 @@ def save_results():
         if not entry_id:
             return jsonify({"success": False, "message": "missing entry_id"}), 400
 
-        save_annotation_to_gcs(entry_id, data)
+        save_annotation_to_gcs(entry_id, expert_id, data)
 
-        completion_index = load_completion_index()
+        completion_index = load_completion_index(expert_id)
         completion_index[entry_id] = bool(data.get("completed", False))
-        save_completion_index(completion_index)
+        save_completion_index(expert_id, completion_index)
 
         return jsonify({
             "success": True,
             "message": "results saved to GCS successfully",
             "entry_id": entry_id,
-            "blob_name": get_annotation_blob_name(entry_id)
+            "expert_id": expert_id,
+            "blob_name": get_annotation_blob_name(entry_id, expert_id)
         })
 
     except Exception as exc:
         print(f"Failed to save results to GCS: {exc}")
         return jsonify({"success": False, "message": str(exc)}), 500
+
+
+@app.route('/expert-login', methods=['GET', 'POST'])
+def expert_login():
+    if request.method == 'POST':
+        expert_id = request.form.get('expert_id', '').strip()
+
+        if not expert_id:
+            return render_template('expert_login.html', error="Please enter your expert ID.")
+
+        session['expert_id'] = expert_id
+        return redirect(url_for('select_video'))
+
+    return render_template('expert_login.html', error=None)
+
+
+@app.route('/switch-expert')
+def switch_expert():
+    session.pop('expert_id', None)
+    return redirect(url_for('expert_login'))
+
+
+
 
 
 if __name__ == '__main__':
