@@ -37,23 +37,7 @@ KALTURA_VIDEOS = [
     },
     {
         "category": "ostomy-skills",
-        "video_name": "S2_compressed",
-        "target_id": "kaltura_player",
-        "wid": "_6489582",
-        "uiconf_id": 57873862,
-        "entry_id": "1_ifhnx26b"
-    },
-    {
-        "category": "ostomy-skills",
         "video_name": "S3_compressed",
-        "target_id": "kaltura_player",
-        "wid": "_6489582",
-        "uiconf_id": 57873862,
-        "entry_id": "1_ifhnx26b"
-    },
-    {
-        "category": "ostomy-skills",
-        "video_name": "S4_compressed",
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
@@ -66,30 +50,6 @@ KALTURA_VIDEOS = [
         "wid": "_6489582",
         "uiconf_id": 57873862,
         "entry_id": "1_5k6laa17"
-    },
-    {
-        "category": "ostomy-skills",
-        "video_name": "S6_compressed",
-        "target_id": "kaltura_player",
-        "wid": "_6489582",
-        "uiconf_id": 57873862,
-        "entry_id": "1_ifhnx26b"
-    },
-    {
-        "category": "ostomy-skills",
-        "video_name": "S7_compressed",
-        "target_id": "kaltura_player",
-        "wid": "_6489582",
-        "uiconf_id": 57873862,
-        "entry_id": "1_ifhnx26b"
-    },
-    {
-        "category": "ostomy-skills",
-        "video_name": "S8_compressed",
-        "target_id": "kaltura_player",
-        "wid": "_6489582",
-        "uiconf_id": 57873862,
-        "entry_id": "1_ifhnx26b"
     },
     {
         "category": "sterile-gloves",
