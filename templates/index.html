@@ -40,10 +40,11 @@
         </div>
 
         <!-- Switch Video (brings us to grid) and Save (to GCS) Buttons -->
-        <div class="col d-flex justify-content-end align-items-center gap-2">
-            <span class="small text-light-emphasis">Expert ID: {{ expert_id }}</span>
+        <div class="col header-actions">
+            <span class="small text-light-emphasis expert-label">Expert ID: {{ expert_id }}</span>
+        
             <a href="/switch-expert" class="btn btn-outline-light btn-sm">Switch Expert</a>
-
+        
             <a href="/select-video?entry_id={{ selected_entry_id }}" class="btn btn-outline-light btn-sm">
                 Switch Video
             </a>
