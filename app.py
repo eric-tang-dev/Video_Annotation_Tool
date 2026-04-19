@@ -450,14 +450,14 @@ def save_results():
 
 @app.route('/expert-login', methods=['GET', 'POST'])
 def expert_login():
-    if expert_id not in VALID_EXPERT_IDS:
-        return render_template('expert_login.html', error="Invalid expert ID.")
- 
     if request.method == 'POST':
         expert_id = request.form.get('expert_id', '').strip()
 
         if not expert_id:
             return render_template('expert_login.html', error="Please enter your expert ID.")
+
+        if expert_id not in VALID_EXPERT_IDS:
+            return render_template('expert_login.html', error="Invalid expert ID.")
 
         session['expert_id'] = expert_id
         return redirect(url_for('select_video'))
