@@ -415,6 +415,7 @@ function saveData(markComplete = false) {
         isCompleted = true;
     }
 
+
     // Format all_steps into JSON
     const payload = {
         "entry_id": CURRENT_ENTRY_ID,
@@ -425,6 +426,7 @@ function saveData(markComplete = false) {
         "evaluation": all_steps.map(a => a.rating),
         "comments": all_steps.map(a => a.comment)
     };
+
 
     // Send POST request to /save endpoint
     fetch('/save', {
@@ -437,18 +439,16 @@ function saveData(markComplete = false) {
         if (data.success) {
             clearDraftFromLocal();
             updateCompletionButtons();
+
+            // Notify user that Save was successful
+            if (!markComplete) {
+                showSaveToast("Saved successfully.");
+            }
         }
     })
     .catch(err => {
         console.error("Save failed:", err);
     });
-
-    // Notify user that Save was successful
-    if (result.success) {
-        if (!completed) {
-            showSaveToast("Saved successfully.");
-        }
-    }
 }
 
 function markIncomplete() {
