@@ -21,7 +21,7 @@ results_directory.mkdir(parents=True, exist_ok=True)
 # EXPERT IDS 
 # -----------------------------
 
-VALID_EXPERT_IDS = {"1183456", "2234567", "3345678"}
+VALID_EXPERT_IDS = {"1183456", "2234567", "3345678", "123456789"}
 
 # -----------------------------
 # STEP OPTIONS FOR DROPDOWN
@@ -51,18 +51,17 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Ensure patient is safe before leaving room"
     ],
     "sterile-gloves": [
-        "Provide privacy as needed",
+        "Provide privacy as needed and Perform Hand Hygiene",
         "Introduce yourself",
-        "Perform hand hygiene",
         "Verify the patient's name and DOB",
         "Provide patient education about the procedure",
-        "Gather equipment at the bedside",
-        "Raise the bed to a comfortable height and place equipment on a side table or clean area near the patient",
-        "Lift the glove off the wrapper by touching only the outside surface of the glove",
+        "Adjust table to appropriate working height (waist level)",
+        "Unwrap sterile package",
+        "Lift the glove off the wrapper by touching only the outside surface of the glove. (first by the dominant hand)",
         "Apply the glove to the non-dominant hand",
         "Once the second glove is applied, adjust the gloves as necessary",
-        "Ensure that the patient is in a safe position prior to leaving the room and has the call light within reach",
-        "Document the procedure"
+        "Verbalize: Ensure that the patient is in a safe position prior to leaving the room and has the call light within reach",
+        "Verbalize: Document the procedure"
     ]
 }
 
