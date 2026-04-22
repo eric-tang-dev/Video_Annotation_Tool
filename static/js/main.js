@@ -442,6 +442,13 @@ function saveData(markComplete = false) {
     .catch(err => {
         console.error("Save failed:", err);
     });
+
+    // Notify user that Save was successful
+    if (result.success) {
+        if (!completed) {
+            showSaveToast("Saved successfully.");
+        }
+    }
 }
 
 function markIncomplete() {
@@ -1005,13 +1012,19 @@ function parseTimeStr(str) {
     return (min * 60) + sec;
 }
 
+// This function controls the "Saved successfully" message that
+// appears after you click the "Save" button
+function showSaveToast(message = "Saved successfully.") {
+    const toastEl = document.getElementById("saveToast");
+    if (!toastEl) return;
 
-// This function sets the playback speed of the video 
-function setSpeed(rate) {
-    // Playback speed is intentionally disabled for now in the Kaltura refactor.
-    // UI still updates so the controls do not break visually.
-    rate = parseFloat(rate);
-    document.getElementById("btnSpeed").innerText = rate + "x";
-    document.getElementById("speedRange").value = rate;
-    document.getElementById("lblSpeedVal").innerText = rate;
+    const body = toastEl.querySelector(".toast-body");
+    if (body) body.textContent = message;
+
+    const toast = bootstrap.Toast.getOrCreateInstance(toastEl, {
+        autohide: true,
+        delay: 2500
+    });
+
+    toast.show();
 }

@@ -236,6 +236,16 @@
     window.IS_COMPLETED = {{ (saved_data.completed if saved_data else false) | tojson | safe }};
   </script>
 
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="saveToast" class="toast text-bg-success border-0" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="2500">
+        <div class="d-flex">
+            <div class="toast-body">
+                Saved successfully.
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </body>
