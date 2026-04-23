@@ -32,6 +32,7 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Provide privacy and perform hand hygiene",
         "Introduce yourself",
         "Verify the patient's name and DOB",
+        "Don gloves",
         "Verbalize: Obtain proper supplies and review physician order",
         "Place a waterproof barrier under stoma appliance",
         "Verbalize: Empty ostomy appliance using proper technique",
