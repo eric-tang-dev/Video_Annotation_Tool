@@ -45,7 +45,15 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_5k6laa17"
+        "entry_id": "1_gxra4mba"
+    },
+    {
+        "category": "ostomy-skills",
+        "video_name": "S7_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_gulo155p"
     },
     {
         "category": "sterile-gloves",
