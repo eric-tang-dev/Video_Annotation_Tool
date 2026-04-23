@@ -9,6 +9,14 @@ KALTURA_VIDEOS = [
     },
     {
         "category": "ostomy-skills",
+        "video_name": "S2_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_hly9p05x"
+    },
+    {
+        "category": "ostomy-skills",
         "video_name": "S3_compressed",
         "target_id": "kaltura_player",
         "wid": "_6489582",
@@ -17,7 +25,23 @@ KALTURA_VIDEOS = [
     },
     {
         "category": "ostomy-skills",
+        "video_name": "S4_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_j1yvnnu8"
+    },
+    {
+        "category": "ostomy-skills",
         "video_name": "S5_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_5k6laa17"
+    },
+    {
+        "category": "ostomy-skills",
+        "video_name": "S6_compressed",
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,

@@ -29,26 +29,25 @@ VALID_EXPERT_IDS = {"1183456", "100121_eric", "110121_shen", "120121_francis", "
 
 STEP_OPTIONS_BY_CATEGORY = {
     "ostomy-skills": [
-        "Provide Privacy",
+        "Provide privacy and perform hand hygiene",
         "Introduce yourself",
-        "Perform hand hygiene and don gloves",
-        "Verify patient name and DOB",
-        "Obtain proper supplies and review physician order",
+        "Verify the patient's name and DOB",
+        "Verbalize: Obtain proper supplies and review physician order",
         "Place a waterproof barrier under stoma appliance",
-        "Empty ostomy appliance using proper technique",
-        "Remove the appliance carefully",
+        "Verbalize: Empty ostomy appliance using proper technique",
+        "Remove the appliance carefully. Avoid damaging skin. Use adhesive remover if applicable",
         "Dispose of appliance according to agency policy",
-        "Remove excess stool or urine from stoma site",
+        "Verbalize: Remove excess stool or urine from stoma site with toilet tissue. Clean skin around site according to agency policy",
         "Pat dry",
-        "Assess stoma site and area around site",
-        "Apply skin protectant if applicable",
-        "Measure stoma site and cut barrier",
-        "Apply barrier around site",
+        "Verbalize: Assess stoma site and area around site",
+        "If skin protectant is applicable, apply prior to placing skin barrier",
+        "Verbalize the measurement: Measure stoma site and cut barrier larger by 1/8 inch",
+        "After removing paper backing, apply barrier around site",
         "Apply pressure around barrier to ensure adhesive is sealed",
         "Attach appliance pouch to barrier",
         "Ensure pouch is closed",
         "Remove gloves and perform hand hygiene",
-        "Ensure patient is safe before leaving room"
+        "Ensure that the patient is in a safe position prior to leaving the room and has the call light within reach"
     ],
     "sterile-gloves": [
         "Provide privacy as needed and Perform Hand Hygiene",
