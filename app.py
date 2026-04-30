@@ -63,7 +63,7 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Verbalize: Ensure that the patient is in a safe position prior to leaving the room and has the call light within reach",
         "Verbalize: Document the procedure"
     ],
-    "indwelling-urinary-catheter": [
+    "foley-catheter": [
         "Provide privacy and perform hand hygiene",
         "Introduce yourself to the patient",
         "Verify the patient’s name and DOB",
