@@ -97,6 +97,14 @@ KALTURA_VIDEOS = [
     },
     {
         "category": "foley-catheter",
+        "video_name": "S6_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_v3o8eymh"
+    },
+    {
+        "category": "foley-catheter",
         "video_name": "S7_compressed_foley",
         "target_id": "kaltura_player",
         "wid": "_6489582",
