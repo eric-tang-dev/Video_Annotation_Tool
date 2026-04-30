@@ -56,6 +56,254 @@ KALTURA_VIDEOS = [
         "entry_id": "1_gulo155p"
     },
     {
+        "category": "foley-catheter",
+        "video_name": "S1_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_s5h6f3d7"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S2_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_tnoqnjm6"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S3_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_vh8o4wy3"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S4_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_rm1rvdbm"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S5_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_v3o8eymh"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S7_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_2sh9ytxk"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S8_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_p77v210j"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S9_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_imnt78hp"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S10_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_uz6d329g"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S11_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_kslxf8w3"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S12_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_p50behij"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S13_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_apxat72j"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S14_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_ffecvpfw"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S15_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_gz3nruvl"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S16_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_1fgzqgaz"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S17_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_xpzzuo4h"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S18_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_3691in6j"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S19_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_j2oibkbw"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S20_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_6547whas"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S21_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_oj4dhebi"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S22_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_oj4dhebi"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S23_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_vl5pr4m3"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S24_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_g8ph6j8e"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S25_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_ov0yni2c"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S26_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_fy9vl5ga"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S27_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_6f594q1o"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S28_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_yj7dgamd"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S29_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_gulo155p"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S30_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_f3rkocll"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S31_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_gulo155p"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S32_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_gulo155p"
+    },
+    {
         "category": "sterile-gloves",
         "video_name": "S1_compressed_gloves",
         "target_id": "kaltura_player",

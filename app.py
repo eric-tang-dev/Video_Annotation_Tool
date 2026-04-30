@@ -62,6 +62,52 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Once the second glove is applied, adjust the gloves as necessary",
         "Verbalize: Ensure that the patient is in a safe position prior to leaving the room and has the call light within reach",
         "Verbalize: Document the procedure"
+    ],
+    "indwelling-urinary-catheter": [
+        "Provide privacy and perform hand hygiene",
+        "Introduce yourself to the patient",
+        "Verify the patient’s name and DOB",
+        "Explain the procedure to the patient",
+        "Verbalize: Review the provider’s order for the indwelling catheter",
+        "Place equipment on a stable surface within reach (such as a bedside table)",
+        "Adjust the environment (including the patient’s bed) for convenience, ergonomics, and lighting",
+        "Verbalize: Assist the patient to a position that accounts for their physical limitations and performing the procedure",
+        "Verbalize: Apply clean gloves and perform perineal care",
+        "Verbalize: For a client who has a penis, retract foreskin, if needed, then perform perineal care",
+        "Perform hand hygiene",
+
+        "Open kit (Opens package flap away from their body first)",
+        "Open kit (Places drape underneath patient only touching outer 1” border)",
+
+        "Dons Sterile Gloves (Opens sterile gloves on separate surface)",
+        "Dons Sterile Gloves (Applies sterile glove to dominate hand)",
+        "Dons Sterile Gloves (Applies sterile gloves to other hand)",
+
+        "Prepares kit (Attaches prefilled syringe to inflation port, does not inflate balloon prior to insertion)",
+        "Prepares kit (Opens lubricant and applies to tip of catheter)",
+        "Prepares kit (Removes plastic sheath from catheter)",
+        "Prepares kit (Prepare cleansing swabs)",
+
+        "Move box to the bed while maintaining sterility",
+
+        "Cleanse the meatus (Leaves non-dominant hand in place during and after cleansing)",
+        "Cleanse the meatus (For client who has a penis: Retract foreskin with non-dominant hand, if needed. Hold the shaft of the penis with the non-dominant hand in an upward position; with the dominant hand, cleanse the meatus use a circular motion with all three swabs, starting at the meatus and circling away from the meatus and around the glans)",
+        "Cleanse the meatus (For client who has a vagina: spread the labia minora with the non-dominant hand and cleanse from top-to-bottom with the first swab on one side of the labial fold, second swab on the opposite labial fold and third swab directly over the meatus)",
+
+        "Insert the catheter (Slowly insert the lubricated catheter into the meatus using dominant hand, advancing the catheter until urine appears in the drainage tubing, as indicated by the instructor’s verbalization)",
+        "Insert the catheter (For clients with a vagina, advance the catheter another 2 inches after urine appears in the tubing)",
+        "Insert the catheter (For clients with a penis, advance the catheter all the way to the tubing bifurcation once urine appears in the tubing)",
+
+        "Hold the catheter securely with the nondominant hand while inflating the catheter balloon",
+        "Gently pull back on the catheter until resistance is felt",
+        "Verbalize: If client is uncircumcised, replace the foreskin",
+        "Verbalize: Secure catheter with securement device",
+        "Secure the collection bag below the level of the bladder",
+        "Verbalize: Perform perineal care",
+        "Dispose of equipment per agency policy",
+        "Perform hand hygiene",
+        "Verbalize: Ensure that the patient is safe before leaving the room and has the call light within reach",
+        "Verbalize: Document the procedure in EHR tutor"
     ]
 }
 
