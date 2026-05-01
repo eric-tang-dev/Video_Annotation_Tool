@@ -101,7 +101,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_v3o8eymh"
+        "entry_id": "1_t7na2x8v"
     },
     {
         "category": "foley-catheter",
@@ -301,7 +301,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_gulo155p"
+        "entry_id": "1_eqfpzw7v"
     },
     {
         "category": "foley-catheter",
@@ -309,7 +309,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_gulo155p"
+        "entry_id": "1_ft256rel"
     },
     {
         "category": "sterile-gloves",
