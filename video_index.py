@@ -56,6 +56,14 @@ KALTURA_VIDEOS = [
         "entry_id": "1_gulo155p"
     },
     {
+        "category": "ostomy-skills",
+        "video_name": "S8_compressed",
+        "target_id": "kaltura_player",
+        "wid": "_6489582",
+        "uiconf_id": 57873862,
+        "entry_id": "1_txxn0f15"
+    },
+    {
         "category": "foley-catheter",
         "video_name": "S1_compressed_foley",
         "target_id": "kaltura_player",
@@ -789,7 +797,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6489582",
         "uiconf_id": 57873862,
-        "entry_id": "1_7b1o0vvi"
+        "entry_id": "1_hiwrxpkz"
     },
     {
         "category": "sterile-gloves",
