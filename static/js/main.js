@@ -7,6 +7,17 @@ let kalturaReady = false
 let playerState = 'paused'
 let isCompleted = !!window.IS_COMPLETED;
 
+const STERILE_BREACH_NAME = "Sterile Breach";
+const STERILE_BREACH_DURATION = 0.5;
+const STERILE_BREACH_RATING = 0.0;
+const STERILE_BREACH_COMMENTS = [
+    "contamination",
+    "touching the one-inch border",
+    "grabbing the wrong part of the glove",
+    "paper falling back onto the gloves"
+];
+
+
 // This function returns the current video's stable browser draft key
 function getDraftStorageKey() {
     const entryId = (window.CURRENT_ENTRY_ID || "").trim();
@@ -81,6 +92,14 @@ function clearDraftFromLocal() {
 
 
 const timeline = document.getElementById("timelineContainer");
+
+const sterileBreachBtn = document.getElementById("sterile-breach-btn");
+
+if (sterileBreachBtn) {
+    sterileBreachBtn.addEventListener("click", () => {
+        addSterileBreachStep();
+    });
+}
 
 
 let video = {
@@ -339,13 +358,16 @@ function loadSavedData() {
     const count = timestamps.length;
 
     for (let i = 0; i < count; i++) {
+        const name = actions[i] ?? "Untitled Action";
+    
         const newStep = {
             id: Date.now() + i,
             start: timestamps[i][0],
             end: timestamps[i][1],
-            name: actions[i] ?? "Untitled Action",
+            name: name,
             rating: evaluation[i] ?? 0.5,
-            comment: comments[i] ?? ""
+            comment: comments[i] ?? "",
+            isSterileBreach: (name === STERILE_BREACH_NAME)
         };
         all_steps.push(newStep);
     }
@@ -397,6 +419,33 @@ function finishCapture() {
     
     // Open the Evaluation Form with the new step
     selectStep(newStep.id); 
+}
+
+function addSterileBreachStep() {
+    // current time from your video wrapper
+    const start = video.currentTime || 0;
+    const end = Math.min(start + STERILE_BREACH_DURATION, video_length || video.duration || (start + STERILE_BREACH_DURATION));
+
+    const newStep = {
+        id: Date.now(),    // unique ID like other steps
+        name: STERILE_BREACH_NAME,
+        start: start,
+        end: end,
+        rating: STERILE_BREACH_RATING,
+        comment: '',
+        isSterileBreach: true
+    };
+
+    all_steps.push(newStep);
+
+    // keep ordering consistent with renderList()
+    all_steps.sort((a, b) => a.start - b.start);
+
+    // save draft, refresh UI, and open eval form
+    saveDraftToLocal();
+    renderTimeline();
+    renderList();
+    selectStep(newStep.id);
 }
 
 
@@ -535,9 +584,49 @@ function selectStep(id) {
     document.getElementById('inpComment').value = step.comment;
     document.getElementById('inpStart').value = formatTime(step.start);
     document.getElementById('inpEnd').value = formatTime(step.end);
+
     const slider = document.getElementById('inpRating');
-    slider.value = step.rating !== null ? step.rating : 0.5; 
-    document.getElementById('lblRatingVal').innerText = slider.value;
+    const lblRating = document.getElementById('lblRatingVal');
+    const actionSelect = document.getElementById('inpActionSelect');
+
+    const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
+
+    if (isSterile) {
+        // force fixed values
+        step.name = STERILE_BREACH_NAME;
+        step.rating = STERILE_BREACH_RATING;
+        step.end = Math.max(step.start + STERILE_BREACH_DURATION, step.end);
+
+        document.getElementById('inpActionName').value = step.name;
+        document.getElementById('inpEnd').value = formatTime(step.end);
+
+        // disable rating slider and hide its label text if you want
+        if (slider) {
+            slider.value = step.rating;
+            slider.disabled = true;
+        }
+        if (lblRating) {
+            lblRating.innerText = step.rating.toFixed(2);
+        }
+
+        // lock action selection to Sterile Breach
+        if (actionSelect) {
+            // ensure dropdown shows current name but user can't choose different preset
+            actionSelect.value = '';
+            actionSelect.disabled = true;
+        }
+    } else {
+        if (slider) {
+            slider.disabled = false;
+            slider.value = step.rating !== null ? step.rating : 0.5;
+        }
+        if (lblRating) {
+            lblRating.innerText = slider ? slider.value : '';
+        }
+        if (actionSelect) {
+            actionSelect.disabled = false;
+        }
+    }
 
 
     // scroll down to form 
@@ -563,19 +652,45 @@ function commitEdit() {
         const selectedStepValue = document.getElementById('inpActionSelect').value;
         const customStepValue = document.getElementById('inpActionName').value.trim();
 
-        step.name =
-            selectedStepValue === '__custom__'
-                ? (customStepValue || "Untitled Action")
-                : (selectedStepValue || customStepValue || "Untitled Action");
-        step.comment = document.getElementById('inpComment').value;
-        
-        step.rating = parseFloat(document.getElementById('inpRating').value);
+        const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
 
+        // Always update comment
+        step.comment = document.getElementById('inpComment').value;
 
         let rawStart = document.getElementById('inpStart').value;
         let rawEnd = document.getElementById('inpEnd').value;
         let tStart = parseTimeStr(rawStart);
         let tEnd = parseTimeStr(rawEnd);
+
+        if (isSterile) {
+            // lock name and rating
+            step.name = STERILE_BREACH_NAME;
+            step.rating = STERILE_BREACH_RATING;
+
+            // keep the 0.5s min; still allow user to tweak times if valid
+            if ((tStart !== null) && (tEnd !== null) && (tEnd > tStart)) {
+                step.start = tStart;
+                step.end = Math.max(tEnd, tStart + STERILE_BREACH_DURATION);
+            } else {
+                alert("Invalid Time Format (MM:SS.mmm) or End time is before Start time.");
+                return;
+            }
+        } else {
+            step.name =
+                selectedStepValue === '__custom__'
+                    ? (customStepValue || "Untitled Action")
+                    : (selectedStepValue || customStepValue || "Untitled Action");
+
+            step.rating = parseFloat(document.getElementById('inpRating').value);
+
+            if ((tStart !== null) && (tEnd !== null) && (tEnd > tStart)) {
+                step.start = tStart;
+                step.end = tEnd;
+            } else {
+                alert("Invalid Time Format (MM:SS.mmm) or End time is before Start time.");
+                return; 
+            }
+        }
 
 
         // validate timestamps (parseTimeStr can return null)
@@ -1028,3 +1143,5 @@ function showSaveToast(message = "Saved successfully.") {
 
     toast.show();
 }
+
+
