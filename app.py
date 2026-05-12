@@ -5,6 +5,8 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 from google.cloud import storage
 from google.api_core.exceptions import NotFound
 from video_index import KALTURA_VIDEOS
+from entry_id_aliases import ENTRY_ID_ALIASES
+
 
 
 app = Flask(__name__)   # start instance of Flask
@@ -117,6 +119,9 @@ STEP_OPTIONS_BY_CATEGORY = {
 GCS_BUCKET_NAME = "annotations_nursing_json"
 GCS_PREFIX = "annotations"
 
+def resolve_annotation_entry_id(entry_id: str) -> str:
+    return ENTRY_ID_ALIASES.get(entry_id, entry_id)
+
 
 # Reuse one storage client for the process. On Cloud Run this uses
 # Application Default Credentials from the attached service account.
@@ -127,7 +132,8 @@ storage_client = storage.Client()
 # GCS HELPERS 
 # -----------------------------
 def get_annotation_blob_name(entry_id: str, expert_id: str) -> str:
-    return f"{GCS_PREFIX}/{entry_id}/{expert_id}.json"
+    resolved_entry_id = resolve_annotation_entry_id(entry_id)
+    return f"{GCS_PREFIX}/{resolved_entry_id}/{expert_id}.json"
 
 def load_annotation_from_gcs(entry_id: str, expert_id: str):
     bucket = storage_client.bucket(GCS_BUCKET_NAME)
@@ -259,7 +265,8 @@ def select_video():
 
     for video in KALTURA_VIDEOS:
         video_copy = video.copy()
-        video_copy["completed"] = bool(completion_index.get(video["entry_id"], False))
+        resolved_entry_id = resolve_annotation_entry_id(video["entry_id"])
+        video_copy["completed"] = bool(completion_index.get(resolved_entry_id, False))
         videos_with_status.append(video_copy)
 
     return render_template(
@@ -295,6 +302,8 @@ def save_results():
         if not entry_id:
             return jsonify({"success": False, "message": "missing entry_id"}), 400
 
+        resolved_entry_id = resolve_annotation_entry_id(entry_id)
+        
         save_annotation_to_gcs(entry_id, expert_id, data)
 
         completion_index = load_completion_index(expert_id)
@@ -305,6 +314,7 @@ def save_results():
             "success": True,
             "message": "results saved to GCS successfully",
             "entry_id": entry_id,
+            "resolved_entry_id": resolved_entry_id,
             "expert_id": expert_id,
             "blob_name": get_annotation_blob_name(entry_id, expert_id)
         })
