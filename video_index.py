@@ -4,7 +4,7 @@ KALTURA_VIDEOS = [
         "video_name": "S1_compressed",
         "target_id": "kaltura_player",
         "wid": "_6489582",
-        "uiconf_id": 57908202,
+        "uiconf_id": 58010592,
         "entry_id": "1_pc9nnlfe"
     },
     {
