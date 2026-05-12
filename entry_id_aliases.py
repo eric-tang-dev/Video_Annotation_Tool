@@ -90,7 +90,7 @@ ENTRY_ID_ALIASES = {
     "1_2rq5sans": "1_fy9vl5ga",   # S26_compressed_foley
     "1_lalm0e38": "1_6f594q1o",   # S27_compressed_foley
     "1_1jun9uor": "1_yj7dgamd",   # S28_compressed_foley
-    "1_gulo155p": "temp",
+    "1_68nrvy5l": "1_gulo155p",
     "1_bqch0yv4": "1_f3rkocll",   # S30_compressed_foley
     "1_o1ekhq3c": "1_eqfpzw7v",   # S31_compressed_foley
     "1_qfpocjxr": "1_ft256rel",   # S32_compressed_foley

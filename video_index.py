@@ -294,7 +294,14 @@ KALTURA_VIDEOS = [
         "uiconf_id": 58010592,
         "entry_id": "1_1jun9uor"
     },
-    # S29 has no new ID yet – leave out or add when you have it
+    {
+        "category": "foley-catheter",
+        "video_name": "S29_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_68nrvy5l"
+    },
     {
         "category": "foley-catheter",
         "video_name": "S30_compressed_foley",
