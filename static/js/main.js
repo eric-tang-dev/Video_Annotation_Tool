@@ -170,9 +170,14 @@ document.addEventListener("DOMContentLoaded", function () {
     updateCompletionButtons();
     populateStepOptions();
 
-    const select = document.getElementById('inpActionSelect');
-    if (select) {
-        select.addEventListener('change', handleStepSelectChange);
+    const stepSelect = document.getElementById('inpActionSelect');
+    if (stepSelect) {
+        stepSelect.addEventListener('change', handleStepSelectChange);
+    }
+
+    const commentSelect = document.getElementById('inpCommentSelect');
+    if (commentSelect) {
+        commentSelect.addEventListener('change', handleCommentSelectChange);
     }
 });
 
@@ -531,6 +536,38 @@ function populateStepOptions() {
     select.appendChild(custom);
 }
 
+function populateCommentOptions(options, selectedValue = "") {
+    const select = document.getElementById('inpCommentSelect');
+    if (!select) return;
+
+    select.innerHTML = '';
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select a comment...';
+    select.appendChild(placeholder);
+
+    options.forEach(commentText => {
+        const opt = document.createElement('option');
+        opt.value = commentText;
+        opt.textContent = commentText;
+        select.appendChild(opt);
+    });
+
+    const custom = document.createElement('option');
+    custom.value = '__custom__';
+    custom.textContent = 'Custom...';
+    select.appendChild(custom);
+
+    if (options.includes(selectedValue)) {
+        select.value = selectedValue;
+    } else if (selectedValue && selectedValue.trim() !== '') {
+        select.value = '__custom__';
+    } else {
+        select.value = '';
+    }
+}
+
 /*
     This function is called when the user clicks "Custom..." 
     on the dropdown menu. 
@@ -549,6 +586,21 @@ function handleStepSelectChange() {
         input.focus();
     } else {
         input.style.display = 'none';
+        input.value = select.value || '';
+    }
+}
+
+function handleCommentSelectChange() {
+    const select = document.getElementById('inpCommentSelect');
+    const input = document.getElementById('inpComment');
+    if (!select || !input) return;
+
+    if (select.value === '__custom__') {
+        input.style.display = 'block';
+        input.value = '';
+        input.focus();
+    } else {
+        input.style.display = 'block';
         input.value = select.value || '';
     }
 }
@@ -615,6 +667,8 @@ function selectStep(id) {
             actionSelect.value = '';
             actionSelect.disabled = true;
         }
+
+        populateCommentOptions(STERILE_BREACH_COMMENTS, step.comment);
     } else {
         if (slider) {
             slider.disabled = false;
@@ -626,6 +680,9 @@ function selectStep(id) {
         if (actionSelect) {
             actionSelect.disabled = false;
         }
+
+        const normalComments = (window.COMMENT_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
+        populateCommentOptions(normalComments, step.comment);
     }
 
 
@@ -683,13 +740,6 @@ function commitEdit() {
 
             step.rating = parseFloat(document.getElementById('inpRating').value);
 
-            if ((tStart !== null) && (tEnd !== null) && (tEnd > tStart)) {
-                step.start = tStart;
-                step.end = tEnd;
-            } else {
-                alert("Invalid Time Format (MM:SS.mmm) or End time is before Start time.");
-                return; 
-            }
         }
 
 
