@@ -1,11 +1,14 @@
 KALTURA_VIDEOS = [
+    # -----------------------------
+    # OSTOMY (compressed)
+    # -----------------------------
     {
         "category": "ostomy-skills",
         "video_name": "S1_compressed",
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_pc9nnlfe"
+        "entry_id": "1_jmhtg8ny"
     },
     {
         "category": "ostomy-skills",
@@ -13,7 +16,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_hly9p05x"
+        "entry_id": "1_is8j75pb"
     },
     {
         "category": "ostomy-skills",
@@ -21,7 +24,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_ifhnx26b"
+        "entry_id": "1_2ii6l5ym"
     },
     {
         "category": "ostomy-skills",
@@ -29,7 +32,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_j1yvnnu8"
+        "entry_id": "1_msqigzdn"
     },
     {
         "category": "ostomy-skills",
@@ -37,7 +40,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_5k6laa17"
+        "entry_id": "1_omtr1s81"
     },
     {
         "category": "ostomy-skills",
@@ -45,7 +48,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_k62ezcyb"
+        "entry_id": "1_4vl2zokp"
     },
     {
         "category": "ostomy-skills",
@@ -53,7 +56,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_gulo155p"
+        "entry_id": "1_5pl4apxg"
     },
     {
         "category": "ostomy-skills",
@@ -61,15 +64,19 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_txxn0f15"
+        "entry_id": "1_9ph8grj9"
     },
+
+    # -----------------------------
+    # FOLEY CATHETER (compressed)
+    # -----------------------------
     {
         "category": "foley-catheter",
         "video_name": "S1_compressed_foley",
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_s5h6f3d7"
+        "entry_id": "1_vl7sfl9m"
     },
     {
         "category": "foley-catheter",
@@ -77,7 +84,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_tnoqnjm6"
+        "entry_id": "1_s4yrhche"
     },
     {
         "category": "foley-catheter",
@@ -85,7 +92,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_vh8o4wy3"
+        "entry_id": "1_4sftgwq7"
     },
     {
         "category": "foley-catheter",
@@ -93,7 +100,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_rm1rvdbm"
+        "entry_id": "1_43n36056"
     },
     {
         "category": "foley-catheter",
@@ -101,7 +108,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_v3o8eymh"
+        "entry_id": "1_kaxk6pod"
     },
     {
         "category": "foley-catheter",
@@ -109,7 +116,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_t7na2x8v"
+        "entry_id": "1_4wapw5bu"
     },
     {
         "category": "foley-catheter",
@@ -117,7 +124,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_2sh9ytxk"
+        "entry_id": "1_g78n6299"
     },
     {
         "category": "foley-catheter",
@@ -125,7 +132,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_p77v210j"
+        "entry_id": "1_2wiuujjt"
     },
     {
         "category": "foley-catheter",
@@ -133,7 +140,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_imnt78hp"
+        "entry_id": "1_z13luoxd"
     },
     {
         "category": "foley-catheter",
@@ -141,7 +148,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_uz6d329g"
+        "entry_id": "1_4g1j3g3u"
     },
     {
         "category": "foley-catheter",
@@ -149,7 +156,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_kslxf8w3"
+        "entry_id": "1_igdbiewm"
     },
     {
         "category": "foley-catheter",
@@ -157,7 +164,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_p50behij"
+        "entry_id": "1_dppao9ls"
     },
     {
         "category": "foley-catheter",
@@ -165,7 +172,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_apxat72j"
+        "entry_id": "1_z0w8q3ex"
     },
     {
         "category": "foley-catheter",
@@ -173,7 +180,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_ffecvpfw"
+        "entry_id": "1_0yjdsgb6"
     },
     {
         "category": "foley-catheter",
@@ -181,7 +188,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_gz3nruvl"
+        "entry_id": "1_fbx0f3cc"
     },
     {
         "category": "foley-catheter",
@@ -189,7 +196,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_1fgzqgaz"
+        "entry_id": "1_xwve3xag"
     },
     {
         "category": "foley-catheter",
@@ -197,7 +204,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_xpzzuo4h"
+        "entry_id": "1_n8v2s3od"
     },
     {
         "category": "foley-catheter",
@@ -205,7 +212,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_3691in6j"
+        "entry_id": "1_yotnlmor"
     },
     {
         "category": "foley-catheter",
@@ -213,7 +220,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_j2oibkbw"
+        "entry_id": "1_cq9qzv5q"
     },
     {
         "category": "foley-catheter",
@@ -221,7 +228,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_6547whas"
+        "entry_id": "1_4wnhh8z2"
     },
     {
         "category": "foley-catheter",
@@ -229,7 +236,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_oj4dhebi"
+        "entry_id": "1_gsbkv5bn"
     },
     {
         "category": "foley-catheter",
@@ -237,7 +244,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_oj4dhebi"
+        "entry_id": "1_gbf1c9qa"
     },
     {
         "category": "foley-catheter",
@@ -245,7 +252,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_vl5pr4m3"
+        "entry_id": "1_levsejpe"
     },
     {
         "category": "foley-catheter",
@@ -253,7 +260,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_g8ph6j8e"
+        "entry_id": "1_ejcmjqzu"
     },
     {
         "category": "foley-catheter",
@@ -261,7 +268,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_ov0yni2c"
+        "entry_id": "1_yegtm5h3"
     },
     {
         "category": "foley-catheter",
@@ -269,7 +276,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_fy9vl5ga"
+        "entry_id": "1_2rq5sans"
     },
     {
         "category": "foley-catheter",
@@ -277,7 +284,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_6f594q1o"
+        "entry_id": "1_lalm0e38"
     },
     {
         "category": "foley-catheter",
@@ -285,23 +292,16 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_yj7dgamd"
+        "entry_id": "1_1jun9uor"
     },
-    {
-        "category": "foley-catheter",
-        "video_name": "S29_compressed_foley",
-        "target_id": "kaltura_player",
-        "wid": "_6514622",
-        "uiconf_id": 58010592,
-        "entry_id": "1_gulo155p"
-    },
+    # S29 has no new ID yet – leave out or add when you have it
     {
         "category": "foley-catheter",
         "video_name": "S30_compressed_foley",
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_f3rkocll"
+        "entry_id": "1_bqch0yv4"
     },
     {
         "category": "foley-catheter",
@@ -309,7 +309,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_eqfpzw7v"
+        "entry_id": "1_o1ekhq3c"
     },
     {
         "category": "foley-catheter",
@@ -317,15 +317,19 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_ft256rel"
+        "entry_id": "1_qfpocjxr"
     },
+
+    # -----------------------------
+    # STERILE GLOVES (compressed)
+    # -----------------------------
     {
         "category": "sterile-gloves",
         "video_name": "S1_compressed_gloves",
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_0pbg34l2"
+        "entry_id": "1_j0iet5bc"
     },
     {
         "category": "sterile-gloves",
@@ -333,7 +337,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_hbfh4w47"
+        "entry_id": "1_zuxpooxs"
     },
     {
         "category": "sterile-gloves",
@@ -341,7 +345,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_v34ae4fk"
+        "entry_id": "1_dlzl30jl"
     },
     {
         "category": "sterile-gloves",
@@ -349,7 +353,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_ppqc5e9x"
+        "entry_id": "1_ztmu50sk"
     },
     {
         "category": "sterile-gloves",
@@ -357,7 +361,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_v8ud6exa"
+        "entry_id": "1_7crhda5k"
     },
     {
         "category": "sterile-gloves",
@@ -365,7 +369,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_4cdpxzdh"
+        "entry_id": "1_a1n403wd"
     },
     {
         "category": "sterile-gloves",
@@ -373,7 +377,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_4vx5467u"
+        "entry_id": "1_ig54zezy"
     },
     {
         "category": "sterile-gloves",
@@ -381,7 +385,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_i4o6rw19"
+        "entry_id": "1_3edlm0mh"
     },
     {
         "category": "sterile-gloves",
@@ -389,7 +393,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_c5uea1ij"
+        "entry_id": "1_e0gytb0h"
     },
     {
         "category": "sterile-gloves",
@@ -397,7 +401,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_0ukvx295"
+        "entry_id": "1_j9wm0brb"
     },
     {
         "category": "sterile-gloves",
@@ -405,7 +409,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_db5y1w1d"
+        "entry_id": "1_u267pe69"
     },
     {
         "category": "sterile-gloves",
@@ -413,7 +417,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_0xox0f5v"
+        "entry_id": "1_buy7q4m8"
     },
     {
         "category": "sterile-gloves",
@@ -421,7 +425,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_8b1ax3dm"
+        "entry_id": "1_9gj748wx"
     },
     {
         "category": "sterile-gloves",
@@ -429,7 +433,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_xv3090hc"
+        "entry_id": "1_fugpxhp9"
     },
     {
         "category": "sterile-gloves",
@@ -437,7 +441,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_bcsjp5p4"
+        "entry_id": "1_7hwxezt0"
     },
     {
         "category": "sterile-gloves",
@@ -445,7 +449,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_3qk65el8"
+        "entry_id": "1_cvix87vc"
     },
     {
         "category": "sterile-gloves",
@@ -453,7 +457,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_yc3r5qe0"
+        "entry_id": "1_iehhih5c"
     },
     {
         "category": "sterile-gloves",
@@ -461,7 +465,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_hxpqt5l2"
+        "entry_id": "1_00hcb7us"
     },
     {
         "category": "sterile-gloves",
@@ -469,7 +473,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_k7f8r6ha"
+        "entry_id": "1_b2x5leuh"
     },
     {
         "category": "sterile-gloves",
@@ -477,7 +481,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_yc3r5qe0"
+        "entry_id": "1_hw7156fj"
     },
     {
         "category": "sterile-gloves",
@@ -485,7 +489,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_gw7va375"
+        "entry_id": "1_llvivymm"
     },
     {
         "category": "sterile-gloves",
@@ -493,7 +497,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_7p7029hd"
+        "entry_id": "1_2dgqecy8"
     },
     {
         "category": "sterile-gloves",
@@ -501,7 +505,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_t1i71dwa"
+        "entry_id": "1_o0v1k5wd"
     },
     {
         "category": "sterile-gloves",
@@ -509,7 +513,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_9n22wrev"
+        "entry_id": "1_bwxmggyv"
     },
     {
         "category": "sterile-gloves",
@@ -517,7 +521,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_zvakcre9"
+        "entry_id": "1_dmvm5ykn"
     },
     {
         "category": "sterile-gloves",
@@ -525,7 +529,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_gn6isq3p"
+        "entry_id": "1_gqphq8nf"
     },
     {
         "category": "sterile-gloves",
@@ -533,7 +537,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_vysq1gmk"
+        "entry_id": "1_wuvzvumg"
     },
     {
         "category": "sterile-gloves",
@@ -541,7 +545,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_vjxqyl56"
+        "entry_id": "1_3tc1p5dd"
     },
     {
         "category": "sterile-gloves",
@@ -549,7 +553,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_fh5olb3a"
+        "entry_id": "1_xytm3e4y"
     },
     {
         "category": "sterile-gloves",
@@ -557,7 +561,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_gb40v61z"
+        "entry_id": "1_lcc7ai0e"
     },
     {
         "category": "sterile-gloves",
@@ -565,7 +569,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_27acwhvo"
+        "entry_id": "1_hy3wdi6k"
     },
     {
         "category": "sterile-gloves",
@@ -573,7 +577,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_igt1p6ho"
+        "entry_id": "1_mk6c96ej"
     },
     {
         "category": "sterile-gloves",
@@ -581,7 +585,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_avk9qca6"
+        "entry_id": "1_s99j2fz8"
     },
     {
         "category": "sterile-gloves",
@@ -589,7 +593,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_mdfmb9yy"
+        "entry_id": "1_q7fhg2qy"
     },
     {
         "category": "sterile-gloves",
@@ -597,7 +601,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_vtu6shi6"
+        "entry_id": "1_3zvqpvze"
     },
     {
         "category": "sterile-gloves",
@@ -605,7 +609,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_y8scdgx1"
+        "entry_id": "1_f0mnxpxn"
     },
     {
         "category": "sterile-gloves",
@@ -613,7 +617,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_ufxu9rzo"
+        "entry_id": "1_ode9bui5"
     },
     {
         "category": "sterile-gloves",
@@ -621,7 +625,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_q6ao0zay"
+        "entry_id": "1_jrrkcaqc"
     },
     {
         "category": "sterile-gloves",
@@ -629,7 +633,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_f5niumct"
+        "entry_id": "1_s829366b"
     },
     {
         "category": "sterile-gloves",
@@ -637,7 +641,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_8mbdk7y9"
+        "entry_id": "1_z369k1ky"
     },
     {
         "category": "sterile-gloves",
@@ -645,7 +649,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_9b4rzhsc"
+        "entry_id": "1_t3oi6i5s"
     },
     {
         "category": "sterile-gloves",
@@ -653,7 +657,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_we0orlti"
+        "entry_id": "1_njr1cjwv"
     },
     {
         "category": "sterile-gloves",
@@ -661,7 +665,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_hlhvmnox"
+        "entry_id": "1_t69cqqcq"
     },
     {
         "category": "sterile-gloves",
@@ -669,7 +673,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_1l9gk91p"
+        "entry_id": "1_fi0mprow"
     },
     {
         "category": "sterile-gloves",
@@ -677,7 +681,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_7b1o0vvi"
+        "entry_id": "1_y0u301dr"
     },
     {
         "category": "sterile-gloves",
@@ -685,7 +689,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_np7kzn0f"
+        "entry_id": "1_0pg3fobd"
     },
     {
         "category": "sterile-gloves",
@@ -693,7 +697,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_n1nx9w1o"
+        "entry_id": "1_e1ajtsfy"
     },
     {
         "category": "sterile-gloves",
@@ -701,7 +705,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_n0wjkxn1"
+        "entry_id": "1_hbx8q7e8"
     },
     {
         "category": "sterile-gloves",
@@ -709,7 +713,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_esw0849w"
+        "entry_id": "1_3f8rhn2o"
     },
     {
         "category": "sterile-gloves",
@@ -717,7 +721,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_xo119m6l"
+        "entry_id": "1_kj1tkb1j"
     },
     {
         "category": "sterile-gloves",
@@ -725,7 +729,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_em4a15ck"
+        "entry_id": "1_b2cmxc7m"
     },
     {
         "category": "sterile-gloves",
@@ -733,7 +737,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_qjq7qmqk"
+        "entry_id": "1_ol6nq3au"
     },
     {
         "category": "sterile-gloves",
@@ -741,7 +745,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_pxjfaqnj"
+        "entry_id": "1_ydva1p47"
     },
     {
         "category": "sterile-gloves",
@@ -749,7 +753,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_25h81ml8"
+        "entry_id": "1_sl4qgn4t"
     },
     {
         "category": "sterile-gloves",
@@ -757,7 +761,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_lgnnpf1s"
+        "entry_id": "1_b5oldv2j"
     },
     {
         "category": "sterile-gloves",
@@ -765,7 +769,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_9r8q1s7d"
+        "entry_id": "1_fhkjyjh9"
     },
     {
         "category": "sterile-gloves",
@@ -773,7 +777,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_1a30ck9h"
+        "entry_id": "1_skwjj2tk"
     },
     {
         "category": "sterile-gloves",
@@ -781,7 +785,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_xv8iyu4s"
+        "entry_id": "1_14w3yeai"
     },
     {
         "category": "sterile-gloves",
@@ -789,7 +793,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_t54pw6o9"
+        "entry_id": "1_us83eo52"
     },
     {
         "category": "sterile-gloves",
@@ -797,7 +801,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_hiwrxpkz"
+        "entry_id": "1_951r4y2a"
     },
     {
         "category": "sterile-gloves",
@@ -805,8 +809,12 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_rirjd4cd"
+        "entry_id": "1_lkwn2bxl"
     },
+
+    # -----------------------------
+    # TEST VIDEO
+    # -----------------------------
     {
         "category": "TEST VIDEO FOR DEVELOPER",
         "video_name": "test_1",
@@ -815,5 +823,4 @@ KALTURA_VIDEOS = [
         "uiconf_id": 58010592,
         "entry_id": "1_jyzyakxa"
     },
-    
 ]
