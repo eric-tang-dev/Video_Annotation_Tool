@@ -78,6 +78,7 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Verbalize: For a client who has a penis, retract foreskin, if needed, then perform perineal care",
         "Perform hand hygiene",
 
+        "Open kit",
         "Open kit (Opens package flap away from their body first)",
         "Open kit (Places drape underneath patient only touching outer 1” border)",
 
