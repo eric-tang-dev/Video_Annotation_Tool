@@ -632,7 +632,6 @@ function selectStep(id) {
     form.style.display = 'block';
     
     // Populate the form with the step's current information 
-    document.getElementById('inpActionName').value = step.name;
     document.getElementById('inpComment').value = step.comment;
     document.getElementById('inpStart').value = formatTime(step.start);
     document.getElementById('inpEnd').value = formatTime(step.end);
@@ -640,6 +639,24 @@ function selectStep(id) {
     const slider = document.getElementById('inpRating');
     const lblRating = document.getElementById('lblRatingVal');
     const actionSelect = document.getElementById('inpActionSelect');
+    const customActionInput = document.getElementById('inpActionName');
+    const stepOptions = (window.STEP_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
+
+    if (actionSelect && customActionInput) {
+        if (step.name === STERILE_BREACH_NAME) {
+            actionSelect.value = '';
+            customActionInput.value = step.name;
+            customActionInput.style.display = 'block';
+        } else if (stepOptions.includes(step.name)) {
+            actionSelect.value = step.name;
+            customActionInput.value = step.name;
+            customActionInput.style.display = 'none';
+        } else {
+            actionSelect.value = '__custom__';
+            customActionInput.value = step.name || '';
+            customActionInput.style.display = 'block';
+        }
+    }
 
     const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
 
@@ -735,8 +752,8 @@ function commitEdit() {
         } else {
             step.name =
                 selectedStepValue === '__custom__'
-                    ? (customStepValue || "Untitled Action")
-                    : (selectedStepValue || customStepValue || "Untitled Action");
+                    ? (customStepValue || step.name || "Untitled Action")
+                    : (selectedStepValue || customStepValue || step.name || "Untitled Action");
 
             step.rating = parseFloat(document.getElementById('inpRating').value);
 
