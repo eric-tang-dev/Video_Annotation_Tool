@@ -85,7 +85,7 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Dons Sterile Gloves (Opens sterile gloves on separate surface)",
         "Dons Sterile Gloves (Applies sterile glove to dominate hand)",
         "Dons Sterile Gloves (Applies sterile gloves to other hand)",
-        "Once the second glove is applied, adjust the gloves as necessary",
+        "Dons Sterile Gloves (Once the second glove is applied, adjust the gloves as necessary)",
 
         "Prepares kit (Attaches prefilled syringe to inflation port, does not inflate balloon prior to insertion)",
         "Prepares kit (Opens lubricant and applies to tip of catheter)",
