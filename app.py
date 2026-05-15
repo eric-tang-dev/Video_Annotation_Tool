@@ -305,11 +305,11 @@ def save_results():
             return jsonify({"success": False, "message": "missing entry_id"}), 400
 
         resolved_entry_id = resolve_annotation_entry_id(entry_id)
-        
+
         save_annotation_to_gcs(entry_id, expert_id, data)
 
         completion_index = load_completion_index(expert_id)
-        completion_index[entry_id] = bool(data.get("completed", False))
+        completion_index[resolved_entry_id] = bool(data.get("completed", False))
         save_completion_index(expert_id, completion_index)
 
         return jsonify({
