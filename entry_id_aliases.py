@@ -83,14 +83,14 @@ ENTRY_ID_ALIASES = {
     "1_cq9qzv5q": "1_j2oibkbw",   # S19_compressed_foley
     "1_4wnhh8z2": "1_6547whas",   # S20_compressed_foley
     "1_gsbkv5bn": "1_oj4dhebi",   # S21_compressed_foley
-    "1_gbf1c9qa": "1_oj4dhebi",   # S22_compressed_foley (same old ID)
+    "1_gbf1c9qa": "1_op9jm74q",   # S22_compressed_foley 
     "1_levsejpe": "1_vl5pr4m3",   # S23_compressed_foley
     "1_ejcmjqzu": "1_g8ph6j8e",   # S24_compressed_foley
     "1_yegtm5h3": "1_ov0yni2c",   # S25_compressed_foley
     "1_2rq5sans": "1_fy9vl5ga",   # S26_compressed_foley
     "1_lalm0e38": "1_6f594q1o",   # S27_compressed_foley
     "1_1jun9uor": "1_yj7dgamd",   # S28_compressed_foley
-    "1_68nrvy5l": "1_gulo155p",
+    "1_68nrvy5l": "1_gulo155p",   # S29_compressed_foley
     "1_bqch0yv4": "1_f3rkocll",   # S30_compressed_foley
     "1_o1ekhq3c": "1_eqfpzw7v",   # S31_compressed_foley
     "1_qfpocjxr": "1_ft256rel",   # S32_compressed_foley
