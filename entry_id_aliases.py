@@ -101,6 +101,6 @@ ENTRY_ID_ALIASES = {
     "1_msqigzdn": "1_j1yvnnu8",   # S4_compressed
     "1_omtr1s81": "1_5k6laa17",   # S5_compressed
     "1_4vl2zokp": "1_k62ezcyb",   # S6_compressed
-    "1_5pl4apxg": "1_gulo155p",   # S7_compressed
+    "1_5pl4apxg": "1_fr0l9iko",   # S7_compressed
     "1_9ph8grj9": "1_txxn0f15",   # S8_compressed
 }
