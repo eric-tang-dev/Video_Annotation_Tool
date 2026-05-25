@@ -94,6 +94,7 @@ ENTRY_ID_ALIASES = {
     "1_bqch0yv4": "1_f3rkocll",   # S30_compressed_foley
     "1_o1ekhq3c": "1_eqfpzw7v",   # S31_compressed_foley
     "1_qfpocjxr": "1_ft256rel",   # S32_compressed_foley
+    "1_etdy6ybl": "1_etdy6ybl",   # S33_compressed_foley (same since added after transfer to new kaltura account)
         # --- ostomy-skills compressed ---
     "1_jmhtg8ny": "1_pc9nnlfe",   # S1_compressed
     "1_is8j75pb": "1_hly9p05x",   # S2_compressed

@@ -326,6 +326,14 @@ KALTURA_VIDEOS = [
         "uiconf_id": 58010592,
         "entry_id": "1_qfpocjxr"
     },
+    {
+        "category": "foley-catheter",
+        "video_name": "S33_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_etdy6ybl"
+    },
 
     # -----------------------------
     # STERILE GLOVES (compressed)
