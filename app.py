@@ -118,7 +118,7 @@ STEP_OPTIONS_BY_CATEGORY = {
 # -----------------------------
 # GCS CONFIGURATION 
 # -----------------------------
-GCS_BUCKET_NAME = "annotations_nursing_json"
+GCS_BUCKET_NAME = "nursing_annotations_json"
 GCS_PREFIX = "annotations"
 
 def resolve_annotation_entry_id(entry_id: str) -> str:
