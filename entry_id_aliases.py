@@ -67,7 +67,7 @@ ENTRY_ID_ALIASES = {
     "1_4sftgwq7": "1_vh8o4wy3",   # S3_compressed_foley
     "1_43n36056": "1_rm1rvdbm",   # S4_compressed_foley
     "1_kaxk6pod": "1_v3o8eymh",   # S5_compressed_foley
-    "1_4wapw5bu": "1_t7na2x8v",   # S6_compressed_foley
+    "1_2pp0eyh8": "1_t7na2x8v",   # S6_compressed_foley
     "1_g78n6299": "1_2sh9ytxk",   # S7_compressed_foley
     "1_2wiuujjt": "1_p77v210j",   # S8_compressed_foley
     "1_z13luoxd": "1_imnt78hp",   # S9_compressed_foley
