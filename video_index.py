@@ -116,7 +116,7 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_4wapw5bu"
+        "entry_id": "1_2pp0eyh8"
     },
     {
         "category": "foley-catheter",
