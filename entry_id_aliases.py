@@ -95,6 +95,15 @@ ENTRY_ID_ALIASES = {
     "1_o1ekhq3c": "1_eqfpzw7v",   # S31_compressed_foley
     "1_qfpocjxr": "1_ft256rel",   # S32_compressed_foley
     "1_etdy6ybl": "1_etdy6ybl",   # S33_compressed_foley (same since added after transfer to new kaltura account)
+    "1_cbytt8kj": "1_cbytt8kj",   # S34_compressed_foley
+    "1_ywueq1a9": "1_ywueq1a9",   # S35_compressed_foley
+    "1_388biprb": "1_388biprb",   # S36_compressed_foley
+    "1_s5dx6til": "1_s5dx6til",   # S37_compressed_foley
+    "1_p31f5b3m": "1_p31f5b3m",   # S38_compressed_foley
+    "1_5wmvx72o": "1_5wmvx72o",   # S39_compressed_foley
+    "1_v71r4dz1": "1_v71r4dz1",   # S40_compressed_foley
+    "1_e0f2pt7u": "1_e0f2pt7u",   # S41_compressed_foley
+    "1_lb868zpr": "1_lb868zpr",   # S42_compressed_foley
         # --- ostomy-skills compressed ---
     "1_jmhtg8ny": "1_pc9nnlfe",   # S1_compressed
     "1_is8j75pb": "1_hly9p05x",   # S2_compressed

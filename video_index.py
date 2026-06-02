@@ -334,6 +334,78 @@ KALTURA_VIDEOS = [
         "uiconf_id": 58010592,
         "entry_id": "1_etdy6ybl"
     },
+    {
+        "category": "foley-catheter",
+        "video_name": "S34_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_cbytt8kj"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S35_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_ywueq1a9"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S36_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_388biprb"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S37_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_s5dx6til"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S38_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_p31f5b3m"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S39_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_5wmvx72o"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S40_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_v71r4dz1"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S41_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_e0f2pt7u"
+    },
+    {
+        "category": "foley-catheter",
+        "video_name": "S42_compressed_foley",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_lb868zpr"
+    },
 
     # -----------------------------
     # STERILE GLOVES (compressed)
