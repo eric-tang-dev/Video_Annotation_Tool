@@ -362,6 +362,7 @@ function loadSavedData() {
 
     const count = timestamps.length;
 
+    // 1. Load the existing saved annotations
     for (let i = 0; i < count; i++) {
         const name = actions[i] ?? "Untitled Action";
     
@@ -376,6 +377,27 @@ function loadSavedData() {
         };
         all_steps.push(newStep);
     }
+
+    // 2. Find any missing mandatory steps for this specific video category and inject placeholders
+    const currentCategory = window.CURRENT_VIDEO_CATEGORY;
+    const masterOptions = window.STEP_OPTIONS_BY_CATEGORY || {};
+    const mandatorySteps = masterOptions[currentCategory] || [];
+    const existingNames = new Set(all_steps.map(s => s.name));
+
+    mandatorySteps.forEach((stepName, index) => {
+        if (!existingNames.has(stepName)) {
+            const placeholderStep = {
+                id: Date.now() + 5000 + index, 
+                start: NaN,
+                end: NaN,
+                name: stepName,
+                rating: 0.0,
+                comment: "",
+                isSterileBreach: (stepName === STERILE_BREACH_NAME)
+            };
+            all_steps.push(placeholderStep);
+        }
+    });
 
     renderTimeline();
     renderList();
@@ -631,10 +653,10 @@ function selectStep(id) {
     const form = document.getElementById('editForm');
     form.style.display = 'block';
     
-    // Populate the form with the step's current information 
-    document.getElementById('inpComment').value = step.comment;
-    document.getElementById('inpStart').value = formatTime(step.start);
-    document.getElementById('inpEnd').value = formatTime(step.end);
+    // Populate the form with the step's current information (and check for NaN)
+    document.getElementById('inpComment').value = step.comment || '';
+    document.getElementById('inpStart').value = isNaN(step.start) ? "" : formatTime(step.start);
+    document.getElementById('inpEnd').value = isNaN(step.end) ? "" : formatTime(step.end);
 
     const slider = document.getElementById('inpRating');
     const lblRating = document.getElementById('lblRatingVal');
@@ -664,10 +686,14 @@ function selectStep(id) {
         // force fixed values
         step.name = STERILE_BREACH_NAME;
         step.rating = STERILE_BREACH_RATING;
-        step.end = Math.max(step.start + STERILE_BREACH_DURATION, step.end);
+        
+        // do not compute timestamps if they are NaN
+        if (!isNaN(step.start) && !isNaN(step.end)) {
+            step.end = Math.max(step.start + STERILE_BREACH_DURATION, step.end);
+            document.getElementById('inpEnd').value = formatTime(step.end);
+        }
 
         document.getElementById('inpActionName').value = step.name;
-        document.getElementById('inpEnd').value = formatTime(step.end);
 
         // disable rating slider and hide its label text if you want
         if (slider) {
@@ -802,6 +828,11 @@ function renderTimeline() {
 
 
     all_steps.forEach(step => {
+        // skip NaN steps
+        if (isNaN(step.start) || isNaN(step.end)) {
+            return; 
+        }
+
         const left = (step.start / video_length) * 100;
         const width = ((step.end - step.start) / video_length) * 100;
 
@@ -840,7 +871,16 @@ function renderList() {
     list.innerHTML = '';    // wipe the existing step list 
     
     // Sort all_steps and loop through it 
-    all_steps.sort((a,b) => a.start - b.start).forEach(step => {
+    all_steps.sort((a, b) => {
+        const aIsNaN = isNaN(a.start);
+        const bIsNaN = isNaN(b.start);
+
+        if (aIsNaN && !bIsNaN) return 1;  
+        if (!aIsNaN && bIsNaN) return -1; 
+        if (aIsNaN && bIsNaN) return 0;   
+        
+        return a.start - b.start;         
+    }).forEach(step => {
         const div = document.createElement('div');
         div.className = `action-item p-2 mb-1 border rounded ${step.id === active_step_id ? 'active' : ''}`;
 
@@ -848,6 +888,9 @@ function renderList() {
         const hue = step.rating * 120; 
         const badgeColor = `style="background-color: hsl(${hue}, 70%, 45%); color: white;"`;
 
+        const timeDisplayString = (isNaN(step.start) || isNaN(step.end)) 
+            ? "Not yet annotated" 
+            : `${formatTime(step.start)} - ${formatTime(step.end)}`;
 
         div.innerHTML = `
             <div class="d-flex justify-content-between">
@@ -855,7 +898,7 @@ function renderList() {
                 <span class="badge" ${badgeColor}>${step.rating.toFixed(2)}</span>
             </div>
             <div class="small text-muted">
-                ${formatTime(step.start)} - ${formatTime(step.end)}
+                ${timeDisplayString}
             </div>`;
         // Add onclick to entire block (click to select it)
         div.onclick = () => selectStep(step.id);
