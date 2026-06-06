@@ -696,7 +696,19 @@ function selectStep(id) {
 
     const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
 
-    if (isSterile) {
+    if (missingStepDetected) {
+        if (slider) slider.disabled = true;
+        if (actionSelect) actionSelect.disabled = true;
+        
+        // Populate standard rating visualization
+        if (slider) slider.value = step.rating;
+        if (lblRating) lblRating.innerText = step.rating.toFixed(2);
+        
+        // Fetch matching comment preset profiles
+        const normalComments = (window.COMMENT_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
+        populateCommentOptions(normalComments, step.comment);
+        
+    } else if (isSterile) {
         // force fixed values
         step.name = STERILE_BREACH_NAME;
         step.rating = STERILE_BREACH_RATING;
@@ -899,12 +911,19 @@ function renderList() {
     }).forEach(step => {
         const div = document.createElement('div');
 
-        // if step is missing, give slight yellow tinted background
+        // if step is missing, give slight red tinted background. if step is a sterile breach, give it a yellow tinted background.
         const missingStepDetected = isNaN(step.start);
-        const backgroundClass = missingStepDetected ? 'bg-warning-subtle' : '';
+        const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
+
+        let backgroundClass = '';
+        if (missingStepDetected) {
+            backgroundClass = 'bg-danger-subtle';
+        } else if (isSterile) {
+            backgroundClass = 'bg-warning-subtle';
+        }
 
         div.className = `action-item p-2 mb-1 border rounded ${backgroundClass} ${step.id === active_step_id ? 'active' : ''}`;
-        
+
         const hue = step.rating * 120; 
         const badgeColor = `style="background-color: hsl(${hue}, 70%, 45%); color: white;"`;
 
