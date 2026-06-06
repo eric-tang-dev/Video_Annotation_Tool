@@ -146,12 +146,10 @@
                 </div>
         
             <!-- Evaluation Form -->
-            <div class="p-3 bg-light border-top" id="editForm" style="display:none;">
+           <div class="p-3 bg-light border-top" id="editForm" style="display:none;">
                 <h6>Edit Selected Action</h6>
                 
                 <div class="timestamp-row">
-
-                    <!-- Start and End Timestamps with Buttons-->
                     <div class="control-group">
                         <label>Start:</label>
                         <div class="input-wrapper">
@@ -169,50 +167,50 @@
                             <button class="nudge-btn" onclick="nudgeTime('end', 0.5)">+</button>
                         </div>
                     </div>
-                
                 </div>
         
-                <div class="mb-2">
-                    <label class="form-label small">Action Name</label>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Action Name</label>
                     <select id="inpActionSelect" class="form-select mb-2"></select>
                     <input type="text" id="inpActionName" class="form-control" placeholder="Custom step name" style="display: none;">
                 </div>
+
+                <hr class="my-3">
                 
-                <div class="mb-2">
-                    <label class="form-label fw-bold">Rating</label>
-                    <div class="px-2">
-                        <input type="range" class="form-range custom-slider" id="inpRating" 
-                               min="0" max="1" step="0.05" value="0.5" list="tickmarks"
-                               oninput="document.getElementById('lblRatingVal').innerText = this.value">
-                        
-                        <datalist id="tickmarks">
-                            <option value="0" label="0"></option>
-                            <option value="0.5" label="0.5"></option>
-                            <option value="1" label="1"></option>
-                        </datalist>
-                
-                        <div class="d-flex justify-content-between mt-1 small fw-bold text-muted">
-                            <span>0.0</span>
-                            <span>0.25</span>
-                            <span>0.5</span>
-                            <span>0.75</span>
-                            <span>1.0</span>
-                        </div>
+                <div class="mb-3 border-bottom pb-2">
+                    <label class="form-label fw-bold mb-0">1. Correctness Rating</label>
+                    <div class="d-flex align-items-center gap-2 px-1">
+                        <input type="range" class="form-range custom-slider flex-grow-1" id="inpCorrectnessRating" 
+                               min="0" max="1" step="0.1" value="0.5"
+                               oninput="document.getElementById('lblCorrectnessVal').innerText = Number(this.value).toFixed(1)">
+                        <span id="lblCorrectnessVal" class="badge rounded-pill bg-primary font-monospace" style="min-width: 35px;">0.5</span>
                     </div>
-                    <div class="text-center mt-2">
-                        <span id="lblRatingVal" class="badge rounded-pill bg-primary fs-6">0.5</span>
+                    <textarea class="form-control form-control-sm mt-1" id="inpCorrectnessComment" rows="2" placeholder="Comments..."></textarea>
+                </div>
+
+                <div class="mb-3 border-bottom pb-2">
+                    <label class="form-label fw-bold mb-0">2. Performance Rating</label>
+                    <div class="d-flex align-items-center gap-2 px-1">
+                        <input type="range" class="form-range custom-slider flex-grow-1" id="inpPerformanceRating" 
+                               min="0" max="1" step="0.1" value="0.5"
+                               oninput="document.getElementById('lblPerformanceVal').innerText = Number(this.value).toFixed(1)">
+                        <span id="lblPerformanceVal" class="badge rounded-pill bg-primary font-monospace" style="min-width: 35px;">0.5</span>
                     </div>
+                    <textarea class="form-control form-control-sm mt-1" id="inpPerformanceComment" rows="2" placeholder="Comments..."></textarea>
+                </div>
+
+                <div class="mb-3 pb-1">
+                    <label class="form-label fw-bold mb-0">3. Allowance/Difficulty Rating</label>
+                    <div class="d-flex align-items-center gap-2 px-1">
+                        <input type="range" class="form-range custom-slider flex-grow-1" id="inpDifficultyRating" 
+                               min="0" max="1" step="0.1" value="0.5"
+                               oninput="document.getElementById('lblDifficultyVal').innerText = Number(this.value).toFixed(1)">
+                        <span id="lblDifficultyVal" class="badge rounded-pill bg-primary font-monospace" style="min-width: 35px;">0.5</span>
+                    </div>
+                    <textarea class="form-control form-control-sm mt-1" id="inpDifficultyComment" rows="2" placeholder="Comments..."></textarea>
                 </div>
                 
-                <div class="mb-2">
-                    <label class="form-label small">Comment</label>
-                    <select id="inpCommentSelect" class="form-select form-select-sm mb-2">
-                        <option value="">Select a comment...</option>
-                    </select>
-                    <textarea class="form-control form-control-sm" id="inpComment" rows="2" placeholder="Comments..."></textarea>
-                </div>
-                
-                <button class="btn btn-primary w-100 btn-sm" onclick="commitEdit()">Confirm (Enter)</button>
+                <button class="btn btn-primary w-100 btn-sm mt-2" onclick="commitEdit()">Confirm (Enter)</button>
             </div>
 
         </div>
@@ -234,7 +232,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    const savedData = {{ saved_data | tojson | safe }};
     const CURRENT_VIDEO_NAME = "{{ video_name }}";
     const CURRENT_ENTRY_ID = "{{ kaltura_video.entry_id }}";
     window.CURRENT_VIDEO_CATEGORY = {{ kaltura_video.category | tojson | safe }};
@@ -242,7 +239,7 @@
     const SAVED_DATA = {{ saved_data | tojson }};
     window.CURRENT_ENTRY_ID = CURRENT_ENTRY_ID;
     window.IS_COMPLETED = {{ (saved_data.completed if saved_data else false) | tojson | safe }};
-  </script>
+</script>
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
     <div id="saveToast" class="toast text-bg-success border-0" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="2500">

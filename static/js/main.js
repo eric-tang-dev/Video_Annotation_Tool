@@ -34,8 +34,14 @@ function buildCurrentVideoPayload() {
     return {
         timestamps: all_steps.map(a => [a.start, a.end]),
         actions: all_steps.map(a => a.name),
-        evaluation: all_steps.map(a => a.rating),
-        comments: all_steps.map(a => a.comment)
+
+        correctness_evaluation: all_steps.map(a => a.correctness_rating),
+        performance_evaluation: all_steps.map(a => a.performance_rating),
+        difficulty_evaluation: all_steps.map(a => a.difficulty_rating),
+        
+        correctness_comments: all_steps.map(a => a.correctness_comment),
+        performance_comments: all_steps.map(a => a.performance_comment),
+        difficulty_comments: all_steps.map(a => a.difficulty_comment)
     };
 }
 
@@ -365,14 +371,35 @@ function loadSavedData() {
     // 1. Load the existing saved annotations
     for (let i = 0; i < count; i++) {
         const name = actions[i] ?? "Untitled Action";
+
+        const defaultRating = evaluation[i] ?? 0.5;
+        const defaultComment = comments[i] ?? "";
+
+        // Extract raw timestamp values from the array row 
+        let startTime = timestamps[i] ? timestamps[i][0] : NaN;
+        let endTime = timestamps[i] ? timestamps[i][1] : NaN;
+
+        // convert null timestamps to NaN so they are recognized as missing steps 
+        if (startTime === null || endTime === null) {
+            startTime = NaN;
+            endTime = NaN;
+        }
     
         const newStep = {
             id: Date.now() + i,
-            start: timestamps[i][0],
-            end: timestamps[i][1],
             name: name,
-            rating: evaluation[i] ?? 0.5,
-            comment: comments[i] ?? "",
+            start: startTime,
+            end: endTime,
+
+            // New flat independent properties
+            correctness_rating: preferredData.correctness_evaluation ? (preferredData.correctness_evaluation[i] ?? defaultRating) : defaultRating,
+            performance_rating: preferredData.performance_evaluation ? (preferredData.performance_evaluation[i] ?? defaultRating) : defaultRating,
+            difficulty_rating: preferredData.difficulty_evaluation ? (preferredData.difficulty_evaluation[i] ?? defaultRating) : defaultRating,
+            
+            correctness_comment: preferredData.correctness_comments ? (preferredData.correctness_comments[i] ?? defaultComment) : defaultComment,
+            performance_comment: preferredData.performance_comments ? (preferredData.performance_comments[i] ?? defaultComment) : defaultComment,
+            difficulty_comment: preferredData.difficulty_comments ? (preferredData.difficulty_comments[i] ?? defaultComment) : defaultComment,
+            
             isSterileBreach: (name === STERILE_BREACH_NAME)
         };
         all_steps.push(newStep);
@@ -391,8 +418,12 @@ function loadSavedData() {
                 start: NaN,
                 end: NaN,
                 name: stepName,
-                rating: 0.0,
-                comment: "",
+                correctness_rating: 0.0,
+                performance_rating: 0.0,
+                difficulty_rating: 0.0,
+                correctness_comment: "",
+                performance_comment: "",
+                difficulty_comment: "",
                 isSterileBreach: (stepName === STERILE_BREACH_NAME)
             };
             all_steps.push(placeholderStep);
@@ -497,10 +528,7 @@ function saveData(markComplete = false) {
         "entry_id": CURRENT_ENTRY_ID,
         "video_name": CURRENT_VIDEO_NAME,
         "completed": isCompleted,
-        "timestamps": all_steps.map(a => [a.start, a.end]),
-        "actions": all_steps.map(a => a.name),
-        "evaluation": all_steps.map(a => a.rating),
-        "comments": all_steps.map(a => a.comment)
+        ...buildCurrentVideoPayload()
     };
 
 
@@ -659,7 +687,10 @@ function selectStep(id) {
     const missingStepDetected = isNaN(step.start);
 
     // Populate the form with the step's current information
-    document.getElementById('inpComment').value = step.comment || '';
+    // -------------------------------------------------------------------------
+    // CONSOLIDATED: Removed old flat document.getElementById('inpComment') mapping
+    // because comments have now been separated entirely into their respective metrics.
+    // -------------------------------------------------------------------------
     startInput.value = missingStepDetected ? "" : formatTime(step.start);
     endInput.value = missingStepDetected ? "" : formatTime(step.end);
 
@@ -672,8 +703,34 @@ function selectStep(id) {
         btn.disabled = missingStepDetected;
     });
     
-    const slider = document.getElementById('inpRating');
-    const lblRating = document.getElementById('lblRatingVal');
+    // Map the step's rating to the correct slider and label
+    const sliderCorrectness = document.getElementById('inpCorrectnessRating');
+    const lblCorrectness = document.getElementById('lblCorrectnessVal');
+    const txtCorrectness = document.getElementById('inpCorrectnessComment');
+
+    const sliderPerformance = document.getElementById('inpPerformanceRating');
+    const lblPerformance = document.getElementById('lblPerformanceVal');
+    const txtPerformance = document.getElementById('inpPerformanceComment');
+
+    const sliderDifficulty = document.getElementById('inpDifficultyRating');
+    const lblDifficulty = document.getElementById('lblDifficultyVal');
+    const txtDifficulty = document.getElementById('inpDifficultyComment');
+
+    // Populate ratings and comments for each category
+    txtCorrectness.value = step.correctness_comment || '';
+    txtPerformance.value = step.performance_comment || '';
+    txtDifficulty.value = step.difficulty_comment || '';
+
+    // If the step is missing (NaN) or existing, sync current numeric states to sliders
+    if (sliderCorrectness) sliderCorrectness.value = step.correctness_rating ?? 0.5;
+    if (lblCorrectness) lblCorrectness.innerText = Number(sliderCorrectness.value).toFixed(1);
+
+    if (sliderPerformance) sliderPerformance.value = step.performance_rating ?? 0.5;
+    if (lblPerformance) lblPerformance.innerText = Number(sliderPerformance.value).toFixed(1);
+
+    if (sliderDifficulty) sliderDifficulty.value = step.difficulty_rating ?? 0.5;
+    if (lblDifficulty) lblDifficulty.innerText = Number(sliderDifficulty.value).toFixed(1);
+
     const actionSelect = document.getElementById('inpActionSelect');
     const customActionInput = document.getElementById('inpActionName');
     const stepOptions = (window.STEP_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
@@ -696,22 +753,19 @@ function selectStep(id) {
 
     const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
 
+    // Determine form control availability states based on configuration parameters
     if (missingStepDetected) {
-        if (slider) slider.disabled = true;
+        // if step is missing (NaN), disable sliders entirely
+        if (sliderCorrectness) sliderCorrectness.disabled = true;
+        if (sliderPerformance) sliderPerformance.disabled = true;
+        if (sliderDifficulty) sliderDifficulty.disabled = true;
         if (actionSelect) actionSelect.disabled = true;
-        
-        // Populate standard rating visualization
-        if (slider) slider.value = step.rating;
-        if (lblRating) lblRating.innerText = step.rating.toFixed(2);
-        
-        // Fetch matching comment preset profiles
-        const normalComments = (window.COMMENT_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
-        populateCommentOptions(normalComments, step.comment);
-        
     } else if (isSterile) {
-        // force fixed values
+        // force fixed values for objective items during a breach event
         step.name = STERILE_BREACH_NAME;
-        step.rating = STERILE_BREACH_RATING;
+        step.correctness_rating = STERILE_BREACH_RATING; // 0.0
+        step.performance_rating = STERILE_BREACH_RATING; // 0.0
+        step.difficulty_rating = STERILE_BREACH_RATING; // 0.0
         
         // do not compute timestamps if they are NaN
         if (!isNaN(step.start) && !isNaN(step.end)) {
@@ -721,14 +775,16 @@ function selectStep(id) {
 
         document.getElementById('inpActionName').value = step.name;
 
-        // disable rating slider and hide its label text if you want
-        if (slider) {
-            slider.value = step.rating;
-            slider.disabled = true;
-        }
-        if (lblRating) {
-            lblRating.innerText = step.rating.toFixed(2);
-        }
+        // Explicitly force freeze Correctness & Performance sliders to 0.0,
+        // while leaving the subjective Difficulty slider completely interactive.
+        if (sliderCorrectness) { sliderCorrectness.value = 0.0; sliderCorrectness.disabled = true; }
+        if (lblCorrectness) lblCorrectness.innerText = "0.0";
+        
+        if (sliderPerformance) { sliderPerformance.value = 0.0; sliderPerformance.disabled = true; }
+        if (lblPerformance) lblPerformance.innerText = "0.0";
+
+        if (sliderDifficulty) { sliderDifficulty.value = 0.0; sliderDifficulty.disabled = true; }
+        if (lblDifficulty) lblDifficulty.innerText = "0.0";
 
         // lock action selection to Sterile Breach
         if (actionSelect) {
@@ -737,23 +793,16 @@ function selectStep(id) {
             actionSelect.disabled = true;
         }
 
-        populateCommentOptions(STERILE_BREACH_COMMENTS, step.comment);
     } else {
-        if (slider) {
-            slider.disabled = false;
-            slider.value = step.rating !== null ? step.rating : 0.5;
-        }
-        if (lblRating) {
-            lblRating.innerText = slider ? slider.value : '';
-        }
+        // Enable slider interactive functionalities for standard steps
+        if (sliderCorrectness) sliderCorrectness.disabled = false;
+        if (sliderPerformance) sliderPerformance.disabled = false;
+        if (sliderDifficulty) sliderDifficulty.disabled = false;
+        
         if (actionSelect) {
             actionSelect.disabled = false;
         }
-
-        const normalComments = (window.COMMENT_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
-        populateCommentOptions(normalComments, step.comment);
     }
-
 
     // scroll down to form 
     setTimeout(() => {
@@ -780,21 +829,27 @@ function commitEdit() {
 
         const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
 
-        // Always update comment
-        step.comment = document.getElementById('inpComment').value;
+        // Always update comment and update based on corresponding inputs
+        step.correctness_comment = document.getElementById('inpCorrectnessComment').value;
+        step.performance_comment = document.getElementById('inpPerformanceComment').value;
+        step.difficulty_comment = document.getElementById('inpDifficultyComment').value;
 
 
         if (isSterile) {
             // lock name and rating
             step.name = STERILE_BREACH_NAME;
-            step.rating = STERILE_BREACH_RATING;
+            step.correctness_rating = STERILE_BREACH_RATING;
+            step.performance_rating = STERILE_BREACH_RATING;
+            step.difficulty_rating = STERILE_BREACH_RATING;
         } else {
             step.name =
                 selectedStepValue === '__custom__'
                     ? (customStepValue || step.name || "Untitled Action")
                     : (selectedStepValue || customStepValue || step.name || "Untitled Action");
 
-            step.rating = parseFloat(document.getElementById('inpRating').value);
+            step.correctness_rating = parseFloat(document.getElementById('inpCorrectnessRating').value);
+            step.performance_rating = parseFloat(document.getElementById('inpPerformanceRating').value);
+            step.difficulty_rating = parseFloat(document.getElementById('inpDifficultyRating').value);;
 
         }
 
@@ -808,6 +863,7 @@ function commitEdit() {
             return;
         }
 
+        // time validation for common procedural steps
         let rawStart = document.getElementById('inpStart').value;
         let rawEnd = document.getElementById('inpEnd').value;
         let tStart = parseTimeStr(rawStart);
@@ -924,7 +980,13 @@ function renderList() {
 
         div.className = `action-item p-2 mb-1 border rounded ${backgroundClass} ${step.id === active_step_id ? 'active' : ''}`;
 
-        const hue = step.rating * 120; 
+        // Calculate average rating for the step (used for badge color)
+        const scoreCorrectness = step.correctness_rating ?? 0.5;
+        const scorePerformance = step.performance_rating ?? 0.5;
+        const scoreDifficulty = step.difficulty_rating ?? 0.5;
+        const compositeAverage = (scoreCorrectness + scorePerformance + scoreDifficulty) / 3;
+
+        const hue = compositeAverage * 120; 
         const badgeColor = `style="background-color: hsl(${hue}, 70%, 45%); color: white;"`;
 
         const timeDisplayString = (isNaN(step.start) || isNaN(step.end)) 
@@ -934,7 +996,7 @@ function renderList() {
         div.innerHTML = `
             <div class="d-flex justify-content-between">
                 <strong>${step.name}</strong>
-                <span class="badge" ${badgeColor}>${step.rating.toFixed(2)}</span>
+                <span class="badge" ${badgeColor}>${compositeAverage.toFixed(2)}</span>
             </div>
             <div class="small text-muted">
                 ${timeDisplayString}
