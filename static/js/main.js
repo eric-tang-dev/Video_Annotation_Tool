@@ -903,8 +903,8 @@ function renderList() {
         const missingStepDetected = isNaN(step.start);
         const backgroundClass = missingStepDetected ? 'bg-warning-subtle' : '';
 
-        div.className = `action-item p-2 mb-1 border rounded ${step.id === active_step_id ? 'active' : ''}`;
-
+        div.className = `action-item p-2 mb-1 border rounded ${backgroundClass} ${step.id === active_step_id ? 'active' : ''}`;
+        
         const hue = step.rating * 120; 
         const badgeColor = `style="background-color: hsl(${hue}, 70%, 45%); color: white;"`;
 
