@@ -652,12 +652,26 @@ function selectStep(id) {
     // Show the form
     const form = document.getElementById('editForm');
     form.style.display = 'block';
-    
-    // Populate the form with the step's current information (and check for NaN)
-    document.getElementById('inpComment').value = step.comment || '';
-    document.getElementById('inpStart').value = isNaN(step.start) ? "" : formatTime(step.start);
-    document.getElementById('inpEnd').value = isNaN(step.end) ? "" : formatTime(step.end);
 
+    // determine if the step is a missing step (has NaN timestamps) 
+    const startInput = document.getElementById('inpStart');
+    const endInput = document.getElementById('inpEnd');
+    const missingStepDetected = isNaN(step.start);
+
+    // Populate the form with the step's current information
+    document.getElementById('inpComment').value = step.comment || '';
+    startInput.value = missingStepDetected ? "" : formatTime(step.start);
+    endInput.value = missingStepDetected ? "" : formatTime(step.end);
+
+    // if step is missing/NaN, don't allow editing timestamps
+    startInput.disabled = missingStepDetected;
+    endInput.disabled = missingStepDetected;
+    
+    const nudgeButtons = form.querySelectorAll('.nudge-btn');
+    nudgeButtons.forEach(btn => {
+        btn.disabled = missingStepDetected;
+    });
+    
     const slider = document.getElementById('inpRating');
     const lblRating = document.getElementById('lblRatingVal');
     const actionSelect = document.getElementById('inpActionSelect');
@@ -757,24 +771,11 @@ function commitEdit() {
         // Always update comment
         step.comment = document.getElementById('inpComment').value;
 
-        let rawStart = document.getElementById('inpStart').value;
-        let rawEnd = document.getElementById('inpEnd').value;
-        let tStart = parseTimeStr(rawStart);
-        let tEnd = parseTimeStr(rawEnd);
 
         if (isSterile) {
             // lock name and rating
             step.name = STERILE_BREACH_NAME;
             step.rating = STERILE_BREACH_RATING;
-
-            // keep the 0.5s min; still allow user to tweak times if valid
-            if ((tStart !== null) && (tEnd !== null) && (tEnd > tStart)) {
-                step.start = tStart;
-                step.end = Math.max(tEnd, tStart + STERILE_BREACH_DURATION);
-            } else {
-                alert("Invalid Time Format (MM:SS.mmm) or End time is before Start time.");
-                return;
-            }
         } else {
             step.name =
                 selectedStepValue === '__custom__'
@@ -785,12 +786,27 @@ function commitEdit() {
 
         }
 
+        // for missing steps with NaN timestamps, don't enforce tStart < tEnd
+        if (isNaN(step.start)) {
+            active_step_id = null;
+            document.getElementById('editForm').style.display = 'none';
+            saveDraftToLocal();
+            renderTimeline();
+            renderList();
+            return;
+        }
+
+        let rawStart = document.getElementById('inpStart').value;
+        let rawEnd = document.getElementById('inpEnd').value;
+        let tStart = parseTimeStr(rawStart);
+        let tEnd = parseTimeStr(rawEnd);
 
         // validate timestamps (parseTimeStr can return null)
         if ((tStart !== null) && (tEnd !== null) && (tEnd > tStart)) {
             step.start = tStart;
-            step.end = tEnd;
-        } else {
+            step.end = isSterile ? Math.max(tEnd, tStart + STERILE_BREACH_DURATION) : tEnd;        
+        } 
+            else {
             alert("Invalid Time Format (MM:SS.mmm) or End time is before Start time.");
             return; 
         }
@@ -882,14 +898,18 @@ function renderList() {
         return a.start - b.start;         
     }).forEach(step => {
         const div = document.createElement('div');
-        div.className = `action-item p-2 mb-1 border rounded ${step.id === active_step_id ? 'active' : ''}`;
 
+        // if step is missing, give slight yellow tinted background
+        const missingStepDetected = isNaN(step.start);
+        const backgroundClass = missingStepDetected ? 'bg-warning-subtle' : '';
+
+        div.className = `action-item p-2 mb-1 border rounded ${step.id === active_step_id ? 'active' : ''}`;
 
         const hue = step.rating * 120; 
         const badgeColor = `style="background-color: hsl(${hue}, 70%, 45%); color: white;"`;
 
         const timeDisplayString = (isNaN(step.start) || isNaN(step.end)) 
-            ? "Not yet annotated" 
+            ? "Missing Step" 
             : `${formatTime(step.start)} - ${formatTime(step.end)}`;
 
         div.innerHTML = `
