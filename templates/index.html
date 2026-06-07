@@ -127,6 +127,10 @@
                 <button id="sterile-breach-btn" class="btn btn-danger btn-sm">
                     Sterile Breach
                 </button>
+
+                <button id="allowance-btn" class="btn btn-success btn-sm ms-1" onclick="toggleAllowanceStep()">
+                    Start Allowance
+                </button>
                 
                 <span class="ms-3 badge bg-danger align-self-center" id="recIndicator" style="display:none;">LOGGING STEP...</span>
             </div>
@@ -146,7 +150,7 @@
                 </div>
         
             <!-- Evaluation Form -->
-           <div class="p-3 bg-light border-top" id="editForm" style="display:none;">
+           <div class="p-3 bg-white border border-secondary border-3 rounded shadow-lg mt-2 text-dark" id="editForm" style="display:none;">
                 <h6>Edit Selected Action</h6>
                 
                 <div class="timestamp-row">

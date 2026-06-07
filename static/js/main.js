@@ -7,6 +7,9 @@ let kalturaReady = false
 let playerState = 'paused'
 let isCompleted = !!window.IS_COMPLETED;
 
+let timelineUndoSnapshot = null; // for undo functionality for addHandle
+let deletedStepTrashCan = null // for undo functionality for delete step
+
 const STERILE_BREACH_NAME = "Sterile Breach";
 const STERILE_BREACH_DURATION = 0.5;
 const STERILE_BREACH_RATING = 0.0;
@@ -16,6 +19,10 @@ const STERILE_BREACH_COMMENTS = [
     "grabbing the wrong part of the glove",
     "paper falling back onto the gloves"
 ];
+
+const ALLOWANCE_STEP_NAME = "Allowance";
+const ALLOWANCE_DEFAULT_RATING = 0.5;
+let allowance_start_time = null; // Track live recording toggles
 
 
 // This function returns the current video's stable browser draft key
@@ -305,10 +312,21 @@ document.addEventListener('keydown', (e) => {
 
     // '[' = Start Logging Step
     if (e.key === '[') {
+        const allowanceBtn = document.getElementById("allowance-btn");              
+        const isAllowanceActive = allowanceBtn && allowanceBtn.innerText === "End Allowance";
+
         temp_start_time = video.currentTime;
         
         // Show the "LOGGING STEP..." text
-        document.getElementById('recIndicator').style.display = 'inline';
+        const recIndicator = document.getElementById('recIndicator');   
+        if (recIndicator) {                          
+            if (isAllowanceActive) {                    
+                recIndicator.innerText = "RECORDING ALLOWANCE...";   
+            } else {                        
+                recIndicator.innerText = "LOGGING STEP...";                       
+            }                                     
+            recIndicator.style.display = 'inline';
+        }
         
         // Draw Green Marker (indicating step's start time)
         const track = document.getElementById('timelineTrack');
@@ -337,10 +355,21 @@ document.addEventListener('keydown', (e) => {
     if (e.key === ']') {
         e.preventDefault();
 
+        const allowanceBtn = document.getElementById("allowance-btn");
+        const isAllowanceActive = allowanceBtn && allowanceBtn.innerText === "End Allowance";
 
-        if (temp_start_time !== null) {
+        if (isAllowanceActive) {
+            toggleAllowanceStep(); // Safely close and commit the allowance step
+        }
+        else if (temp_start_time !== null) {
             finishCapture();
         }
+    }
+
+    // Check for Ctrl + Z (or Cmd + Z on Mac) UNDO FUNCTIONALITY
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault(); // Stop default browser behavior
+        executeUndo();
     }
 });
 
@@ -386,7 +415,7 @@ function loadSavedData() {
         }
     
         const newStep = {
-            id: Date.now() + i,
+            id: Date.now() + i + Math.random(), // unique ID safe from refresh 
             name: name,
             start: startTime,
             end: endTime,
@@ -504,6 +533,92 @@ function addSterileBreachStep() {
     renderTimeline();
     renderList();
     selectStep(newStep.id);
+}
+
+// This function handles the toggle behavior of the "Allowance" step recording button. 
+// It uses the allowance_start_time variable to track whether we are currently recording an allowance step or not. 
+// Depending on the state, it either starts a new allowance step or ends the current one and saves it.
+function toggleAllowanceStep() {
+    const btn = document.getElementById("allowance-btn");
+    if (!btn) return;
+
+    // SCENARIO A: Start recording the state segment
+    if (allowance_start_time === null) {
+        allowance_start_time = video.currentTime;
+        temp_start_time = allowance_start_time; // for green marker on timeline
+
+        btn.innerText = "End Allowance";
+        btn.classList.remove("btn-success");
+        btn.classList.add("btn-warning"); // Turn yellow/orange while active
+        
+        // Show recording layout status
+        const recIndicator = document.getElementById('recIndicator');
+        if (recIndicator) {                                    
+            recIndicator.innerText = "RECORDING ALLOWANCE...";  
+            recIndicator.style.display = 'inline';
+        }
+
+        // Build the green timeline temporary bar immediately on button click
+        const track = document.getElementById('timelineTrack');   
+        if (track) {  
+            const old = document.getElementById('tempMarker');           
+            if (old) old.remove();                                       
+
+            const marker = document.createElement('div');              
+            marker.id = 'tempMarker'; 
+            marker.className = 'temp-marker';  
+            
+            const pos = (temp_start_time / video_length) * 100;
+            marker.style.left = `${pos}%`;
+            
+            track.appendChild(marker);
+        }
+    } 
+    // SCENARIO B: Commit the finalized step boundaries
+    else {
+        const end_time = video.currentTime;
+
+        // Pause the video if it's still playing
+        if (video && typeof video.pause === "function") {
+            video.pause();
+        }
+        
+        const newStep = {
+            id: Date.now(),
+            name: ALLOWANCE_STEP_NAME,
+            start: allowance_start_time,
+            end: Math.max(end_time, allowance_start_time + 0.5), // enforce 0.5s min
+            correctness_rating: ALLOWANCE_DEFAULT_RATING,
+            performance_rating: ALLOWANCE_DEFAULT_RATING,
+            difficulty_rating: ALLOWANCE_DEFAULT_RATING,
+            correctness_comment: '',
+            performance_comment: '',
+            difficulty_comment: '',
+            isAllowanceStep: true
+        };
+
+        all_steps.push(newStep);
+        all_steps.sort((a, b) => (a.start || 0) - (b.start || 0));
+
+        // Reset Toggle UI Buttons
+        allowance_start_time = null;
+        temp_start_time = null;
+
+        const old = document.getElementById('tempMarker');
+        if (old) old.remove();
+
+        btn.innerText = "Start Allowance";
+        btn.classList.remove("btn-warning");
+        btn.classList.add("btn-success");
+        document.getElementById('recIndicator').innerText = "LOGGING STEP...";
+        document.getElementById('recIndicator').style.display = 'none';
+
+        // Auto-save, render and focus form
+        saveDraftToLocal();
+        renderTimeline();
+        renderList();
+        selectStep(newStep.id);
+    }
 }
 
 
@@ -671,6 +786,11 @@ function selectStep(id) {
 
 
     active_step_id = id;
+
+    // move video to the step's start time
+    if (step && !isNaN(step.start)) {
+        video.currentTime = step.start;
+    }
     
     // Re-render timeline and step list 
     renderTimeline();
@@ -752,6 +872,7 @@ function selectStep(id) {
     }
 
     const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
+    const isAllowance = step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME;
 
     // Determine form control availability states based on configuration parameters
     if (missingStepDetected) {
@@ -793,11 +914,39 @@ function selectStep(id) {
             actionSelect.disabled = true;
         }
 
+    } else if (isAllowance) {
+        step.name = ALLOWANCE_STEP_NAME;
+        step.correctness_rating = ALLOWANCE_DEFAULT_RATING; // 0.5
+        step.performance_rating = ALLOWANCE_DEFAULT_RATING; // 0.5
+        step.difficulty_rating = ALLOWANCE_DEFAULT_RATING;  // 0.5
+
+        // Force sliders to show 0.5 dynamically and disable them
+        if (sliderCorrectness) { sliderCorrectness.value = 0.5; sliderCorrectness.disabled = true; }
+        if (lblCorrectness) lblCorrectness.innerText = "0.5";
+        if (sliderPerformance) { sliderPerformance.value = 0.5; sliderPerformance.disabled = true; }
+        if (lblPerformance) lblPerformance.innerText = "0.5";
+        if (sliderDifficulty) { sliderDifficulty.value = 0.5; sliderDifficulty.disabled = true; }
+        if (lblDifficulty) lblDifficulty.innerText = "0.5";
+
+        // LOCK comments fields 1 & 2, keep field 3 interactive
+        if (txtCorrectness) txtCorrectness.disabled = true;
+        if (txtPerformance) txtPerformance.disabled = true;
+        if (txtDifficulty) txtDifficulty.disabled = false; // keep open
+
+        if (actionSelect) {
+            actionSelect.value = '';
+            actionSelect.disabled = true;
+        }
+        if (customActionInput) customActionInput.value = ALLOWANCE_STEP_NAME;
     } else {
         // Enable slider interactive functionalities for standard steps
         if (sliderCorrectness) sliderCorrectness.disabled = false;
         if (sliderPerformance) sliderPerformance.disabled = false;
         if (sliderDifficulty) sliderDifficulty.disabled = false;
+
+        if (txtCorrectness) txtCorrectness.disabled = false;
+        if (txtPerformance) txtPerformance.disabled = false;
+        if (txtDifficulty) txtDifficulty.disabled = false;
         
         if (actionSelect) {
             actionSelect.disabled = false;
@@ -828,6 +977,7 @@ function commitEdit() {
         const customStepValue = document.getElementById('inpActionName').value.trim();
 
         const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
+        const isAllowance = step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME;
 
         // Always update comment and update based on corresponding inputs
         step.correctness_comment = document.getElementById('inpCorrectnessComment').value;
@@ -841,6 +991,11 @@ function commitEdit() {
             step.correctness_rating = STERILE_BREACH_RATING;
             step.performance_rating = STERILE_BREACH_RATING;
             step.difficulty_rating = STERILE_BREACH_RATING;
+        } else if (isAllowance) {
+            step.name = ALLOWANCE_STEP_NAME;
+            step.correctness_rating = ALLOWANCE_DEFAULT_RATING; // 0.5
+            step.performance_rating = ALLOWANCE_DEFAULT_RATING; // 0.5
+            step.difficulty_rating = ALLOWANCE_DEFAULT_RATING;  // 0.5
         } else {
             step.name =
                 selectedStepValue === '__custom__'
@@ -921,7 +1076,11 @@ function renderTimeline() {
         const width = ((step.end - step.start) / video_length) * 100;
 
         const el = document.createElement('div');
-        el.className = `t-block ${step.id === active_step_id ? 'active' : ''}`;
+        if (step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME) {
+            el.className = `t-block bg-success border-success ${step.id === active_step_id ? 'active' : ''}`;
+        } else {
+            el.className = `t-block ${step.id === active_step_id ? 'active' : ''}`;
+        }
         el.style.left = `${left}%`;
         el.style.width = `${width}%`;
         el.onclick = () => selectStep(step.id);
@@ -952,6 +1111,16 @@ function renderTimeline() {
 */
 function renderList() {
     const list = document.getElementById('actionList');
+    if (!list) return;
+
+    // Move the form out of the way (to the sidebar) before wiping the list, otherwise it will be deleted
+    const actualForm = document.getElementById('editForm');
+    const sidebar = document.getElementById('sidebar');
+    if (actualForm && sidebar) {
+        sidebar.appendChild(actualForm);
+        actualForm.style.display = 'none';
+    }
+
     list.innerHTML = '';    // wipe the existing step list 
     
     // Sort all_steps and loop through it 
@@ -970,12 +1139,15 @@ function renderList() {
         // if step is missing, give slight red tinted background. if step is a sterile breach, give it a yellow tinted background.
         const missingStepDetected = isNaN(step.start);
         const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
+        const isAllowance = step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME; 
 
         let backgroundClass = '';
         if (missingStepDetected) {
             backgroundClass = 'bg-danger-subtle';
         } else if (isSterile) {
             backgroundClass = 'bg-warning-subtle';
+        }  else if (isAllowance) {
+            backgroundClass = 'bg-success-subtle border-success text-success-emphasis'; 
         }
 
         div.className = `action-item p-2 mb-1 border rounded ${backgroundClass} ${step.id === active_step_id ? 'active' : ''}`;
@@ -1018,8 +1190,23 @@ function renderList() {
 
 
         div.appendChild(delBtn);
+
         list.appendChild(div);
+
+        if (step.id === active_step_id) {
+            const formSlot = document.createElement('div');
+            formSlot.id = "activeFormSlot";
+            formSlot.className = "my-2 w-100";
+            list.appendChild(formSlot);
+        }
     });
+
+    const targetSlot = document.getElementById('activeFormSlot');
+    
+    if (targetSlot && actualForm) {
+        targetSlot.appendChild(actualForm);
+        actualForm.style.display = 'block';
+    }
 }
 
 
@@ -1051,6 +1238,8 @@ function addHandle(parent, step, side) {
     h.onmousedown = (e) => {
         e.stopPropagation(); 
         e.preventDefault(); 
+
+        saveUndoSnapshot();
         
         const startX = e.clientX;
         const originalTime = (side === 'left') ? step.start : step.end;
@@ -1191,6 +1380,11 @@ function initPlayheadDrag() {
 function deleteStep(id) {
     if (!confirm("Delete this step?")) return;
 
+    const targetStep = all_steps.find(s => s.id === id);
+    if (targetStep) {
+        deletedStepTrashCan = JSON.parse(JSON.stringify(targetStep));
+        timelineUndoSnapshot = null; // Clear timeline undo to prevent cross-feature bugs
+    }
 
     // Remove the step from the global all_steps
     all_steps = all_steps.filter(s => s.id !== id);
@@ -1355,4 +1549,89 @@ function showSaveToast(message = "Saved successfully.") {
     toast.show();
 }
 
+/*
+    Captures the current state of all_steps before a change occurs,
+    allowing for a single-step undo.
+*/
+function saveUndoSnapshot() {
+    const step = all_steps.find(s => s.id === active_step_id);
+    if (!step) return;
 
+    timelineUndoSnapshot = {
+        stepId: step.id,
+        originalStart: step.start,
+        originalEnd: step.end
+    };
+    
+    if (typeof updateUndoButtonUI === "function") updateUndoButtonUI();
+}
+
+/*
+    Reverts only the timestamps of the last dragged step.
+*/
+function executeUndo() {
+    if (deletedStepTrashCan) {
+
+        // If the deleted step had NaN timestamps (missing step), ensure they remain NaN when restored
+        if (isNaN(deletedStepTrashCan.start) || deletedStepTrashCan.start === null) {
+            deletedStepTrashCan.start = NaN;
+            deletedStepTrashCan.end = NaN;
+        }
+
+        // Push the step object right back into the array
+        all_steps.push(deletedStepTrashCan);
+        
+        // Clear trash container so they can't spam duplicates
+        deletedStepTrashCan = null;
+
+        // Synchronize and rebuild UI structures
+        saveDraftToLocal();
+        renderTimeline();
+        renderList();
+
+        showSaveToast("Step deletion undone.");
+        return; // Exit out early
+    }
+
+    if (!timelineUndoSnapshot) {
+        showSaveToast("Nothing to undo."); 
+        return;
+    }
+
+    // Find the exact step that was adjusted
+    const step = all_steps.find(s => s.id === timelineUndoSnapshot.stepId);
+    if (step) {
+        // Restore only its timestamps
+        step.start = timelineUndoSnapshot.originalStart;
+        step.end = timelineUndoSnapshot.originalEnd;
+
+        // Synchronize and rebuild UI views
+        saveDraftToLocal();
+        renderTimeline();
+        renderList();
+
+        // Update the open evaluation form inputs instantly
+        const startInput = document.getElementById('inpStart');
+        const endInput = document.getElementById('inpEnd');
+        if (startInput && endInput && !isNaN(step.start)) {
+            startInput.value = formatTime(step.start);
+            endInput.value = formatTime(step.end);
+        }
+        
+        showSaveToast("Timeline drag undone.");
+    } else {
+        showSaveToast("Unable to find step to undo.");
+    }
+
+    // Clear snapshot so they can't spam undo
+    timelineUndoSnapshot = null; 
+    if (typeof updateUndoButtonUI === "function") updateUndoButtonUI();
+}
+
+// Optional helper function to toggle UI button states
+function updateUndoButtonUI() {
+    const undoBtn = document.getElementById("btnUndo");
+    if (undoBtn) {
+        undoBtn.disabled = !timelineUndoSnapshot;
+    }
+}
