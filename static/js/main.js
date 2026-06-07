@@ -928,10 +928,14 @@ function selectStep(id) {
         if (sliderDifficulty) { sliderDifficulty.value = 0.5; sliderDifficulty.disabled = true; }
         if (lblDifficulty) lblDifficulty.innerText = "0.5";
 
-        // LOCK comments fields 1 & 2, keep field 3 interactive
-        if (txtCorrectness) txtCorrectness.disabled = true;
-        if (txtPerformance) txtPerformance.disabled = true;
-        if (txtDifficulty) txtDifficulty.disabled = false; // keep open
+        // HIDE comments fields 1 & 2, keep field 3 interactive
+        document.querySelectorAll('.allowance-hide-target').forEach(el => {
+            el.style.setProperty('display', 'none', 'important');
+        });
+        if (txtDifficulty) {
+            txtDifficulty.disabled = false; // keep open
+            txtDifficulty.style.display = 'block';
+        }
 
         if (actionSelect) {
             actionSelect.value = '';
@@ -939,6 +943,15 @@ function selectStep(id) {
         }
         if (customActionInput) customActionInput.value = ALLOWANCE_STEP_NAME;
     } else {
+        // For normal steps, ensure all fields are interactive and visible
+        document.querySelectorAll('.allowance-hide-target').forEach(el => {
+            if (el.classList.contains('d-flex')) {
+                el.style.display = 'flex'; // Restore correct flex layout if needed
+            } else {
+                el.style.display = 'block';
+            }
+        });
+
         // Enable slider interactive functionalities for standard steps
         if (sliderCorrectness) sliderCorrectness.disabled = false;
         if (sliderPerformance) sliderPerformance.disabled = false;

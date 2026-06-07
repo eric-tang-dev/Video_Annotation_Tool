@@ -181,7 +181,7 @@
 
                 <hr class="my-3">
                 
-                <div class="mb-3 border-bottom pb-2">
+                <div class="mb-3 border-bottom pb-2 allowance-hide-target">
                     <label class="form-label fw-bold mb-0">1. Correctness Rating</label>
                     <div class="d-flex align-items-center gap-2 px-1">
                         <input type="range" class="form-range custom-slider flex-grow-1" id="inpCorrectnessRating" 
@@ -192,7 +192,7 @@
                     <textarea class="form-control form-control-sm mt-1" id="inpCorrectnessComment" rows="2" placeholder="Comments..."></textarea>
                 </div>
 
-                <div class="mb-3 border-bottom pb-2">
+                <div class="mb-3 border-bottom pb-2 allowance-hide-target">
                     <label class="form-label fw-bold mb-0">2. Performance Rating</label>
                     <div class="d-flex align-items-center gap-2 px-1">
                         <input type="range" class="form-range custom-slider flex-grow-1" id="inpPerformanceRating" 
@@ -205,7 +205,7 @@
 
                 <div class="mb-3 pb-1">
                     <label class="form-label fw-bold mb-0">3. Allowance/Difficulty Rating</label>
-                    <div class="d-flex align-items-center gap-2 px-1">
+                    <div class="d-flex align-items-center gap-2 px-1 allowance-hide-target">
                         <input type="range" class="form-range custom-slider flex-grow-1" id="inpDifficultyRating" 
                                min="0" max="1" step="0.1" value="0.5"
                                oninput="document.getElementById('lblDifficultyVal').innerText = Number(this.value).toFixed(1)">
