@@ -757,7 +757,7 @@ function handleStepSelectChange() {
 
 function handleCommentSelectChange() {
     const select = document.getElementById('inpCommentSelect');
-    const input = document.getElementById('inpComment');
+    const input = document.getElementById('inpDifficultyComment');
     if (!select || !input) return;
 
     if (select.value === '__custom__') {
@@ -874,6 +874,9 @@ function selectStep(id) {
     const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
     const isAllowance = step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME;
 
+    const commentSelect = document.getElementById('inpCommentSelect');
+    const fieldTitle = document.getElementById('lblDifficultyFieldTitle');
+
     // Determine form control availability states based on configuration parameters
     if (missingStepDetected) {
         // if step is missing (NaN), disable sliders entirely
@@ -881,6 +884,22 @@ function selectStep(id) {
         if (sliderPerformance) sliderPerformance.disabled = true;
         if (sliderDifficulty) sliderDifficulty.disabled = true;
         if (actionSelect) actionSelect.disabled = true;
+
+        if (startInput) { startInput.value = "Missing"; startInput.disabled = true; }
+        if (endInput) { endInput.value = "Missing"; endInput.disabled = true; }
+
+        if (fieldTitle) fieldTitle.innerText = "Comments for Missing Step"
+
+        document.querySelectorAll('.allowance-hide-target').forEach(el => {
+            el.style.setProperty('display', 'none', 'important');
+        });
+
+        if (commentSelect) commentSelect.style.display = 'none';
+
+        if (txtDifficulty) {
+            txtDifficulty.disabled = false;
+            txtDifficulty.style.display = 'block';
+        }
     } else if (isSterile) {
         // force fixed values for objective items during a breach event
         step.name = STERILE_BREACH_NAME;
@@ -907,6 +926,26 @@ function selectStep(id) {
         if (sliderDifficulty) { sliderDifficulty.value = 0.0; sliderDifficulty.disabled = true; }
         if (lblDifficulty) lblDifficulty.innerText = "0.0";
 
+        if (fieldTitle) fieldTitle.innerText = "Reason for Sterile Breach";
+        if (startInput) startInput.disabled = true;
+        if (endInput) endInput.disabled = true;
+
+        // HIDE comments fields 1 & 2, keep field 3 interactive for sterile breaches
+        document.querySelectorAll('.allowance-hide-target').forEach(el => {
+            el.style.setProperty('display', 'none', 'important');
+        });
+
+        // Populate the comment dropdown with sterile breach specific comments and show the comment select field
+        if (commentSelect) {                                                                        
+            commentSelect.style.display = 'block';                                                  
+            populateCommentOptions(STERILE_BREACH_COMMENTS, step.difficulty_comment);               
+        }                                                                                           
+
+        if (txtDifficulty) {                                                                        
+            txtDifficulty.disabled = false;                                                         
+            txtDifficulty.style.display = 'block';                                                  
+        }
+
         // lock action selection to Sterile Breach
         if (actionSelect) {
             // ensure dropdown shows current name but user can't choose different preset
@@ -928,10 +967,17 @@ function selectStep(id) {
         if (sliderDifficulty) { sliderDifficulty.value = 0.5; sliderDifficulty.disabled = true; }
         if (lblDifficulty) lblDifficulty.innerText = "0.5";
 
+        if (fieldTitle) fieldTitle.innerText = "Comments on Allowance Step";
+        if (startInput) startInput.disabled = false;
+        if (endInput) endInput.disabled = false;
+
         // HIDE comments fields 1 & 2, keep field 3 interactive
         document.querySelectorAll('.allowance-hide-target').forEach(el => {
             el.style.setProperty('display', 'none', 'important');
         });
+
+        if (commentSelect) commentSelect.style.display = 'none'; // hide comment dropdown (only for sterile breach)
+
         if (txtDifficulty) {
             txtDifficulty.disabled = false; // keep open
             txtDifficulty.style.display = 'block';
@@ -943,6 +989,10 @@ function selectStep(id) {
         }
         if (customActionInput) customActionInput.value = ALLOWANCE_STEP_NAME;
     } else {
+        if (fieldTitle) fieldTitle.innerText = "3. Allowance/Difficulty Rating";
+        if (startInput) startInput.disabled = false;
+        if (endInput) endInput.disabled = false;
+
         // For normal steps, ensure all fields are interactive and visible
         document.querySelectorAll('.allowance-hide-target').forEach(el => {
             if (el.classList.contains('d-flex')) {
@@ -951,6 +1001,8 @@ function selectStep(id) {
                 el.style.display = 'block';
             }
         });
+
+        if (commentSelect) commentSelect.style.display = 'none'; // hide comment dropdown (only for sterile breach)
 
         // Enable slider interactive functionalities for standard steps
         if (sliderCorrectness) sliderCorrectness.disabled = false;

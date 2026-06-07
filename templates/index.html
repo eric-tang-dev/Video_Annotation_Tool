@@ -204,14 +204,16 @@
                 </div>
 
                 <div class="mb-3 pb-1">
-                    <label class="form-label fw-bold mb-0">3. Allowance/Difficulty Rating</label>
+                    <label class="form-label fw-bold mb-0" id="lblDifficultyFieldTitle">3. Allowance/Difficulty Rating</label>
                     <div class="d-flex align-items-center gap-2 px-1 allowance-hide-target">
                         <input type="range" class="form-range custom-slider flex-grow-1" id="inpDifficultyRating" 
                                min="0" max="1" step="0.1" value="0.5"
                                oninput="document.getElementById('lblDifficultyVal').innerText = Number(this.value).toFixed(1)">
                         <span id="lblDifficultyVal" class="badge rounded-pill bg-primary font-monospace" style="min-width: 35px;">0.5</span>
                     </div>
-                    <textarea class="form-control form-control-sm mt-1" id="inpDifficultyComment" rows="2" placeholder="Comments..."></textarea>
+
+                    <!-- Comment Selection for Sterile Breaches -->
+                    <select id="inpCommentSelect" class="form-select form-select-sm mt-2 mb-1 text-dark" style="display: none;"></select> <textarea class="form-control form-control-sm mt-1" id="inpDifficultyComment" rows="2" placeholder="Comments..."></textarea>
                 </div>
                 
                 <button class="btn btn-primary w-100 btn-sm mt-2" onclick="commitEdit()">Confirm (Enter)</button>
