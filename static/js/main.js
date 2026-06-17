@@ -460,10 +460,6 @@ function loadSavedData() {
             }
         });
     }
-    else {
-        // <-- TEMPORARY VERIFICATION ALERT: Delete this entire else block later -->
-        alert(`Bypass Active: Detected Expert ${window.CURRENT_EXPERT_ID}. Skipping missing step injection!`);
-    }
 
     renderTimeline();
     renderList();
