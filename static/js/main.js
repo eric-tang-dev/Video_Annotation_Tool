@@ -440,24 +440,30 @@ function loadSavedData() {
     const mandatorySteps = masterOptions[currentCategory] || [];
     const existingNames = new Set(all_steps.map(s => s.name));
 
-    mandatorySteps.forEach((stepName, index) => {
-        if (!existingNames.has(stepName)) {
-            const placeholderStep = {
-                id: Date.now() + 5000 + index, 
-                start: NaN,
-                end: NaN,
-                name: stepName,
-                correctness_rating: 0.0,
-                performance_rating: 0.0,
-                difficulty_rating: 0.0,
-                correctness_comment: "",
-                performance_comment: "",
-                difficulty_comment: "",
-                isSterileBreach: (stepName === STERILE_BREACH_NAME)
-            };
-            all_steps.push(placeholderStep);
-        }
-    });
+    if (String(window.CURRENT_EXPERT_ID).trim() !== "expert_100") {
+        mandatorySteps.forEach((stepName, index) => {
+            if (!existingNames.has(stepName)) {
+                const placeholderStep = {
+                    id: Date.now() + 5000 + index, 
+                    start: NaN,
+                    end: NaN,
+                    name: stepName,
+                    correctness_rating: 0.0,
+                    performance_rating: 0.0,
+                    difficulty_rating: 0.0,
+                    correctness_comment: "",
+                    performance_comment: "",
+                    difficulty_comment: "",
+                    isSterileBreach: (stepName === STERILE_BREACH_NAME)
+                };
+                all_steps.push(placeholderStep);
+            }
+        });
+    }
+    else {
+        // <-- TEMPORARY VERIFICATION ALERT: Delete this entire else block later -->
+        alert(`Bypass Active: Detected Expert ${window.CURRENT_EXPERT_ID}. Skipping missing step injection!`);
+    }
 
     renderTimeline();
     renderList();
