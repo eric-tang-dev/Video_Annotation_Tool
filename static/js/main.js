@@ -885,7 +885,7 @@ function selectStep(id) {
         if (sliderCorrectness) sliderCorrectness.disabled = true;
         if (sliderPerformance) sliderPerformance.disabled = true;
         if (sliderDifficulty) sliderDifficulty.disabled = true;
-        if (actionSelect) actionSelect.disabled = true;
+        if (actionSelect) actionSelect.disabled = false; // allow action selection for missing steps (not locked to preset)
 
         if (startInput) { startInput.value = "Missing"; startInput.disabled = true; }
         if (endInput) { endInput.value = "Missing"; endInput.disabled = true; }
