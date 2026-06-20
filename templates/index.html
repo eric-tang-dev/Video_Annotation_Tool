@@ -142,7 +142,10 @@
     
             <div class="p-3 border-bottom bg-light sticky-top" style="z-index: 1020;">
                 <h5>Recorded Actions</h5>
-                <small class="text-muted">Shortcuts: <strong>[</strong> to Start, <strong>]</strong> to End</small>
+                <div class="d-flex gap-2 mt-1">                                                                             
+                    <button class="btn btn-outline-dark btn-sm flex-grow-1" onclick="jumpToStep('prev')">&larr; Prev Step</button> 
+                    <button class="btn btn-outline-dark btn-sm flex-grow-1" onclick="jumpToStep('next')">Next Step &rarr;</button> 
+                </div>                                                                                                      
             </div>
             
             <!-- List of Logged Steps (Dynamically added via main.js) -->

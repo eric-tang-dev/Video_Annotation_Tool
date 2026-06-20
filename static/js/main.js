@@ -1702,3 +1702,49 @@ function updateUndoButtonUI() {
         undoBtn.disabled = !timelineUndoSnapshot;
     }
 }
+
+/**
+ * Jumps the video player and evaluation form focus to the chronologically
+ * previous or next valid timeline step based on the current playhead time.
+ * @param {string} direction - Either 'prev' or 'next'
+ */
+function jumpToStep(direction) {
+    // 1. Isolate and sort only steps that have valid physical timeline positions
+    const validTimelineSteps = all_steps
+        .filter(s => !isNaN(s.start) && s.start !== null)
+        .sort((a, b) => a.start - b.start);
+
+    if (validTimelineSteps.length === 0) return;
+
+    const currentTime = video.currentTime;
+    let targetStep = null;
+
+    // 2. Scan the chronological timeline arrays
+    if (direction === 'prev') {
+        // Find the closest step that starts before the current playback marker
+        // We loop backwards from the end of the array to catch the nearest preceding match
+        for (let i = validTimelineSteps.length - 1; i >= 0; i--) {
+            // Give a tiny 0.1-second grace window in case the playhead is sitting right at the mark
+            if (validTimelineSteps[i].start < (currentTime - 0.1)) {
+                targetStep = validTimelineSteps[i];
+                break;
+            }
+        }
+    } else if (direction === 'next') {
+        // Find the closest step that starts after the current playback marker
+        for (let i = 0; i < validTimelineSteps.length; i++) {
+            if (validTimelineSteps[i].start > (currentTime + 0.1)) {
+                targetStep = validTimelineSteps[i];
+                break;
+            }
+        }
+    }
+
+    // 3. If an eligible matching boundary step was located, commit the full tracking migration
+    if (targetStep) {
+        if (video && typeof video.pause === 'function') {
+            video.pause(); // Ensure the video is explicitly paused at the target point
+        }
+        selectStep(targetStep.id); // Re-focuses text fields, timeline highlight states, and scrolls into view
+    }
+}
