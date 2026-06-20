@@ -906,6 +906,10 @@ function selectStep(id) {
 
         if (fieldTitle) fieldTitle.innerText = "Comments for Missing Step"
 
+        // hide the rewatch button for missing steps since there is no valid timestamp to jump to
+        const rewatchBtn = document.getElementById('rewatchBtnContainer');
+        if (rewatchBtn) rewatchBtn.style.setProperty('visibility', 'hidden');
+
         document.querySelectorAll('.allowance-hide-target').forEach(el => {
             el.style.setProperty('display', 'none', 'important');
         });
@@ -945,6 +949,10 @@ function selectStep(id) {
         if (fieldTitle) fieldTitle.innerText = "Reason for Sterile Breach";
         if (startInput) startInput.disabled = true;
         if (endInput) endInput.disabled = true;
+
+        // restore the rewatch button for other non-missing steps since we can jump to the breach event timestamps
+        const rewatchBtn = document.getElementById('rewatchBtnContainer');
+        if (rewatchBtn) rewatchBtn.style.setProperty('visibility', 'visible')
 
         // HIDE comments fields 1 & 2, keep field 3 interactive for sterile breaches
         document.querySelectorAll('.allowance-hide-target').forEach(el => {
@@ -1762,5 +1770,24 @@ function jumpToStep(direction) {
             video.pause(); // Ensure the video is explicitly paused at the target point
         }
         selectStep(targetStep.id); // Re-focuses text fields, timeline highlight states, and scrolls into view
+    }
+}
+
+/**
+ * Snaps the video playhead back to the start time of the currently active step.
+ */
+function rewatchCurrentStep() {
+    if (!active_step_id) return;
+
+    // Find the current focused step object in state memory
+    const step = all_steps.find(s => s.id === active_step_id);
+    
+    // Ensure the step exists and has a valid timeline position (not a missing step)
+    if (step && !isNaN(step.start) && step.start !== null) {
+        video.currentTime = step.start;
+        
+        // Optional: If you want the video to automatically play when they hit rewatch, 
+        // uncomment the line below:
+        // video.play();
     }
 }
