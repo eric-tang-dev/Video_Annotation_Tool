@@ -1383,8 +1383,9 @@ document.addEventListener('mousedown', (e) => {
     const clickedTimeline = e.target.closest('#timelineContainer');
     const clickedSidebar = e.target.closest('#sidebar');
     const clickedControls = e.target.closest('.controls-bar');
+    const clickedVideoFrame = e.target.closest('.video-wrapper');
     
-    if (!clickedTimeline && !clickedSidebar && !clickedControls) {
+    if (!clickedTimeline && !clickedSidebar && !clickedControls && !clickedVideoFrame) {
         if (active_step_id !== null) {
             active_step_id = null;
             document.getElementById('editForm').style.display = 'none';
