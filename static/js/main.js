@@ -274,6 +274,20 @@ function initializeKalturaBindings() {
                 renderTimeline();
             }
 
+            if (video && typeof video.pause === 'function') {
+                    video.pause(); // Ensure the playhead is strictly frozen on load
+                }
+
+                // Isolate valid physical steps on the timeline, ordered from start to end
+                const validTimelineSteps = all_steps
+                    .filter(s => !isNaN(s.start) && s.start !== null)
+                    .sort((a, b) => a.start - b.start);
+
+                if (validTimelineSteps.length > 0) {
+                    // Pass the first chronological item directly into your select engine
+                    selectStep(validTimelineSteps[0].id);
+                }
+
             updateTimeUI();
             clearInterval(metadataPoll);
         }
