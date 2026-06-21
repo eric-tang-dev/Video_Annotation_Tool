@@ -950,6 +950,12 @@ function selectStep(id) {
         if (startInput) startInput.disabled = true;
         if (endInput) endInput.disabled = true;
 
+        // lock timestamp editing
+        const nudgeButtons = form.querySelectorAll('.nudge-btn');
+        nudgeButtons.forEach(btn => {
+            btn.disabled = true;
+        });
+
         // restore the rewatch button for other non-missing steps since we can jump to the breach event timestamps
         const rewatchBtn = document.getElementById('rewatchBtnContainer');
         if (rewatchBtn) rewatchBtn.style.setProperty('visibility', 'visible')
@@ -975,6 +981,11 @@ function selectStep(id) {
             // ensure dropdown shows current name but user can't choose different preset
             actionSelect.value = '';
             actionSelect.disabled = true;
+        }
+        if (customActionInput) {
+            customActionInput.value = STERILE_BREACH_NAME;
+            customActionInput.disabled = true;                      // <-- LOCK THE ACTION NAME TO "Sterile Breach" FOR STERILE BREACH STEPS
+            customActionInput.style.display = 'block';
         }
 
     } else if (isAllowance) {
