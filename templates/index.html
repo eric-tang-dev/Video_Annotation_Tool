@@ -72,7 +72,7 @@
             <!-- Video Player -->
             <div class="video-wrapper flex-grow-1 d-flex justify-content-center align-items-center w-100 bg-black">
                 {% if video_file %}
-                <div id="kaltura_player" style="width: 1500px; height: 1000px;"></div>
+                <div id="kaltura_player" style="width: 95%; max-width: 1200px; max-height: 80vh; aspect-ratio: 2 / 1;"></div>
                 <script>
                     window.kalturaPlayerInstance = KalturaPlayer.setup({
                         targetId: "kaltura_player",
