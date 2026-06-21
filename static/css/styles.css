@@ -139,6 +139,9 @@ video {
     /* border to frame the gradient */
     border-top: 2px solid #8A2BE2; 
     border-bottom: 2px solid #8A2BE2;
+    border-left: 2px solid #6c757d;
+    border-right: 2px solid #6c757d;
+    box-sizing: border-box;
 }
 
 /* Needle for timeline blocks */
