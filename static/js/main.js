@@ -958,7 +958,9 @@ function selectStep(id) {
 
         // restore the rewatch button for other non-missing steps since we can jump to the breach event timestamps
         const rewatchBtn = document.getElementById('rewatchBtnContainer');
-        if (rewatchBtn) rewatchBtn.style.setProperty('visibility', 'visible')
+        if (rewatchBtn) {
+            rewatchBtn.style.visibility = 'visible';
+        }
 
         // HIDE comments fields 1 & 2, keep field 3 interactive for sterile breaches
         document.querySelectorAll('.allowance-hide-target').forEach(el => {
@@ -1023,6 +1025,12 @@ function selectStep(id) {
             actionSelect.disabled = true;
         }
         if (customActionInput) customActionInput.value = ALLOWANCE_STEP_NAME;
+
+        const rewatchBtn = document.getElementById('rewatchBtnContainer');
+        if (rewatchBtn) {
+            rewatchBtn.style.visibility = 'visible';
+        }
+
     } else {
         if (fieldTitle) fieldTitle.innerText = "3. Allowance/Difficulty Rating";
         if (startInput) startInput.disabled = false;
@@ -1050,6 +1058,12 @@ function selectStep(id) {
         
         if (actionSelect) {
             actionSelect.disabled = false;
+        }
+
+        // show the rewatch button for standard procedural steps
+        const rewatchBtn = document.getElementById('rewatchBtnContainer');
+        if (rewatchBtn) {
+            rewatchBtn.style.visibility = 'visible';
         }
     }
 
