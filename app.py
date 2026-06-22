@@ -23,7 +23,7 @@ results_directory.mkdir(parents=True, exist_ok=True)
 # EXPERT IDS 
 # -----------------------------
 
-VALID_EXPERT_IDS = {"1183456", "100121_eric", "110121_shen", "120121_francis", "130121_jessica", "expert_100", "expert_200"}
+VALID_EXPERT_IDS = {"1183456", "100121_eric", "110121_shen", "120121_francis", "130121_jessica", "stacie_1", "dagne_1"}
 
 # -----------------------------
 # STEP OPTIONS FOR DROPDOWN
