@@ -337,25 +337,29 @@ def select_video():
         "enteral-feeding"
     ]
 
-    videos_with_status = []
+    grouped_videos = {category: [] for category in CATEGORY_ORDER}
+    grouped_videos["other"] = []
 
     for video in KALTURA_VIDEOS:
         video_copy = video.copy()
         resolved_entry_id = resolve_annotation_entry_id(video["entry_id"])
         video_copy["completed"] = bool(completion_index.get(resolved_entry_id, False))
-        videos_with_status.append(video_copy)
+        
+        cat = video_copy.get("category", "other")
+        if cat in grouped_videos:
+            grouped_videos[cat].append(video_copy)
+        else:
+            grouped_videos["other"].append(video_copy)
 
-    sorted_videos = sorted(
-        videos_with_status,
-        key=lambda v: (
-            CATEGORY_ORDER.index(v.get("category")) if v.get("category") in CATEGORY_ORDER else 999,
-            v.get("video_name", "")
-        )
-    )
+    if not grouped_videos["other"]:
+        grouped_videos.pop("other")
+
+    for cat in grouped_videos:
+        grouped_videos[cat] = sorted(grouped_videos[cat], key=lambda v: v.get("video_name", "").lower())
 
     return render_template(
         'select_video.html',
-        all_videos=sorted_videos,
+        grouped_videos=grouped_videos,
         selected_entry_id=selected_entry_id,
         expert_id=expert_id
     )
