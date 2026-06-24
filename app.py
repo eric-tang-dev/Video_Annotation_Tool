@@ -145,6 +145,7 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Verbalize: Inspect patient nares and check for patency",
         "Assist patient into high-Fowler’s position or sitting at a 45° angle",
         "Place a towel over the patient’s chest",
+        "Open kit",
         "Measure the length of tubing required for the patient, then mark it with a piece of tape",
         "Apply clean gloves",
         "Lubricate the tip of the tube",
