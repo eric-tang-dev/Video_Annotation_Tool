@@ -355,18 +355,16 @@ def select_video():
         grouped_videos.pop("other")
 
     def get_video_number(v):
-        name = v.get("video_name", "") # e.g., "S9_venipuncture" or "S10_venipuncture"
+        name = v.get("video_name", "") 
         
-        # Look for the digits between 'S' and the first underscore '_'
         if name.startswith('S'):
             parts = name.split('_')
-            number_part = parts[0][1:] # Strips the 'S' off the front, leaving "9" or "10"
+            number_part = parts[0][1:] 
             if number_part.isdigit():
-                return int(number_part) # Returns 9 or 10 as an actual number for clean sorting
+                return int(number_part)
                 
-        return 999 # Fallback position for items that don't match the standard "S[Num]_" format
+        return 999 
 
-    # Apply the numeric extraction sort to every category bucket
     for cat in grouped_videos:
         grouped_videos[cat] = sorted(grouped_videos[cat], key=get_video_number)
 
