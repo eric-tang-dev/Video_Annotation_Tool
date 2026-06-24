@@ -328,6 +328,15 @@ def select_video():
     selected_entry_id = request.args.get("entry_id")
     completion_index = load_completion_index(expert_id)
 
+    CATEGORY_ORDER = [
+        "foley-catheter",
+        "sterile-gloves",
+        "ostomy-skills",
+        "venipuncture",
+        "ng-insertion",
+        "enteral-feeding"
+    ]
+
     videos_with_status = []
 
     for video in KALTURA_VIDEOS:
@@ -335,6 +344,14 @@ def select_video():
         resolved_entry_id = resolve_annotation_entry_id(video["entry_id"])
         video_copy["completed"] = bool(completion_index.get(resolved_entry_id, False))
         videos_with_status.append(video_copy)
+
+    sorted_videos = sorted(
+        videos_with_status,
+        key=lambda v: (
+            CATEGORY_ORDER.index(v.get("category")) if v.get("category") in CATEGORY_ORDER else 999,
+            v.get("video_name", "")
+        )
+    )
 
     return render_template(
         'select_video.html',
