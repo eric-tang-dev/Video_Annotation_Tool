@@ -148,6 +148,7 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Open kit",
         "Measure the length of tubing required for the patient, then mark it with a piece of tape",
         "Apply clean gloves",
+        "Open Lubricant",
         "Lubricate the tip of the tube",
         "Verbalize: Give the patient a cup of water with a straw and have them extend their head back on a pillow",
         "Verbalize: Have the patient flex their chin to their chest and encourage patient to sip through a straw while the tube advances",
