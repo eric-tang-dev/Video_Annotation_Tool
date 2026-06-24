@@ -355,7 +355,7 @@ def select_video():
 
     return render_template(
         'select_video.html',
-        all_videos=videos_with_status,
+        all_videos=sorted_videos,
         selected_entry_id=selected_entry_id,
         expert_id=expert_id
     )
