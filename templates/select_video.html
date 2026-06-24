@@ -103,34 +103,37 @@
                 </div>
             </div>
 
-            {% for category_group in all_videos | groupby('category') %}
-                <div class="category-section">
-                    <div class="category-title">{{ category_group.grouper }}</div>
+            {% for category, video_list in grouped_videos.items() %}
+                {% if video_list %} {# Only render the container section if it holds video files #}
+                    <div class="category-section">
+                        <div class="category-title">{{ category }}</div>
 
-                    <div class="row g-3">
-                        {% for item in category_group.list %}
-                            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-                                <a href="/?entry_id={{ item.entry_id }}" class="video-link">
-                                    <div class="video-card {% if item.entry_id == selected_entry_id %}selected{% endif %} {% if item.completed %}completed{% endif %}">
-                                        <div>
-                                            <div class="fw-semibold">{{ item.video_name }}</div>
-                                        
-                                            {% if item.entry_id == selected_entry_id %}
-                                                <div class="small text-primary mt-1">Currently selected</div>
-                                            {% endif %}
-                                        
-                                            {% if item.completed %}
-                                                <div class="completed-badge">Completed</div>
-                                            {% endif %}
+                        <div class="row g-3">
+                            {% for item in video_list %}
+                                <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                                    <a href="/?entry_id={{ item.entry_id }}" class="video-link">
+                                        <div class="video-card {% if item.entry_id == selected_entry_id %}selected{% endif %} {% if item.completed %}completed{% endif %}">
+                                            <div>
+                                                <div class="fw-semibold">{{ item.video_name }}</div>
+                                            
+                                                {% if item.entry_id == selected_entry_id %}
+                                                    <div class="small text-primary mt-1">Currently selected</div>
+                                                {% endif %}
+                                            
+                                                {% if item.completed %}
+                                                    <div class="completed-badge">Completed</div>
+                                                {% endif %}
+                                            </div>
                                         </div>
-                                    </div>
-                                </a>
-                            </div>
-                        {% endfor %}
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                </div>
+                {% endif %}
             {% endfor %}
-
+            
+            
         </div>
     </div>
 

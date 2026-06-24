@@ -328,17 +328,49 @@ def select_video():
     selected_entry_id = request.args.get("entry_id")
     completion_index = load_completion_index(expert_id)
 
-    videos_with_status = []
+    CATEGORY_ORDER = [
+        "foley-catheter",
+        "sterile-gloves",
+        "ostomy-skills",
+        "venipuncture",
+        "ng-insertion",
+        "enteral-feeding"
+    ]
+
+    grouped_videos = {category: [] for category in CATEGORY_ORDER}
+    grouped_videos["other"] = []
 
     for video in KALTURA_VIDEOS:
         video_copy = video.copy()
         resolved_entry_id = resolve_annotation_entry_id(video["entry_id"])
         video_copy["completed"] = bool(completion_index.get(resolved_entry_id, False))
-        videos_with_status.append(video_copy)
+        
+        cat = video_copy.get("category", "other")
+        if cat in grouped_videos:
+            grouped_videos[cat].append(video_copy)
+        else:
+            grouped_videos["other"].append(video_copy)
+
+    if not grouped_videos["other"]:
+        grouped_videos.pop("other")
+
+    def get_video_number(v):
+        name = v.get("video_name", "") 
+        
+        if name.startswith('S'):
+            parts = name.split('_')
+            number_part = parts[0][1:] 
+            if number_part.isdigit():
+                return int(number_part)
+                
+        return 999 
+
+    for cat in grouped_videos:
+        grouped_videos[cat] = sorted(grouped_videos[cat], key=get_video_number)
 
     return render_template(
         'select_video.html',
-        all_videos=videos_with_status,
+        grouped_videos=grouped_videos,
         selected_entry_id=selected_entry_id,
         expert_id=expert_id
     )
