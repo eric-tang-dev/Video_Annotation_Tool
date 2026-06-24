@@ -449,7 +449,7 @@ function loadSavedData() {
     }
 
     // 2. Find any missing mandatory steps for this specific video category and inject placeholders
-    const currentCategory = window.CURRENT_VIDEO_CATEGORY;
+    /* const currentCategory = window.CURRENT_VIDEO_CATEGORY;
     const masterOptions = window.STEP_OPTIONS_BY_CATEGORY || {};
     const mandatorySteps = masterOptions[currentCategory] || [];
     const existingNames = new Set(all_steps.map(s => s.name));
@@ -473,7 +473,7 @@ function loadSavedData() {
                 all_steps.push(placeholderStep);
             }
         });
-    }
+    } */
 
     renderTimeline();
     renderList();
