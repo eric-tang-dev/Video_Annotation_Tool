@@ -900,6 +900,397 @@ KALTURA_VIDEOS = [
     },
 
     # -----------------------------
+    # VENIPUNCTURE (compressed)
+    # -----------------------------
+
+    {
+        "category": "venipuncture",
+        "video_name": "S1_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_bizgprqm"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S2_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_47gnrc8l"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S3_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_yv5solcb"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S4_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_7tvnavdb"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S5_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_iqbnciwa"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S6_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_tt33wbmi"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S7_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_zm7mjgp4"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S8_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_yfuon269"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S9_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_htztw7ad"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S10_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_88ujiyq4"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S11_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_gxj9pzez"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S12_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_veo6um6g"
+    },
+    {
+        "category": "venipuncture",
+        "video_name": "S13_venipuncture",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_cvlix534"
+    },
+
+    # -----------------------------
+    # NG INSERTION (compressed)
+    # -----------------------------
+
+    {
+        "category": "ng-insertion",
+        "video_name": "S1_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_l2rboteb"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S2_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_pl66fy8i"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S3_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_hh2vwoy3"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S4_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_ef2htbfn"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S5_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_rnmmrob3"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S6_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_fzu0098f"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S7_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_2c2bez3y"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S8_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_cgym4h1a"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S9_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_3qbwh2hq"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S10_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_p6x1gvif"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S11_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_djtb2p44"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S12_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_uy0ujoee"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S13_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_87ugut36"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S14_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_in076csd"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S15_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_reyw0k0s"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S16_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_tveroala"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S17_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_1qpc1jw9"
+    },
+    {
+        "category": "ng-insertion",
+        "video_name": "S18_ng",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_489y935y"
+    },
+
+    # -----------------------------
+    # ENTERAL FEEDING (compressed)
+    # -----------------------------
+
+    {
+        "category": "enteral-feeding",
+        "video_name": "S1_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_wnqshjwn"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S2_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_po2bmyai"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S3_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_0lmsyhgf"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S4_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_tq8raakb"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S5_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_qo8p48p0"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S6_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_zplivek8"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S7_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_5o2x9tot"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S8_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_6a5mh6vt"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S9_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_u6x0pard"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S10_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_muhfz6vd"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S11_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_ebns37qx"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S12_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_wcsxqdm2"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S13_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_0gwljro9"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S14_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_al6io1ox"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S15_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_j858hhfh"
+    },
+    {
+        "category": "enteral-feeding",
+        "video_name": "S16_ent_feeding",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_3d6rl94d"
+    },
+
+    # -----------------------------
     # TEST VIDEO
     # -----------------------------
     {
