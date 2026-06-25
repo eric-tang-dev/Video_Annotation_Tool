@@ -172,6 +172,7 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Verbalize: Verify the provider’s prescription and check the expiration date on the formula",
         "Don gloves",
         "Elevate patient’s HOB to 30 to 45 degrees",
+        "Attach Lopez Valve to the patient's feeding tube",
         "Flush the tube with 30 mL of air to clear the tube out",
         "Confirm tube placement. The gold standard is Xray confirmation, but if that is done you can confirm by checking the pH of the stomach contents. Verbalize what the pH should be",
         "Flush the tube with 30 ml of water",
