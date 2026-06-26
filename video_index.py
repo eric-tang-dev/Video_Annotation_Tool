@@ -1291,6 +1291,126 @@ KALTURA_VIDEOS = [
     },
 
     # -----------------------------
+    # PPE & AMBULATION (compressed)
+    # -----------------------------
+
+    {
+        "category": "ppe-ambulation",
+        "video_name": "S1_ppe_ambulation",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_5a46lco6"
+    },
+    {
+        "category": "ppe-ambulation",
+        "video_name": "S2_ppe_ambulation",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_ysrgmcmw"
+    },
+    {
+        "category": "ppe-ambulation",
+        "video_name": "S3_ppe_ambulation",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_jtj5nqzu"
+    },
+    {
+        "category": "ppe-ambulation",
+        "video_name": "S4_ppe_ambulation",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_auliwc81"
+    },
+    {
+        "category": "ppe-ambulation",
+        "video_name": "S5_ppe_ambulation",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_k6yk3i6p"
+    },
+    {
+        "category": "ppe-ambulation",
+        "video_name": "S7_ppe_ambulation",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_61eilf2y"
+    },
+    {
+        "category": "ppe-ambulation",
+        "video_name": "S8_ppe_ambulation",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_a3tqyeyt"
+    },
+
+    # -----------------------------
+    # IM INJECTION (compressed)
+    # -----------------------------
+
+    {
+        "category": "im-injection",
+        "video_name": "S1_im_injection",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_dz76uzea"
+    },
+    {
+        "category": "im-injection",
+        "video_name": "S2_im_injection",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_a6tafto2"
+    },
+    {
+        "category": "im-injection",
+        "video_name": "S3_im_injection",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_oish03dq"
+    },
+
+    # -----------------------------
+    # ENTERAL MEDICATION (compressed)
+    # -----------------------------
+
+    {
+        "category": "enteral-medication",
+        "video_name": "S1_enteral_medication",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_ourl3lce"
+    },
+    {
+        "category": "enteral-medication",
+        "video_name": "S2_enteral_medication",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_lsag2sv2"
+    },
+    {
+        "category": "enteral-medication",
+        "video_name": "S3_enteral_medication",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_6mstoiks"
+    },
+
+
+    # -----------------------------
     # TEST VIDEO
     # -----------------------------
     {
