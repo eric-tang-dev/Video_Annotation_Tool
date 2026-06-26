@@ -61,6 +61,47 @@
             box-shadow: 0 0.25rem 0.75rem rgba(108, 117, 125, 0.12);
         }
 
+        .dashboard-layout {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        .procedure-sidebar {
+            width: 240px;
+            position: sticky;
+            top: 1.5rem; /* Keeps the menu locked in place as you scroll down */
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            max-height: calc(100vh - 3rem);
+            overflow-y: auto;
+        }
+
+        .sidebar-nav-link {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #495057;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-radius: 0.375rem;
+            text-transform: capitalize;
+            transition: all 0.15s ease-in-out;
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar-nav-link:hover {
+            background: #f1f3f5;
+            color: #0d6efd;
+        }
+
+        .main-content-grid {
+            flex-grow: 1;
+            min-width: 0; /* Prevents flexbox cards from breaking out of bounds */
+        }
+
         .completed-badge {
             display: inline-block;
             margin-top: 0.4rem;
@@ -103,38 +144,57 @@
                 </div>
             </div>
 
-            {% for category, video_list in grouped_videos.items() %}
-                {% if video_list %} {# Only render the container section if it holds video files #}
-                    <div class="category-section">
-                        <div class="category-title">{{ category }}</div>
-
-                        <div class="row g-3">
-                            {% for item in video_list %}
-                                <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-                                    <a href="/?entry_id={{ item.entry_id }}" class="video-link">
-                                        <div class="video-card {% if item.entry_id == selected_entry_id %}selected{% endif %} {% if item.completed %}completed{% endif %}">
-                                            <div>
-                                                <div class="fw-semibold">{{ item.video_name }}</div>
-                                            
-                                                {% if item.entry_id == selected_entry_id %}
-                                                    <div class="small text-primary mt-1">Currently selected</div>
-                                                {% endif %}
-                                            
-                                                {% if item.completed %}
-                                                    <div class="completed-badge">Completed</div>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            {% endfor %}
-                        </div>
+            <div class="dashboard-layout mt-4">
+                
+                <nav class="procedure-sidebar d-none d-md-block">
+                    <div class="fw-bold small text-uppercase text-muted mb-3" style="font-size: 0.75rem; letter-spacing: 0.03em;">
+                        Procedures Menu
                     </div>
-                {% endif %}
-            {% endfor %}
-            
-            
-        </div>
+                    {% for category, video_list in grouped_videos.items() %}
+                        {% if video_list %}
+                            <a href="#cat-{{ category }}" class="sidebar-nav-link">
+                                {{ category | replace('-', ' ') }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </nav>
+
+                <div class="main-content-grid">
+                    {% for category, video_list in grouped_videos.items() %}
+                        {% if video_list %} {# Only render the container section if it holds video files #}
+                            
+                            <div class="category-section" id="cat-{{ category }}" style="scroll-margin-top: 1.5rem;">
+                                <div class="category-title text-capitalize">{{ category | replace('-', ' ') }}</div>
+
+                                <div class="row g-3">
+                                    {% for item in video_list %}
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                                            <a href="/?entry_id={{ item.entry_id }}" class="video-link">
+                                                <div class="video-card {% if item.entry_id == selected_entry_id %}selected{% endif %} {% if item.completed %}completed{% endif %}">
+                                                    <div>
+                                                        <div class="fw-semibold">{{ item.video_name }}</div>
+                                                    
+                                                        {% if item.entry_id == selected_entry_id %}
+                                                            <div class="small text-primary mt-1">Currently selected</div>
+                                                        {% endif %}
+                                                    
+                                                        {% if item.completed %}
+                                                            <div class="completed-badge">Completed</div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+            </div>
+            </div>
     </div>
 
 </body>
