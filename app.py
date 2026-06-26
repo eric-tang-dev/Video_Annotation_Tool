@@ -410,7 +410,10 @@ def select_video():
         "ostomy-skills",
         "venipuncture",
         "ng-insertion",
-        "enteral-feeding"
+        "enteral-feeding",
+        "ppe-ambulation",
+        "im-injection",
+        "enteral-medication"
     ]
 
     grouped_videos = {category: [] for category in CATEGORY_ORDER}
