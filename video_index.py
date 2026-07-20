@@ -1340,6 +1340,14 @@ KALTURA_VIDEOS = [
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
+        "entry_id": "1_wiuuwjzi"
+    },
+    {
+        "category": "ppe-ambulation",
+        "video_name": "S7_ppe_ambulation",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
         "entry_id": "1_61eilf2y"
     },
     {
