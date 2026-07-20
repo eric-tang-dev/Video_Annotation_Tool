@@ -1400,7 +1400,7 @@ KALTURA_VIDEOS = [
     },
     {
         "category": "ppe-ambulation",
-        "video_name": "S7_ppe_ambulation",
+        "video_name": "S6_ppe_ambulation",
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
