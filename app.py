@@ -179,6 +179,7 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Open the enteral feeding bag and flush bag kit",
         "Administer via feeding bag (Fill the feeding bag with the prescribed amount of formula and hang the bag on the IV pole)",
         "Administer via feeding bag (Fill the flush bag with the prescribed amount of water and hang the bag on the IV pole)",
+        "Administer via feeding bag (Load the feeding set/tubing into the Kangaroo pump)",
         "Administer via feeding bag (Prime feeding bag and flush)",
         "Administer via feeding bag (Connect the feeding bag to the feeding tube port (Lopez valve or straight into the Gtube))",
         "Administer via feeding bag (Administer feeding at the prescribed rate via a feeding pump (kangaroo pump))",
