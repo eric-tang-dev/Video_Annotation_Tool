@@ -1487,10 +1487,10 @@ KALTURA_VIDEOS = [
     # -----------------------------
     {
         "category": "TEST VIDEO FOR DEVELOPER",
-        "video_name": "test_1",
+        "video_name": "How to Boil an Egg",
         "target_id": "kaltura_player",
         "wid": "_6514622",
         "uiconf_id": 58010592,
-        "entry_id": "1_jyzyakxa"
+        "entry_id": "1_fvmm7gbw"
     },
 ]
