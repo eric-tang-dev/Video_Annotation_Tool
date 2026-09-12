@@ -309,33 +309,27 @@ video {
 /* -----------------------------
    UAV / Situational Awareness mode
    ----------------------------- */
-.sa-panel {
-    height: 220px;
+.sa-sidebar-controls {
     flex-shrink: 0;
-    display: flex;
-    background: #ffffff;
-    color: #212529;
-    width: 100%;
+    background: #fff;
 }
-.sa-controls {
-    width: 285px;
-    flex-shrink: 0;
-    padding: 12px 14px;
-    border-right: 1px solid #ced4da;
-    background: #f8f9fa;
-}
+
 .sa-control-row {
     display: grid;
-    grid-template-columns: 1fr 34px 38px 34px;
+    grid-template-columns: minmax(0, 1fr) 34px 38px 34px;
     align-items: center;
     gap: 6px;
     margin-top: 8px;
 }
+
 .sa-field-label {
-    font-size: 0.9rem;
+    font-size: 0.86rem;
     font-weight: 700;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
 .sa-field-label::before {
     content: '';
     display: inline-block;
@@ -344,9 +338,11 @@ video {
     border-radius: 50%;
     margin-right: 6px;
 }
+
 .perception-label::before { background: #0d6efd; }
 .comprehension-label::before { background: #198754; }
 .projection-label::before { background: #fd7e14; }
+
 .sa-arrow-btn {
     width: 34px;
     height: 30px;
@@ -355,6 +351,7 @@ video {
     line-height: 1;
     font-weight: 700;
 }
+
 .sa-value-badge {
     min-width: 38px;
     text-align: center;
@@ -366,26 +363,60 @@ video {
     background: #212529;
     color: #fff;
 }
+
+/* In UAV mode, this replaces the original 100px timeline. */
+.sa-timeline-panel {
+    height: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    color: #212529;
+    width: 100%;
+}
+
+.sa-graph-header {
+    height: 34px;
+    flex-shrink: 0;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+}
+
 .sa-graph-wrap {
     flex: 1;
+    min-height: 0;
     min-width: 0;
     position: relative;
     background: #fff;
 }
+
 #saGraph {
     width: 100%;
     height: 100%;
     display: block;
-    cursor: crosshair;
+    cursor: ew-resize;
+    user-select: none;
 }
+
 .sa-axis-text {
     fill: #6c757d;
     font-size: 11px;
     font-family: monospace;
+    pointer-events: none;
 }
-.sa-step-label {
-    fill: #495057;
+
+.sa-step-label-light {
+    fill: #fff;
     font-size: 10px;
     font-family: sans-serif;
-    font-weight: 600;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+.sa-step-label-group:hover rect {
+    opacity: 1;
 }

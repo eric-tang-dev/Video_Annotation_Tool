@@ -204,7 +204,12 @@ function updateTimeUI() {
     const duration = video_length || video.duration || 1;
     const pos = (current / duration) * 100;
 
-    document.getElementById('playhead').style.left = `${Math.max(0, Math.min(pos, 100))}%`;
+    // Standard accounts keep the original bottom timeline/playhead.
+    const playhead = document.getElementById('playhead');
+    if (playhead) {
+        playhead.style.left = `${Math.max(0, Math.min(pos, 100))}%`;
+    }
+
     document.getElementById('timeDisplay').innerText =
         `${formatTime(current)} / ${formatTime(duration)}`;
 
@@ -391,26 +396,22 @@ document.addEventListener('keydown', (e) => {
             recIndicator.style.display = 'inline';
         }
         
-        // Draw Green Marker (indicating step's start time)
+        // Draw the temporary step-start marker. Standard accounts use the
+        // legacy timeline; UAV mode draws the same marker directly on the SA graph.
         const track = document.getElementById('timelineTrack');
-        
-        // Remove old marker if exists
         const old = document.getElementById('tempMarker');
         if (old) old.remove();
 
-
-        // Create new marker
-        const marker = document.createElement('div');
-        marker.id = 'tempMarker';
-        marker.className = 'temp-marker';
-
-
-        // Calculate position
-        const pos = (temp_start_time / video_length) * 100;
-        marker.style.left = `${pos}%`;
-        
-        // Place new marker on timeline
-        track.appendChild(marker);
+        if (track) {
+            const marker = document.createElement('div');
+            marker.id = 'tempMarker';
+            marker.className = 'temp-marker';
+            const pos = (temp_start_time / video_length) * 100;
+            marker.style.left = `${pos}%`;
+            track.appendChild(marker);
+        } else if (IS_UAV_TESTING) {
+            renderSAGraph();
+        }
     }
 
 
@@ -632,20 +633,20 @@ function toggleAllowanceStep() {
             recIndicator.style.display = 'inline';
         }
 
-        // Build the green timeline temporary bar immediately on button click
-        const track = document.getElementById('timelineTrack');   
-        if (track) {  
-            const old = document.getElementById('tempMarker');           
-            if (old) old.remove();                                       
+        // Build the temporary start marker immediately on button click.
+        const track = document.getElementById('timelineTrack');
+        if (track) {
+            const old = document.getElementById('tempMarker');
+            if (old) old.remove();
 
-            const marker = document.createElement('div');              
-            marker.id = 'tempMarker'; 
-            marker.className = 'temp-marker';  
-            
+            const marker = document.createElement('div');
+            marker.id = 'tempMarker';
+            marker.className = 'temp-marker';
             const pos = (temp_start_time / video_length) * 100;
             marker.style.left = `${pos}%`;
-            
             track.appendChild(marker);
+        } else if (IS_UAV_TESTING) {
+            renderSAGraph();
         }
     } 
     // SCENARIO B: Commit the finalized step boundaries
@@ -1296,9 +1297,16 @@ function commitEdit() {
             f. If Active, add Drag Handles (via addHandle())
 */
 function renderTimeline() {
-    const track = document.getElementById('timelineTrack');
-    track.innerHTML = ''; // wipe original timeline 
+    // In UAV mode the SA graph IS the timeline. Keep all legacy timeline
+    // rendering completely untouched for every other account.
+    if (IS_UAV_TESTING) {
+        renderSAGraph();
+        return;
+    }
 
+    const track = document.getElementById('timelineTrack');
+    if (!track) return;
+    track.innerHTML = ''; // wipe original timeline 
 
     all_steps.forEach(step => {
         // skip NaN steps
@@ -1326,8 +1334,6 @@ function renderTimeline() {
 
         track.appendChild(el);
     });
-
-    if (IS_UAV_TESTING) renderSAGraph();
 }
 
 
@@ -1544,11 +1550,12 @@ function addHandle(parent, step, side) {
 */
 document.addEventListener('mousedown', (e) => {
     const clickedTimeline = e.target.closest('#timelineContainer');
+    const clickedSAGraph = e.target.closest('#saPanel');
     const clickedSidebar = e.target.closest('#sidebar');
     const clickedControls = e.target.closest('.controls-bar');
     const clickedVideoFrame = e.target.closest('.video-wrapper');
     
-    if (!clickedTimeline && !clickedSidebar && !clickedControls && !clickedVideoFrame) {
+    if (!clickedTimeline && !clickedSAGraph && !clickedSidebar && !clickedControls && !clickedVideoFrame) {
         if (active_step_id !== null) {
             active_step_id = null;
             document.getElementById('editForm').style.display = 'none';
@@ -1559,14 +1566,17 @@ document.addEventListener('mousedown', (e) => {
 });
 
 
-// When the timeline is clicked, jump to the specified timestamp in the video 
-timeline.onmousedown = (e) => {
-    if ((e.target === timeline) || (e.target.id === 'timelineTrack')) {
-        const rect = timeline.getBoundingClientRect();  
-        const pos = (e.clientX - rect.left) / rect.width;
-        video.currentTime = pos * video_length;
-    }
-};
+// When the legacy timeline is clicked, jump to the specified timestamp.
+// UAV mode does not render this element because the SA graph replaces it.
+if (timeline) {
+    timeline.onmousedown = (e) => {
+        if ((e.target === timeline) || (e.target.id === 'timelineTrack')) {
+            const rect = timeline.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            video.currentTime = pos * video_length;
+        }
+    };
+}
 
 
 /*
@@ -1578,9 +1588,12 @@ timeline.onmousedown = (e) => {
         3. This happens 60+ times a second, giving us a "scrubbing" animation
 */
 function initPlayheadDrag() {
+    // UAV mode uses the SA graph as its timeline/playhead.
+    if (IS_UAV_TESTING) return;
+
     const playhead = document.getElementById('playhead');
     const track = document.getElementById('timelineTrack');
-
+    if (!playhead || !track) return;
 
     playhead.onmousedown = (e) => {
         e.stopPropagation();
@@ -1886,13 +1899,13 @@ function renderSAGraph() {
     const wrap = document.getElementById('saGraphWrap');
     if (!svg || !wrap) return;
 
-    const width = Math.max(500, Math.round(wrap.clientWidth || 900));
-    const height = Math.max(180, Math.round(wrap.clientHeight || 220));
-    const margin = { left: 42, right: 14, top: 24, bottom: 28 };
+    const width = Math.max(700, Math.round(wrap.clientWidth || 1100));
+    const height = Math.max(190, Math.round(wrap.clientHeight || 220));
+    const margin = { left: 46, right: 18, top: 30, bottom: 34 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
     const duration = Math.max(1, video_length || video.duration || 1);
-    const xForTime = time => margin.left + (Math.max(0, Math.min(duration, time)) / duration) * plotWidth;
+    const xForTime = time => margin.left + (Math.max(0, Math.min(duration, Number(time) || 0)) / duration) * plotWidth;
     const yForValue = value => margin.top + ((SA_MAX - clampSAValue(value)) / (SA_MAX - SA_MIN)) * plotHeight;
 
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -1902,29 +1915,96 @@ function renderSAGraph() {
         .filter(step => !isNaN(step.start) && !isNaN(step.end))
         .sort((a, b) => a.start - b.start);
 
+    // Step regions replace the old gray timeline blocks. They provide context
+    // for the SA curves without forcing SA changes to occur at step boundaries.
     validSteps.forEach((step, index) => {
         const x1 = xForTime(step.start);
         const x2 = xForTime(step.end);
+        const isActive = step.id === active_step_id;
+        const isAllowance = step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME;
+
         svg.appendChild(createSvgElement('rect', {
-            x: x1, y: margin.top, width: Math.max(1, x2 - x1), height: plotHeight,
-            fill: index % 2 === 0 ? '#f8f9fa' : '#eef2f6'
+            x: x1,
+            y: margin.top,
+            width: Math.max(1, x2 - x1),
+            height: plotHeight,
+            fill: isAllowance
+                ? 'rgba(25, 135, 84, 0.10)'
+                : (index % 2 === 0 ? '#f8f9fa' : '#eef2f6'),
+            stroke: isActive ? '#8A2BE2' : 'none',
+            'stroke-width': isActive ? 2 : 0,
+            'pointer-events': 'none'
         }));
+
         svg.appendChild(createSvgElement('line', {
-            x1, y1: margin.top, x2: x1, y2: margin.top + plotHeight,
-            stroke: '#adb5bd', 'stroke-width': 1, 'stroke-dasharray': '4 4'
+            x1,
+            y1: margin.top,
+            x2: x1,
+            y2: margin.top + plotHeight,
+            stroke: '#adb5bd',
+            'stroke-width': 1,
+            'stroke-dasharray': '4 4',
+            'pointer-events': 'none'
         }));
-        const stepLabel = createSvgElement('text', {
-            x: Math.min(x1 + 4, width - margin.right - 24), y: 14, class: 'sa-step-label'
+
+        // Compact step label above the plot. Clicking the label selects the step.
+        const labelGroup = createSvgElement('g', { class: 'sa-step-label-group', 'data-no-seek': '1' });
+        const labelWidth = Math.max(30, Math.min(54, x2 - x1 - 4));
+        const labelX = Math.max(margin.left, Math.min(x1 + 3, width - margin.right - labelWidth));
+        const labelRect = createSvgElement('rect', {
+            x: labelX,
+            y: 4,
+            width: labelWidth,
+            height: 20,
+            rx: 4,
+            fill: isActive ? '#8A2BE2' : (isAllowance ? '#198754' : '#6c757d'),
+            opacity: isActive ? 1 : 0.82
         });
-        stepLabel.textContent = `S${index + 1}`;
-        svg.appendChild(stepLabel);
+        const label = createSvgElement('text', {
+            x: labelX + labelWidth / 2,
+            y: 18,
+            'text-anchor': 'middle',
+            class: 'sa-step-label-light'
+        });
+        label.textContent = isAllowance ? 'A' : `S${index + 1}`;
+        const title = createSvgElement('title');
+        title.textContent = step.name || `Step ${index + 1}`;
+        labelGroup.appendChild(title);
+        labelGroup.appendChild(labelRect);
+        labelGroup.appendChild(label);
+        labelGroup.style.cursor = 'pointer';
+        labelGroup.addEventListener('mousedown', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            selectStep(step.id);
+        });
+        svg.appendChild(labelGroup);
+
+        // The selected step gets draggable start/end boundaries directly on
+        // the SA graph, preserving the useful editing behavior of the old timeline.
+        if (isActive) {
+            addSAGraphStepHandle(svg, step, 'left', x1, margin.top, plotHeight, width, margin, plotWidth, duration);
+            addSAGraphStepHandle(svg, step, 'right', x2, margin.top, plotHeight, width, margin, plotWidth, duration);
+        }
     });
 
+    // Final right boundary for the last visible step.
+    if (validSteps.length > 0) {
+        const last = validSteps[validSteps.length - 1];
+        svg.appendChild(createSvgElement('line', {
+            x1: xForTime(last.end), y1: margin.top,
+            x2: xForTime(last.end), y2: margin.top + plotHeight,
+            stroke: '#adb5bd', 'stroke-width': 1, 'stroke-dasharray': '4 4',
+            'pointer-events': 'none'
+        }));
+    }
+
+    // SA scale / horizontal grid.
     for (let value = SA_MIN; value <= SA_MAX; value++) {
         const y = yForValue(value);
         svg.appendChild(createSvgElement('line', {
             x1: margin.left, y1: y, x2: width - margin.right, y2: y,
-            stroke: '#dee2e6', 'stroke-width': 1
+            stroke: '#dee2e6', 'stroke-width': 1, 'pointer-events': 'none'
         }));
         const label = createSvgElement('text', {
             x: margin.left - 12, y: y + 4, 'text-anchor': 'end', class: 'sa-axis-text'
@@ -1933,6 +2013,7 @@ function renderSAGraph() {
         svg.appendChild(label);
     }
 
+    // Time labels.
     [0, 0.25, 0.5, 0.75, 1].forEach(fraction => {
         const time = duration * fraction;
         const label = createSvgElement('text', {
@@ -1944,6 +2025,7 @@ function renderSAGraph() {
         svg.appendChild(label);
     });
 
+    // Three step-style SA curves. Each value stays level until the next change event.
     SA_FIELDS.forEach(field => {
         const points = sanitizeSAPoints(saData[field]);
         saData[field] = points;
@@ -1954,35 +2036,136 @@ function renderSAGraph() {
             pathData += index === 0 ? `M ${x} ${y}` : ` H ${x} V ${y}`;
         });
         pathData += ` H ${xForTime(duration)}`;
+
         svg.appendChild(createSvgElement('path', {
-            d: pathData, fill: 'none', stroke: SA_COLORS[field], 'stroke-width': 3,
-            'stroke-linejoin': 'round', 'stroke-linecap': 'round'
+            d: pathData,
+            fill: 'none',
+            stroke: SA_COLORS[field],
+            'stroke-width': 3,
+            'stroke-linejoin': 'round',
+            'stroke-linecap': 'round',
+            'pointer-events': 'none'
         }));
+
         points.forEach(point => {
             svg.appendChild(createSvgElement('circle', {
                 cx: xForTime(point.time), cy: yForValue(point.value), r: 4,
-                fill: SA_COLORS[field], stroke: '#ffffff', 'stroke-width': 1.5
+                fill: SA_COLORS[field], stroke: '#ffffff', 'stroke-width': 1.5,
+                'pointer-events': 'none'
             }));
         });
     });
 
+    // Temporary green line while a normal or allowance step is being recorded.
+    if (temp_start_time !== null && Number.isFinite(Number(temp_start_time))) {
+        const markerX = xForTime(temp_start_time);
+        svg.appendChild(createSvgElement('line', {
+            id: 'saTempMarker',
+            x1: markerX, y1: margin.top,
+            x2: markerX, y2: margin.top + plotHeight,
+            stroke: '#00a86b', 'stroke-width': 2, 'stroke-dasharray': '5 4',
+            'pointer-events': 'none'
+        }));
+    }
+
+    // Current video position.
     svg.appendChild(createSvgElement('line', {
         id: 'saGraphPlayhead',
         x1: xForTime(video.currentTime), y1: margin.top,
         x2: xForTime(video.currentTime), y2: margin.top + plotHeight,
-        stroke: '#dc3545', 'stroke-width': 2
+        stroke: '#dc3545', 'stroke-width': 2,
+        'pointer-events': 'none'
     }));
 
+    // The graph itself acts as the scrub timeline. Click/drag anywhere that is
+    // not a step label/handle to seek through the video.
     svg.onmousedown = event => {
-        const rect = svg.getBoundingClientRect();
-        const localX = event.clientX - rect.left;
-        const scaledX = (localX / rect.width) * width;
-        const clampedX = Math.max(margin.left, Math.min(width - margin.right, scaledX));
-        video.currentTime = ((clampedX - margin.left) / plotWidth) * duration;
-        updateTimeUI();
+        if (event.target.closest && event.target.closest('[data-no-seek="1"]')) return;
+
+        event.preventDefault();
+        const seekFromEvent = pointerEvent => {
+            const rect = svg.getBoundingClientRect();
+            const localX = pointerEvent.clientX - rect.left;
+            const scaledX = (localX / rect.width) * width;
+            const clampedX = Math.max(margin.left, Math.min(width - margin.right, scaledX));
+            video.currentTime = ((clampedX - margin.left) / plotWidth) * duration;
+            updateTimeUI();
+        };
+
+        seekFromEvent(event);
+        const onMove = moveEvent => seekFromEvent(moveEvent);
+        const onUp = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+        };
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
     };
 
     updateSAPlayhead();
+}
+
+function addSAGraphStepHandle(svg, step, side, x, plotTop, plotHeight, width, margin, plotWidth, duration) {
+    const visible = createSvgElement('line', {
+        x1: x, y1: plotTop,
+        x2: x, y2: plotTop + plotHeight,
+        stroke: '#8A2BE2', 'stroke-width': 3,
+        'pointer-events': 'none'
+    });
+    svg.appendChild(visible);
+
+    // Wider invisible hit area so the handle is easy to grab.
+    const hit = createSvgElement('line', {
+        x1: x, y1: plotTop,
+        x2: x, y2: plotTop + plotHeight,
+        stroke: 'transparent', 'stroke-width': 16,
+        cursor: 'col-resize',
+        'data-no-seek': '1'
+    });
+    svg.appendChild(hit);
+
+    hit.addEventListener('mousedown', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        saveUndoSnapshot();
+
+        const rect = svg.getBoundingClientRect();
+        const timeFromClientX = clientX => {
+            const localX = clientX - rect.left;
+            const scaledX = (localX / rect.width) * width;
+            const clampedX = Math.max(margin.left, Math.min(width - margin.right, scaledX));
+            return ((clampedX - margin.left) / plotWidth) * duration;
+        };
+
+        const onMove = moveEvent => {
+            const newTime = timeFromClientX(moveEvent.clientX);
+            if (side === 'left') {
+                step.start = Math.max(0, Math.min(newTime, step.end - 0.5));
+                video.currentTime = step.start;
+            } else {
+                step.end = Math.min(duration, Math.max(newTime, step.start + 0.5));
+                video.currentTime = step.end;
+            }
+
+            const startInput = document.getElementById('inpStart');
+            const endInput = document.getElementById('inpEnd');
+            if (startInput) startInput.value = formatTime(step.start);
+            if (endInput) endInput.value = formatTime(step.end);
+            renderSAGraph();
+            updateTimeUI();
+        };
+
+        const onUp = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+            saveDraftToLocal();
+            renderList();
+            renderSAGraph();
+        };
+
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+    });
 }
 
 function updateSAPlayhead() {
@@ -1992,8 +2175,8 @@ function updateSAPlayhead() {
     if (!line || !svg || !svg.viewBox || !svg.viewBox.baseVal.width) return;
 
     const width = svg.viewBox.baseVal.width;
-    const marginLeft = 42;
-    const marginRight = 14;
+    const marginLeft = 46;
+    const marginRight = 18;
     const duration = Math.max(1, video_length || video.duration || 1);
     const x = marginLeft + (Math.max(0, Math.min(duration, video.currentTime)) / duration) * (width - marginLeft - marginRight);
     line.setAttribute('x1', x);

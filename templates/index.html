@@ -154,6 +154,46 @@
                 </div>                                                                                                      
             </div>
             
+            {% if is_uav_testing %}
+            <!-- UAV testing mode: SA controls live in the right sidebar. -->
+            <div class="sa-sidebar-controls border-bottom bg-white p-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <strong>Situational Awareness</strong>
+                    <span class="small text-muted">Scale 1-5</span>
+                </div>
+                <div class="small text-muted mb-2">
+                    Use the arrows when SA changes. Each value stays in effect until it is changed again.
+                </div>
+
+                <div class="sa-control-row">
+                    <span class="sa-field-label perception-label">Perception</span>
+                    <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
+                            onclick="adjustSA('perception', -1)" aria-label="Decrease perception">&#8595;</button>
+                    <span class="sa-value-badge" id="saValuePerception">1</span>
+                    <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
+                            onclick="adjustSA('perception', 1)" aria-label="Increase perception">&#8593;</button>
+                </div>
+
+                <div class="sa-control-row">
+                    <span class="sa-field-label comprehension-label">Comprehension</span>
+                    <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
+                            onclick="adjustSA('comprehension', -1)" aria-label="Decrease comprehension">&#8595;</button>
+                    <span class="sa-value-badge" id="saValueComprehension">1</span>
+                    <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
+                            onclick="adjustSA('comprehension', 1)" aria-label="Increase comprehension">&#8593;</button>
+                </div>
+
+                <div class="sa-control-row">
+                    <span class="sa-field-label projection-label">Projection</span>
+                    <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
+                            onclick="adjustSA('projection', -1)" aria-label="Decrease projection">&#8595;</button>
+                    <span class="sa-value-badge" id="saValueProjection">1</span>
+                    <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
+                            onclick="adjustSA('projection', 1)" aria-label="Increase projection">&#8593;</button>
+                </div>
+            </div>
+            {% endif %}
+            
             <!-- List of Logged Steps (Dynamically added via main.js) -->
             <div class="p-2" id="actionList">
                 </div>
@@ -235,52 +275,23 @@
     </div>
 
     {% if is_uav_testing %}
-    <!-- UAV testing mode: continuous SA ratings over video time. -->
-    <div class="sa-panel border-top border-secondary" id="saPanel">
-        <div class="sa-controls">
-            <div class="d-flex align-items-center justify-content-between mb-1">
-                <strong>Situational Awareness</strong>
-                <span class="small text-muted">Scale 1-5</span>
-            </div>
-            <div class="small text-muted mb-2">Press an arrow while the video plays. The rating stays at that level until you change it again.</div>
-
-            <div class="sa-control-row">
-                <span class="sa-field-label perception-label">Perception</span>
-                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('perception', -1)" aria-label="Decrease perception">&#8595;</button>
-                <span class="sa-value-badge" id="saValuePerception">1</span>
-                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('perception', 1)" aria-label="Increase perception">&#8593;</button>
-            </div>
-
-            <div class="sa-control-row">
-                <span class="sa-field-label comprehension-label">Comprehension</span>
-                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('comprehension', -1)" aria-label="Decrease comprehension">&#8595;</button>
-                <span class="sa-value-badge" id="saValueComprehension">1</span>
-                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('comprehension', 1)" aria-label="Increase comprehension">&#8593;</button>
-            </div>
-
-            <div class="sa-control-row">
-                <span class="sa-field-label projection-label">Projection</span>
-                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('projection', -1)" aria-label="Decrease projection">&#8595;</button>
-                <span class="sa-value-badge" id="saValueProjection">1</span>
-                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('projection', 1)" aria-label="Increase projection">&#8593;</button>
-            </div>
+    <!-- UAV testing mode: the SA graph replaces the legacy bottom timeline. -->
+    <div class="sa-timeline-panel border-top border-secondary" id="saPanel">
+        <div class="sa-graph-header">
+            <strong>Situational Awareness Over Video Time</strong>
+            <span class="small text-muted">Step regions are shown behind the curves. Click the graph to seek.</span>
         </div>
-
         <div class="sa-graph-wrap" id="saGraphWrap">
             <svg id="saGraph" role="img" aria-label="Situational awareness ratings over video time"></svg>
         </div>
     </div>
-    {% endif %}
-
-    <!--    This is the TIMELINE. Includes: Red bar (playhead)  -->
+    {% else %}
+    <!-- Standard accounts retain the original timeline unchanged. -->
     <div class="timeline-container bg-secondary position-relative border-top border-dark" id="timelineContainer" style="height: 100px; flex-shrink: 0; width: 100%;">
-        
         <div class="timeline-track" id="timelineTrack"></div>
-        
         <div class="playhead" id="playhead"></div>
-    
     </div>
-    <!--    END TIMELINE    -->
+    {% endif %}
 
 </div>
 
