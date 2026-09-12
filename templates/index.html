@@ -161,10 +161,6 @@
                     <strong>Situational Awareness</strong>
                     <span class="small text-muted">Scale 1-5</span>
                 </div>
-                <div class="small text-muted mb-2">
-                    Use the arrows when SA changes. Each value stays in effect until it is changed again.
-                </div>
-
                 <div class="sa-control-row">
                     <span class="sa-field-label perception-label">Perception</span>
                     <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
@@ -190,6 +186,22 @@
                     <span class="sa-value-badge" id="saValueProjection">1</span>
                     <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
                             onclick="adjustSA('projection', 1)" aria-label="Increase projection">&#8593;</button>
+                </div>
+
+                <div class="sa-point-editor mt-3" id="saPointEditor" style="display:none;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <strong class="small" id="saPointEditorLabel">Selected point</strong>
+                        <span class="small text-muted font-monospace" id="saPointEditorTime"></span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
+                                onclick="adjustSelectedSAPoint(-1)" aria-label="Decrease selected SA point">&#8595;</button>
+                        <span class="sa-value-badge" id="saPointEditorValue">1</span>
+                        <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
+                                onclick="adjustSelectedSAPoint(1)" aria-label="Increase selected SA point">&#8593;</button>
+                        <button class="btn btn-outline-danger btn-sm ms-auto" type="button"
+                                onclick="deleteSelectedSAPoint()">Delete</button>
+                    </div>
                 </div>
             </div>
             {% endif %}
@@ -277,10 +289,6 @@
     {% if is_uav_testing %}
     <!-- UAV testing mode: the SA graph replaces the legacy bottom timeline. -->
     <div class="sa-timeline-panel border-top border-secondary" id="saPanel">
-        <div class="sa-graph-header">
-            <strong>Situational Awareness Over Video Time</strong>
-            <span class="small text-muted">Step regions are shown behind the curves. Click the graph to seek.</span>
-        </div>
         <div class="sa-graph-wrap" id="saGraphWrap">
             <svg id="saGraph" role="img" aria-label="Situational awareness ratings over video time"></svg>
         </div>

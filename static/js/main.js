@@ -35,10 +35,17 @@ const SA_COLORS = {
     projection: "#fd7e14"
 };
 
+let saPointIdCounter = 1;
+let selectedSAPoint = null; // { field, id }
+
+function nextSAPointId() {
+    return `sa-point-${Date.now()}-${saPointIdCounter++}`;
+}
+
 let saData = {
-    perception: [{ time: 0, value: SA_DEFAULT }],
-    comprehension: [{ time: 0, value: SA_DEFAULT }],
-    projection: [{ time: 0, value: SA_DEFAULT }]
+    perception: [{ time: 0, value: SA_DEFAULT, _id: nextSAPointId() }],
+    comprehension: [{ time: 0, value: SA_DEFAULT, _id: nextSAPointId() }],
+    projection: [{ time: 0, value: SA_DEFAULT, _id: nextSAPointId() }]
 };
 
 
@@ -65,9 +72,9 @@ function buildCurrentVideoPayload() {
         return {
             ...basePayload,
             situational_awareness: {
-                perception: sanitizeSAPoints(saData.perception),
-                comprehension: sanitizeSAPoints(saData.comprehension),
-                projection: sanitizeSAPoints(saData.projection)
+                perception: serializeSAPoints(saData.perception),
+                comprehension: serializeSAPoints(saData.comprehension),
+                projection: serializeSAPoints(saData.projection)
             }
         };
     }
@@ -1803,28 +1810,27 @@ function sanitizeSAPoints(points) {
     const cleaned = source
         .map(point => ({
             time: Math.max(0, Number(point.time) || 0),
-            value: clampSAValue(point.value)
+            value: clampSAValue(point.value),
+            _id: point._id || nextSAPointId()
         }))
         .sort((a, b) => a.time - b.time);
 
-    const deduped = [];
-    cleaned.forEach(point => {
-        const last = deduped[deduped.length - 1];
-        if (last && Math.abs(last.time - point.time) < 0.05) {
-            last.time = point.time;
-            last.value = point.value;
-        } else {
-            deduped.push(point);
-        }
-    });
-
-    if (deduped.length === 0 || deduped[0].time > 0.05) {
-        deduped.unshift({ time: 0, value: SA_DEFAULT });
-    } else {
-        deduped[0].time = 0;
+    // Keep every recorded change point exactly as entered. Do not merge nearby
+    // timestamps and do not remove consecutive points with the same value.
+    if (cleaned.length === 0 || cleaned[0].time > 0.001) {
+        cleaned.unshift({ time: 0, value: SA_DEFAULT, _id: nextSAPointId() });
+    } else if (cleaned[0].time < 0.001) {
+        cleaned[0].time = 0;
     }
 
-    return deduped.filter((point, index, arr) => index === 0 || point.value !== arr[index - 1].value);
+    return cleaned;
+}
+
+function serializeSAPoints(points) {
+    return sanitizeSAPoints(points).map(point => ({
+        time: point.time,
+        value: point.value
+    }));
 }
 
 function loadSAFromPayload(payload) {
@@ -1832,12 +1838,15 @@ function loadSAFromPayload(payload) {
     SA_FIELDS.forEach(field => {
         saData[field] = savedSA && Array.isArray(savedSA[field])
             ? sanitizeSAPoints(savedSA[field])
-            : [{ time: 0, value: SA_DEFAULT }];
+            : [{ time: 0, value: SA_DEFAULT, _id: nextSAPointId() }];
     });
+    selectedSAPoint = null;
+    updateSAPointEditor();
 }
 
 function getSAValueAtTime(field, time) {
     const points = sanitizeSAPoints(saData[field]);
+    saData[field] = points;
     let value = SA_DEFAULT;
     for (const point of points) {
         if (point.time <= time + 0.001) value = point.value;
@@ -1855,14 +1864,100 @@ function adjustSA(field, delta) {
     if (nextValue === currentValue) return;
 
     const points = Array.isArray(saData[field]) ? [...saData[field]] : [];
-    const nearbyIndex = points.findIndex(point => Math.abs(Number(point.time) - time) < 0.15);
-    if (nearbyIndex >= 0) points[nearbyIndex] = { time, value: nextValue };
-    else points.push({ time, value: nextValue });
+    const newPoint = { time, value: nextValue, _id: nextSAPointId() };
+    points.push(newPoint);
 
+    // Intentionally preserve every button press as its own point, even if
+    // multiple points are created at the same or nearly the same timestamp.
     saData[field] = sanitizeSAPoints(points);
+    selectedSAPoint = { field, id: newPoint._id };
     saveDraftToLocal();
     renderSAGraph();
     updateSACurrentValues();
+    updateSAPointEditor();
+}
+
+function getSelectedSAPointRecord() {
+    if (!selectedSAPoint || !SA_FIELDS.includes(selectedSAPoint.field)) return null;
+    const points = saData[selectedSAPoint.field] || [];
+    const point = points.find(item => item._id === selectedSAPoint.id);
+    if (!point) return null;
+    return { field: selectedSAPoint.field, point };
+}
+
+function selectSAPoint(field, id) {
+    if (!IS_UAV_TESTING || !SA_FIELDS.includes(field)) return;
+    selectedSAPoint = { field, id };
+    updateSAPointEditor();
+    renderSAGraph();
+}
+
+function clearSelectedSAPoint() {
+    selectedSAPoint = null;
+    updateSAPointEditor();
+    if (IS_UAV_TESTING) renderSAGraph();
+}
+
+function adjustSelectedSAPoint(delta) {
+    const selected = getSelectedSAPointRecord();
+    if (!selected) return;
+
+    const nextValue = clampSAValue(selected.point.value + delta);
+    if (nextValue === selected.point.value) return;
+
+    selected.point.value = nextValue;
+    saData[selected.field] = sanitizeSAPoints(saData[selected.field]);
+    saveDraftToLocal();
+    renderSAGraph();
+    updateSACurrentValues();
+    updateSAPointEditor();
+}
+
+function deleteSelectedSAPoint() {
+    const selected = getSelectedSAPointRecord();
+    if (!selected) return;
+
+    saData[selected.field] = (saData[selected.field] || []).filter(point => point._id !== selected.point._id);
+    saData[selected.field] = sanitizeSAPoints(saData[selected.field]);
+    selectedSAPoint = null;
+    saveDraftToLocal();
+    renderSAGraph();
+    updateSACurrentValues();
+    updateSAPointEditor();
+}
+
+function updateSAPointEditor() {
+    if (!IS_UAV_TESTING) return;
+
+    const editor = document.getElementById('saPointEditor');
+    if (!editor) return;
+
+    const selected = getSelectedSAPointRecord();
+    if (!selected) {
+        editor.style.display = 'none';
+        return;
+    }
+
+    const labels = {
+        perception: 'Perception',
+        comprehension: 'Comprehension',
+        projection: 'Projection'
+    };
+
+    editor.style.display = 'block';
+    const label = document.getElementById('saPointEditorLabel');
+    const time = document.getElementById('saPointEditorTime');
+    const value = document.getElementById('saPointEditorValue');
+    if (label) label.textContent = labels[selected.field] || selected.field;
+    if (time) time.textContent = formatShortTimePrecise(selected.point.time);
+    if (value) value.textContent = String(selected.point.value);
+}
+
+function formatShortTimePrecise(seconds) {
+    const safe = Math.max(0, Number(seconds) || 0);
+    const minutes = Math.floor(safe / 60);
+    const secs = safe - (minutes * 60);
+    return `${minutes}:${secs.toFixed(1).padStart(4, '0')}`;
 }
 
 function updateSACurrentValues() {
@@ -2026,9 +2121,16 @@ function renderSAGraph() {
     });
 
     // Three step-style SA curves. Each value stays level until the next change event.
+    // Individual change points stay visually quiet until their series is hovered or
+    // a point is selected, which keeps dense sections of the graph readable.
     SA_FIELDS.forEach(field => {
         const points = sanitizeSAPoints(saData[field]);
         saData[field] = points;
+
+        const seriesGroup = createSvgElement('g', {
+            class: `sa-series-group sa-series-${field}`
+        });
+
         let pathData = '';
         points.forEach((point, index) => {
             const x = xForTime(point.time);
@@ -2037,23 +2139,58 @@ function renderSAGraph() {
         });
         pathData += ` H ${xForTime(duration)}`;
 
-        svg.appendChild(createSvgElement('path', {
+        seriesGroup.appendChild(createSvgElement('path', {
             d: pathData,
             fill: 'none',
             stroke: SA_COLORS[field],
             'stroke-width': 3,
             'stroke-linejoin': 'round',
             'stroke-linecap': 'round',
-            'pointer-events': 'none'
+            class: 'sa-series-path'
         }));
 
         points.forEach(point => {
-            svg.appendChild(createSvgElement('circle', {
-                cx: xForTime(point.time), cy: yForValue(point.value), r: 4,
-                fill: SA_COLORS[field], stroke: '#ffffff', 'stroke-width': 1.5,
-                'pointer-events': 'none'
-            }));
+            const isSelected = !!selectedSAPoint &&
+                selectedSAPoint.field === field &&
+                selectedSAPoint.id === point._id;
+
+            const pointGroup = createSvgElement('g', {
+                class: `sa-point-group${isSelected ? ' selected' : ''}`,
+                'data-no-seek': '1'
+            });
+
+            const marker = createSvgElement('circle', {
+                cx: xForTime(point.time),
+                cy: yForValue(point.value),
+                r: isSelected ? 6 : 4,
+                fill: SA_COLORS[field],
+                stroke: isSelected ? '#212529' : '#ffffff',
+                'stroke-width': isSelected ? 2.5 : 1.5,
+                class: 'sa-point-marker',
+                'data-no-seek': '1'
+            });
+
+            const hit = createSvgElement('circle', {
+                cx: xForTime(point.time),
+                cy: yForValue(point.value),
+                r: 10,
+                fill: 'transparent',
+                class: 'sa-point-hit',
+                cursor: 'ew-resize',
+                'data-no-seek': '1'
+            });
+
+            pointGroup.appendChild(marker);
+            pointGroup.appendChild(hit);
+            seriesGroup.appendChild(pointGroup);
+
+            addSAPointInteractions({
+                svg, field, pointId: point._id, hit, marker,
+                width, margin, plotWidth, duration
+            });
         });
+
+        svg.appendChild(seriesGroup);
     });
 
     // Temporary green line while a normal or allowance step is being recorded.
@@ -2103,6 +2240,65 @@ function renderSAGraph() {
     };
 
     updateSAPlayhead();
+    updateSAPointEditor();
+}
+
+function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margin, plotWidth, duration }) {
+    const setHovered = hovered => {
+        if (selectedSAPoint && selectedSAPoint.field === field && selectedSAPoint.id === pointId) return;
+        marker.classList.toggle('hovered', hovered);
+    };
+
+    hit.addEventListener('mouseenter', () => setHovered(true));
+    hit.addEventListener('mouseleave', () => setHovered(false));
+
+    hit.addEventListener('mousedown', event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        selectedSAPoint = { field, id: pointId };
+        updateSAPointEditor();
+        renderSAGraph();
+
+        const rect = svg.getBoundingClientRect();
+        const startX = event.clientX;
+        let moved = false;
+
+        const timeFromClientX = clientX => {
+            const localX = clientX - rect.left;
+            const scaledX = (localX / rect.width) * width;
+            const clampedX = Math.max(margin.left, Math.min(width - margin.right, scaledX));
+            return ((clampedX - margin.left) / plotWidth) * duration;
+        };
+
+        const onMove = moveEvent => {
+            if (Math.abs(moveEvent.clientX - startX) >= 2) moved = true;
+            if (!moved) return;
+
+            const selected = getSelectedSAPointRecord();
+            if (!selected || selected.field !== field || selected.point._id !== pointId) return;
+
+            const newTime = Math.max(0, Math.min(duration, Math.round(timeFromClientX(moveEvent.clientX) * 10) / 10));
+            selected.point.time = newTime;
+            saData[field] = sanitizeSAPoints(saData[field]);
+            video.currentTime = newTime;
+            updateTimeUI();
+            updateSAPointEditor();
+            renderSAGraph();
+        };
+
+        const onUp = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+            saveDraftToLocal();
+            updateSACurrentValues();
+            updateSAPointEditor();
+            renderSAGraph();
+        };
+
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+    });
 }
 
 function addSAGraphStepHandle(svg, step, side, x, plotTop, plotHeight, width, margin, plotWidth, duration) {
