@@ -364,26 +364,21 @@ video {
     color: #fff;
 }
 
-/* In UAV mode, this replaces the original 100px timeline. */
+/* In UAV mode, this replaces the original 100px timeline.
+   A dark separator and soft off-white graph surface make the transition from
+   the video player into the graph feel intentional rather than abrupt. */
 .sa-timeline-panel {
-    height: 220px;
+    height: 190px;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    background: #fff;
+    background: #f5f6f8;
     color: #212529;
     width: 100%;
-}
-
-.sa-graph-header {
-    height: 34px;
-    flex-shrink: 0;
-    padding: 6px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-bottom: 1px solid #dee2e6;
-    background: #f8f9fa;
+    border-top: 7px solid #343a40 !important;
+    box-shadow:
+        0 -5px 14px rgba(0, 0, 0, 0.16),
+        inset 0 9px 12px -12px rgba(0, 0, 0, 0.50);
 }
 
 .sa-graph-wrap {
@@ -391,7 +386,13 @@ video {
     min-height: 0;
     min-width: 0;
     position: relative;
-    background: #fff;
+    background: linear-gradient(
+        to bottom,
+        #eef1f4 0px,
+        #f5f6f8 22px,
+        #f8f9fa 48px,
+        #f8f9fa 100%
+    );
 }
 
 #saGraph {
@@ -419,4 +420,34 @@ video {
 
 .sa-step-label-group:hover rect {
     opacity: 1;
+}
+
+/* UAV SA point editing */
+.sa-point-editor {
+    border-top: 1px solid #dee2e6;
+    padding-top: 10px;
+}
+
+.sa-series-path {
+    pointer-events: stroke;
+}
+
+.sa-point-marker {
+    opacity: 0.10;
+    transition: opacity 0.12s ease, r 0.12s ease;
+    pointer-events: none;
+}
+
+.sa-series-group:hover .sa-point-marker,
+.sa-point-marker.hovered,
+.sa-point-group.selected .sa-point-marker {
+    opacity: 1;
+}
+
+.sa-point-hit {
+    pointer-events: all;
+}
+
+.sa-point-group.selected .sa-point-marker {
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.45));
 }

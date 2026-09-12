@@ -378,6 +378,16 @@ document.addEventListener('keydown', (e) => {
     }
 
 
+    // UAV mode: Backspace deletes the currently selected SA point.
+    // This intentionally does not run while typing in an input/textarea because
+    // the early return above preserves normal text-editing behavior.
+    if (IS_UAV_TESTING && e.key === 'Backspace' && getSelectedSAPointRecord()) {
+        e.preventDefault();
+        deleteSelectedSAPoint();
+        return;
+    }
+
+
     // Spacebar = Toggle Play/Pause
     if (e.key === ' ') {
         e.preventDefault(); // stop page from scrolling down
