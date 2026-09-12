@@ -124,11 +124,13 @@
 
                 <span class="ms-3 align-self-center font-monospace" id="timeDisplay">00:00 / 00:00</span>
 
+                {% if not is_uav_testing %}
                 <button id="sterile-breach-btn" class="btn btn-danger btn-sm">
                     Sterile Breach
                 </button>
+                {% endif %}
 
-                <!-- For now, hide allowance button from experts -->
+                <!-- Allowance remains available in both standard and UAV/SA modes -->
                 <button id="allowance-btn" class="btn btn-success btn-sm ms-1" onclick="toggleAllowanceStep()">
                     Start Allowance
                 </button>
@@ -186,6 +188,7 @@
                     <input type="text" id="inpActionName" class="form-control" placeholder="Custom step name" style="display: none;">
                 </div>
 
+                {% if not is_uav_testing %}
                 <hr class="my-3">
                 
                 <div class="mb-3 border-bottom pb-2 allowance-hide-target">
@@ -222,6 +225,7 @@
                     <!-- Comment Selection for Sterile Breaches -->
                     <select id="inpCommentSelect" class="form-select form-select-sm mt-2 mb-1 text-dark" style="display: none;"></select> <textarea class="form-control form-control-sm mt-1" id="inpDifficultyComment" rows="2" placeholder="Comments..."></textarea>
                 </div>
+                {% endif %}
                 
                 <button class="btn btn-primary w-100 btn-sm mt-2" onclick="commitEdit()">Confirm (Enter)</button>
             </div>
@@ -229,6 +233,44 @@
         </div>
         <!--    END ACTIONS LIST    -->
     </div>
+
+    {% if is_uav_testing %}
+    <!-- UAV testing mode: continuous SA ratings over video time. -->
+    <div class="sa-panel border-top border-secondary" id="saPanel">
+        <div class="sa-controls">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+                <strong>Situational Awareness</strong>
+                <span class="small text-muted">Scale 1-5</span>
+            </div>
+            <div class="small text-muted mb-2">Press an arrow while the video plays. The rating stays at that level until you change it again.</div>
+
+            <div class="sa-control-row">
+                <span class="sa-field-label perception-label">Perception</span>
+                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('perception', -1)" aria-label="Decrease perception">&#8595;</button>
+                <span class="sa-value-badge" id="saValuePerception">1</span>
+                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('perception', 1)" aria-label="Increase perception">&#8593;</button>
+            </div>
+
+            <div class="sa-control-row">
+                <span class="sa-field-label comprehension-label">Comprehension</span>
+                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('comprehension', -1)" aria-label="Decrease comprehension">&#8595;</button>
+                <span class="sa-value-badge" id="saValueComprehension">1</span>
+                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('comprehension', 1)" aria-label="Increase comprehension">&#8593;</button>
+            </div>
+
+            <div class="sa-control-row">
+                <span class="sa-field-label projection-label">Projection</span>
+                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('projection', -1)" aria-label="Decrease projection">&#8595;</button>
+                <span class="sa-value-badge" id="saValueProjection">1</span>
+                <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button" onclick="adjustSA('projection', 1)" aria-label="Increase projection">&#8593;</button>
+            </div>
+        </div>
+
+        <div class="sa-graph-wrap" id="saGraphWrap">
+            <svg id="saGraph" role="img" aria-label="Situational awareness ratings over video time"></svg>
+        </div>
+    </div>
+    {% endif %}
 
     <!--    This is the TIMELINE. Includes: Red bar (playhead)  -->
     <div class="timeline-container bg-secondary position-relative border-top border-dark" id="timelineContainer" style="height: 100px; flex-shrink: 0; width: 100%;">
@@ -253,6 +295,7 @@
     window.CURRENT_ENTRY_ID = CURRENT_ENTRY_ID;
     window.IS_COMPLETED = {{ (saved_data.completed if saved_data else false) | tojson | safe }};
     window.CURRENT_EXPERT_ID = "{{ expert_id }}";
+    window.IS_UAV_TESTING = {{ is_uav_testing | tojson | safe }};
 </script>
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">

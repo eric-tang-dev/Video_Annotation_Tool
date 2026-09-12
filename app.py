@@ -23,7 +23,7 @@ results_directory.mkdir(parents=True, exist_ok=True)
 # EXPERT IDS 
 # -----------------------------
 
-VALID_EXPERT_IDS = {"12345", "100121_eric", "110121_shen", "120121_francis", "130121_jessica", "stacie_1", "dagne_1"}
+VALID_EXPERT_IDS = {"12345", "100121_eric", "110121_shen", "120121_francis", "130121_jessica", "stacie_1", "dagne_1", "uav_testing"}
 
 # -----------------------------
 # STEP OPTIONS FOR DROPDOWN
@@ -380,7 +380,8 @@ def index():
         all_videos=KALTURA_VIDEOS,
         step_options_by_category=STEP_OPTIONS_BY_CATEGORY,
         selected_entry_id=video["entry_id"],
-        expert_id=expert_id
+        expert_id=expert_id,
+        is_uav_testing=(expert_id == "uav_testing")
     )
 
 

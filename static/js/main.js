@@ -24,11 +24,29 @@ const ALLOWANCE_STEP_NAME = "Allowance";
 const ALLOWANCE_DEFAULT_RATING = 0.5;
 let allowance_start_time = null; // Track live recording toggles
 
+const IS_UAV_TESTING = !!window.IS_UAV_TESTING;
+const SA_FIELDS = ["perception", "comprehension", "projection"];
+const SA_MIN = 1;
+const SA_MAX = 5;
+const SA_DEFAULT = 1;
+const SA_COLORS = {
+    perception: "#0d6efd",
+    comprehension: "#198754",
+    projection: "#fd7e14"
+};
+
+let saData = {
+    perception: [{ time: 0, value: SA_DEFAULT }],
+    comprehension: [{ time: 0, value: SA_DEFAULT }],
+    projection: [{ time: 0, value: SA_DEFAULT }]
+};
+
 
 // This function returns the current video's stable browser draft key
 function getDraftStorageKey() {
     const entryId = (window.CURRENT_ENTRY_ID || "").trim();
     if (!entryId) return null;
+    if (IS_UAV_TESTING) return `draft:uav_testing:${entryId}`;
     return `draft:${entryId}`;
 }
 
@@ -38,14 +56,27 @@ function getDraftStorageKey() {
     It keeps the same structure currently used by the app for JSON saves.
 */
 function buildCurrentVideoPayload() {
-    return {
+    const basePayload = {
         timestamps: all_steps.map(a => [a.start, a.end]),
-        actions: all_steps.map(a => a.name),
+        actions: all_steps.map(a => a.name)
+    };
 
+    if (IS_UAV_TESTING) {
+        return {
+            ...basePayload,
+            situational_awareness: {
+                perception: sanitizeSAPoints(saData.perception),
+                comprehension: sanitizeSAPoints(saData.comprehension),
+                projection: sanitizeSAPoints(saData.projection)
+            }
+        };
+    }
+
+    return {
+        ...basePayload,
         correctness_evaluation: all_steps.map(a => a.correctness_rating),
         performance_evaluation: all_steps.map(a => a.performance_rating),
         difficulty_evaluation: all_steps.map(a => a.difficulty_rating),
-        
         correctness_comments: all_steps.map(a => a.correctness_comment),
         performance_comments: all_steps.map(a => a.performance_comment),
         difficulty_comments: all_steps.map(a => a.difficulty_comment)
@@ -176,6 +207,11 @@ function updateTimeUI() {
     document.getElementById('playhead').style.left = `${Math.max(0, Math.min(pos, 100))}%`;
     document.getElementById('timeDisplay').innerText =
         `${formatTime(current)} / ${formatTime(duration)}`;
+
+    if (IS_UAV_TESTING) {
+        updateSACurrentValues();
+        updateSAPlayhead();
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -191,6 +227,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const commentSelect = document.getElementById('inpCommentSelect');
     if (commentSelect) {
         commentSelect.addEventListener('change', handleCommentSelectChange);
+    }
+
+    if (IS_UAV_TESTING) {
+        renderSAGraph();
+        updateSACurrentValues();
+        const graphWrap = document.getElementById('saGraphWrap');
+        if (graphWrap && typeof ResizeObserver !== 'undefined') {
+            const observer = new ResizeObserver(() => renderSAGraph());
+            observer.observe(graphWrap);
+        }
     }
 });
 
@@ -211,6 +257,7 @@ function initializeKalturaBindings() {
             kalturaReady = true;
             initPlayheadDrag();
             renderTimeline();
+            if (IS_UAV_TESTING) renderSAGraph();
             updateTimeUI();
         }
     });
@@ -218,6 +265,7 @@ function initializeKalturaBindings() {
     player.addEventListener('durationchange', () => {
         if (player.duration) {
             video_length = player.duration;
+            if (IS_UAV_TESTING) renderSAGraph();
             updateTimeUI();
         }
     });
@@ -272,6 +320,7 @@ function initializeKalturaBindings() {
                 kalturaReady = true;
                 initPlayheadDrag();
                 renderTimeline();
+                if (IS_UAV_TESTING) renderSAGraph();
             }
 
             if (video && typeof video.pause === 'function') {
@@ -402,7 +451,15 @@ function loadSavedData() {
     if (all_steps.length > 0) return;
 
     const preferredData = loadDraftFromLocal() || SAVED_DATA;
-    if (!preferredData) return;
+
+    if (IS_UAV_TESTING) loadSAFromPayload(preferredData);
+
+    if (!preferredData) {
+        renderTimeline();
+        renderList();
+        if (IS_UAV_TESTING) renderSAGraph();
+        return;
+    }
 
     const timestamps = preferredData.timestamps || [];
     const actions = preferredData.actions || [];
@@ -477,6 +534,7 @@ function loadSavedData() {
 
     renderTimeline();
     renderList();
+    if (IS_UAV_TESTING) renderSAGraph();
 }
 
 
@@ -838,6 +896,40 @@ function selectStep(id) {
     nudgeButtons.forEach(btn => {
         btn.disabled = missingStepDetected;
     });
+
+    if (IS_UAV_TESTING) {
+        const actionSelect = document.getElementById('inpActionSelect');
+        const customActionInput = document.getElementById('inpActionName');
+        const stepOptions = (window.STEP_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
+        const isAllowance = step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME;
+
+        if (actionSelect && customActionInput) {
+            if (isAllowance) {
+                actionSelect.value = '';
+                actionSelect.disabled = true;
+                customActionInput.value = ALLOWANCE_STEP_NAME;
+                customActionInput.disabled = true;
+                customActionInput.style.display = 'block';
+            } else if (stepOptions.includes(step.name)) {
+                actionSelect.value = step.name;
+                actionSelect.disabled = false;
+                customActionInput.value = step.name;
+                customActionInput.disabled = false;
+                customActionInput.style.display = 'none';
+            } else {
+                actionSelect.value = '__custom__';
+                actionSelect.disabled = false;
+                customActionInput.value = step.name || '';
+                customActionInput.disabled = false;
+                customActionInput.style.display = 'block';
+            }
+        }
+
+        const rewatchBtn = document.getElementById('rewatchBtnContainer');
+        if (rewatchBtn) rewatchBtn.style.visibility = missingStepDetected ? 'hidden' : 'visible';
+        setTimeout(() => form.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 10);
+        return;
+    }
     
     // Map the step's rating to the correct slider and label
     const sliderCorrectness = document.getElementById('inpCorrectnessRating');
@@ -1093,6 +1185,34 @@ function commitEdit() {
         const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
         const isAllowance = step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME;
 
+        if (IS_UAV_TESTING) {
+            step.name = isAllowance
+                ? ALLOWANCE_STEP_NAME
+                : (selectedStepValue === '__custom__'
+                    ? (customStepValue || step.name || "Untitled Action")
+                    : (selectedStepValue || customStepValue || step.name || "Untitled Action"));
+
+            if (!isNaN(step.start)) {
+                const tStart = parseTimeStr(document.getElementById('inpStart').value);
+                const tEnd = parseTimeStr(document.getElementById('inpEnd').value);
+                if ((tStart !== null) && (tEnd !== null) && (tEnd > tStart)) {
+                    step.start = tStart;
+                    step.end = tEnd;
+                } else {
+                    alert("Invalid Time Format (MM:SS.mmm) or End time is before Start time.");
+                    return;
+                }
+            }
+
+            active_step_id = null;
+            document.getElementById('editForm').style.display = 'none';
+            saveDraftToLocal();
+            renderTimeline();
+            renderList();
+            renderSAGraph();
+            return;
+        }
+
         // Always update comment and update based on corresponding inputs
         step.correctness_comment = document.getElementById('inpCorrectnessComment').value;
         step.performance_comment = document.getElementById('inpPerformanceComment').value;
@@ -1206,6 +1326,8 @@ function renderTimeline() {
 
         track.appendChild(el);
     });
+
+    if (IS_UAV_TESTING) renderSAGraph();
 }
 
 
@@ -1279,14 +1401,22 @@ function renderList() {
             ? "Missing Step" 
             : `${formatTime(step.start)} - ${formatTime(step.end)}`;
 
-        div.innerHTML = `
-            <div class="d-flex justify-content-between">
-                <strong>${step.name}</strong>
-                <span class="badge" ${badgeColor}>${compositeAverage.toFixed(2)}</span>
-            </div>
-            <div class="small text-muted">
-                ${timeDisplayString}
-            </div>`;
+        if (IS_UAV_TESTING) {
+            div.innerHTML = `
+                <div class="d-flex justify-content-between">
+                    <strong>${step.name}</strong>
+                </div>
+                <div class="small text-muted">${timeDisplayString}</div>`;
+        } else {
+            div.innerHTML = `
+                <div class="d-flex justify-content-between">
+                    <strong>${step.name}</strong>
+                    <span class="badge" ${badgeColor}>${compositeAverage.toFixed(2)}</span>
+                </div>
+                <div class="small text-muted">
+                    ${timeDisplayString}
+                </div>`;
+        }
         // Add onclick to entire block (click to select it)
         div.onclick = () => selectStep(step.id);
 
@@ -1646,6 +1776,228 @@ function parseTimeStr(str) {
     let min = parseInt(parts[0]);
     let sec = parseFloat(parts[1]); 
     return (min * 60) + sec;
+}
+
+// -----------------------------
+// UAV / SITUATIONAL AWARENESS
+// -----------------------------
+function clampSAValue(value) {
+    return Math.max(SA_MIN, Math.min(SA_MAX, Math.round(Number(value) || SA_DEFAULT)));
+}
+
+function sanitizeSAPoints(points) {
+    const source = Array.isArray(points) ? points : [];
+    const cleaned = source
+        .map(point => ({
+            time: Math.max(0, Number(point.time) || 0),
+            value: clampSAValue(point.value)
+        }))
+        .sort((a, b) => a.time - b.time);
+
+    const deduped = [];
+    cleaned.forEach(point => {
+        const last = deduped[deduped.length - 1];
+        if (last && Math.abs(last.time - point.time) < 0.05) {
+            last.time = point.time;
+            last.value = point.value;
+        } else {
+            deduped.push(point);
+        }
+    });
+
+    if (deduped.length === 0 || deduped[0].time > 0.05) {
+        deduped.unshift({ time: 0, value: SA_DEFAULT });
+    } else {
+        deduped[0].time = 0;
+    }
+
+    return deduped.filter((point, index, arr) => index === 0 || point.value !== arr[index - 1].value);
+}
+
+function loadSAFromPayload(payload) {
+    const savedSA = payload && payload.situational_awareness;
+    SA_FIELDS.forEach(field => {
+        saData[field] = savedSA && Array.isArray(savedSA[field])
+            ? sanitizeSAPoints(savedSA[field])
+            : [{ time: 0, value: SA_DEFAULT }];
+    });
+}
+
+function getSAValueAtTime(field, time) {
+    const points = sanitizeSAPoints(saData[field]);
+    let value = SA_DEFAULT;
+    for (const point of points) {
+        if (point.time <= time + 0.001) value = point.value;
+        else break;
+    }
+    return value;
+}
+
+function adjustSA(field, delta) {
+    if (!IS_UAV_TESTING || !SA_FIELDS.includes(field)) return;
+
+    const time = Math.max(0, Math.round(video.currentTime * 10) / 10);
+    const currentValue = getSAValueAtTime(field, time);
+    const nextValue = clampSAValue(currentValue + delta);
+    if (nextValue === currentValue) return;
+
+    const points = Array.isArray(saData[field]) ? [...saData[field]] : [];
+    const nearbyIndex = points.findIndex(point => Math.abs(Number(point.time) - time) < 0.15);
+    if (nearbyIndex >= 0) points[nearbyIndex] = { time, value: nextValue };
+    else points.push({ time, value: nextValue });
+
+    saData[field] = sanitizeSAPoints(points);
+    saveDraftToLocal();
+    renderSAGraph();
+    updateSACurrentValues();
+}
+
+function updateSACurrentValues() {
+    if (!IS_UAV_TESTING) return;
+    const current = video.currentTime;
+    const ids = {
+        perception: 'saValuePerception',
+        comprehension: 'saValueComprehension',
+        projection: 'saValueProjection'
+    };
+    SA_FIELDS.forEach(field => {
+        const el = document.getElementById(ids[field]);
+        if (el) el.textContent = String(getSAValueAtTime(field, current));
+    });
+}
+
+function createSvgElement(tag, attrs = {}) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, String(value)));
+    return el;
+}
+
+function formatShortTime(seconds) {
+    const safe = Math.max(0, Number(seconds) || 0);
+    const minutes = Math.floor(safe / 60);
+    const secs = Math.floor(safe % 60);
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+
+function renderSAGraph() {
+    if (!IS_UAV_TESTING) return;
+
+    const svg = document.getElementById('saGraph');
+    const wrap = document.getElementById('saGraphWrap');
+    if (!svg || !wrap) return;
+
+    const width = Math.max(500, Math.round(wrap.clientWidth || 900));
+    const height = Math.max(180, Math.round(wrap.clientHeight || 220));
+    const margin = { left: 42, right: 14, top: 24, bottom: 28 };
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+    const duration = Math.max(1, video_length || video.duration || 1);
+    const xForTime = time => margin.left + (Math.max(0, Math.min(duration, time)) / duration) * plotWidth;
+    const yForValue = value => margin.top + ((SA_MAX - clampSAValue(value)) / (SA_MAX - SA_MIN)) * plotHeight;
+
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.innerHTML = '';
+
+    const validSteps = all_steps
+        .filter(step => !isNaN(step.start) && !isNaN(step.end))
+        .sort((a, b) => a.start - b.start);
+
+    validSteps.forEach((step, index) => {
+        const x1 = xForTime(step.start);
+        const x2 = xForTime(step.end);
+        svg.appendChild(createSvgElement('rect', {
+            x: x1, y: margin.top, width: Math.max(1, x2 - x1), height: plotHeight,
+            fill: index % 2 === 0 ? '#f8f9fa' : '#eef2f6'
+        }));
+        svg.appendChild(createSvgElement('line', {
+            x1, y1: margin.top, x2: x1, y2: margin.top + plotHeight,
+            stroke: '#adb5bd', 'stroke-width': 1, 'stroke-dasharray': '4 4'
+        }));
+        const stepLabel = createSvgElement('text', {
+            x: Math.min(x1 + 4, width - margin.right - 24), y: 14, class: 'sa-step-label'
+        });
+        stepLabel.textContent = `S${index + 1}`;
+        svg.appendChild(stepLabel);
+    });
+
+    for (let value = SA_MIN; value <= SA_MAX; value++) {
+        const y = yForValue(value);
+        svg.appendChild(createSvgElement('line', {
+            x1: margin.left, y1: y, x2: width - margin.right, y2: y,
+            stroke: '#dee2e6', 'stroke-width': 1
+        }));
+        const label = createSvgElement('text', {
+            x: margin.left - 12, y: y + 4, 'text-anchor': 'end', class: 'sa-axis-text'
+        });
+        label.textContent = String(value);
+        svg.appendChild(label);
+    }
+
+    [0, 0.25, 0.5, 0.75, 1].forEach(fraction => {
+        const time = duration * fraction;
+        const label = createSvgElement('text', {
+            x: xForTime(time), y: height - 8,
+            'text-anchor': fraction === 0 ? 'start' : (fraction === 1 ? 'end' : 'middle'),
+            class: 'sa-axis-text'
+        });
+        label.textContent = formatShortTime(time);
+        svg.appendChild(label);
+    });
+
+    SA_FIELDS.forEach(field => {
+        const points = sanitizeSAPoints(saData[field]);
+        saData[field] = points;
+        let pathData = '';
+        points.forEach((point, index) => {
+            const x = xForTime(point.time);
+            const y = yForValue(point.value);
+            pathData += index === 0 ? `M ${x} ${y}` : ` H ${x} V ${y}`;
+        });
+        pathData += ` H ${xForTime(duration)}`;
+        svg.appendChild(createSvgElement('path', {
+            d: pathData, fill: 'none', stroke: SA_COLORS[field], 'stroke-width': 3,
+            'stroke-linejoin': 'round', 'stroke-linecap': 'round'
+        }));
+        points.forEach(point => {
+            svg.appendChild(createSvgElement('circle', {
+                cx: xForTime(point.time), cy: yForValue(point.value), r: 4,
+                fill: SA_COLORS[field], stroke: '#ffffff', 'stroke-width': 1.5
+            }));
+        });
+    });
+
+    svg.appendChild(createSvgElement('line', {
+        id: 'saGraphPlayhead',
+        x1: xForTime(video.currentTime), y1: margin.top,
+        x2: xForTime(video.currentTime), y2: margin.top + plotHeight,
+        stroke: '#dc3545', 'stroke-width': 2
+    }));
+
+    svg.onmousedown = event => {
+        const rect = svg.getBoundingClientRect();
+        const localX = event.clientX - rect.left;
+        const scaledX = (localX / rect.width) * width;
+        const clampedX = Math.max(margin.left, Math.min(width - margin.right, scaledX));
+        video.currentTime = ((clampedX - margin.left) / plotWidth) * duration;
+        updateTimeUI();
+    };
+
+    updateSAPlayhead();
+}
+
+function updateSAPlayhead() {
+    if (!IS_UAV_TESTING) return;
+    const line = document.getElementById('saGraphPlayhead');
+    const svg = document.getElementById('saGraph');
+    if (!line || !svg || !svg.viewBox || !svg.viewBox.baseVal.width) return;
+
+    const width = svg.viewBox.baseVal.width;
+    const marginLeft = 42;
+    const marginRight = 14;
+    const duration = Math.max(1, video_length || video.duration || 1);
+    const x = marginLeft + (Math.max(0, Math.min(duration, video.currentTime)) / duration) * (width - marginLeft - marginRight);
+    line.setAttribute('x1', x);
+    line.setAttribute('x2', x);
 }
 
 // This function controls the "Saved successfully" message that
