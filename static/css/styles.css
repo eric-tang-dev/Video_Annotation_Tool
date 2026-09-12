@@ -451,3 +451,29 @@ video {
 .sa-point-group.selected .sa-point-marker {
     filter: drop-shadow(0 0 2px rgba(0,0,0,0.45));
 }
+
+
+/* UAV layout: always reserve room for the custom video control bar.
+   This prevents the SA graph from clipping the time display and buttons. */
+.uav-testing-mode .row.flex-grow-1 {
+    min-height: 0;
+}
+
+.uav-testing-mode .col-md-9.d-flex.flex-column {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.uav-testing-mode .video-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.uav-testing-mode .controls-bar {
+    flex: 0 0 46px !important;
+    height: 46px;
+    min-height: 46px;
+    position: relative;
+    z-index: 60;
+    overflow: visible;
+}
