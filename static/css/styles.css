@@ -368,7 +368,7 @@ video {
    A dark separator and soft off-white graph surface make the transition from
    the video player into the graph feel intentional rather than abrupt. */
 .sa-timeline-panel {
-    height: 190px;
+    height: 145px;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
