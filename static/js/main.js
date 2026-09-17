@@ -2284,13 +2284,18 @@ function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margi
         const onMove = moveEvent => {
             if (Math.abs(moveEvent.clientX - startX) >= 2) moved = true;
             if (!moved) return;
-
+        
             const selected = getSelectedSAPointRecord();
             if (!selected || selected.field !== field || selected.point._id !== pointId) return;
-
+        
             const newTime = Math.max(0, Math.min(duration, Math.round(timeFromClientX(moveEvent.clientX) * 10) / 10));
+            
             selected.point.time = newTime;
-            saData[field] = sanitizeSAPoints(saData[field]);
+            
+            saData[field] = sanitizeSAPoints(
+                saData[field].filter(p => p._id === pointId || p.time < newTime)
+            );
+        
             video.currentTime = newTime;
             updateTimeUI();
             updateSAPointEditor();
