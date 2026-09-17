@@ -2304,9 +2304,16 @@ function renderSAGraph() {
     // Three step-style SA curves. Each value stays level until the next change event.
     // Individual change points stay visually quiet until their series is hovered or
     // a point is selected, which keeps dense sections of the graph readable.
+    //
+    // The data model always keeps an origin point at t=0 (default value 1), but we
+    // only draw a series once real change points exist. With only the origin left,
+    // nothing is rendered for that field — avoiding three flat overlapping lines.
     SA_FIELDS.forEach(field => {
         const points = sanitizeSAPoints(saData[field]);
         saData[field] = points;
+
+        const hasDrawnSeries = points.some(point => point.time > 0.001);
+        if (!hasDrawnSeries) return;
 
         const seriesGroup = createSvgElement('g', {
             class: `sa-series-group sa-series-${field}`
