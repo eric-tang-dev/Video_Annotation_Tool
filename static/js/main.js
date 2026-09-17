@@ -2405,7 +2405,7 @@ function renderSAGraph() {
                 r: 10,
                 fill: 'transparent',
                 class: 'sa-point-hit',
-                cursor: 'ew-resize',
+                cursor: 'grab',
                 'data-no-seek': '1'
             });
 
@@ -2415,7 +2415,7 @@ function renderSAGraph() {
 
             addSAPointInteractions({
                 svg, field, pointId: point._id, hit, marker,
-                width, margin, plotWidth, duration
+                width, margin, plotWidth, plotHeight, duration
             });
         });
 
@@ -2472,7 +2472,7 @@ function renderSAGraph() {
     updateSAPointEditor();
 }
 
-function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margin, plotWidth, duration }) {
+function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margin, plotWidth, plotHeight, duration }) {
     const setHovered = hovered => {
         if (selectedSAPoint && selectedSAPoint.field === field && selectedSAPoint.id === pointId) return;
         marker.classList.toggle('hovered', hovered);
@@ -2492,7 +2492,14 @@ function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margi
 
         const rect = svg.getBoundingClientRect();
         const startX = event.clientX;
-        let moved = false;
+        const startY = event.clientY;
+        const startRecord = getSelectedSAPointRecord();
+        const startValue = startRecord ? startRecord.point.value : SA_DEFAULT;
+        let dragAxis = null; // 'x' | 'y' — lock after a short move so drags stay intentional
+        const AXIS_LOCK_PX = 8;
+        // One full score band of travel is required per level (1→2→3), so a
+        // flick cannot jump straight across the scale in one seamless motion.
+        const bandPx = Math.max(18, plotHeight / (SA_MAX - SA_MIN));
 
         const timeFromClientX = clientX => {
             const localX = clientX - rect.left;
@@ -2501,21 +2508,43 @@ function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margi
             return ((clampedX - margin.left) / plotWidth) * duration;
         };
 
+        document.body.style.cursor = 'grabbing';
+
         const onMove = moveEvent => {
-            if (Math.abs(moveEvent.clientX - startX) >= 2) moved = true;
-            if (!moved) return;
-        
+            const dx = moveEvent.clientX - startX;
+            const dy = moveEvent.clientY - startY;
+
+            if (!dragAxis) {
+                if (Math.abs(dx) < AXIS_LOCK_PX && Math.abs(dy) < AXIS_LOCK_PX) return;
+                dragAxis = Math.abs(dy) >= Math.abs(dx) ? 'y' : 'x';
+            }
+
             const selected = getSelectedSAPointRecord();
             if (!selected || selected.field !== field || selected.point._id !== pointId) return;
-        
+
+            if (dragAxis === 'y') {
+                // Positive upward mouse travel raises score. trunc() steps one
+                // integer level only after a full band of travel from the start.
+                const levels = Math.trunc((startY - moveEvent.clientY) / bandPx);
+                const newValue = clampSAValue(startValue + levels);
+                if (newValue === selected.point.value) return;
+
+                selected.point.value = newValue;
+                saData[field] = sanitizeSAPoints(saData[field]);
+                updateSACurrentValues();
+                updateSAPointEditor();
+                renderSAGraph();
+                return;
+            }
+
             const newTime = Math.max(0, Math.min(duration, Math.round(timeFromClientX(moveEvent.clientX) * 10) / 10));
-            
+
             selected.point.time = newTime;
-            
+
             saData[field] = sanitizeSAPoints(
                 saData[field].filter(p => p._id === pointId || p.time < newTime)
             );
-        
+
             video.currentTime = newTime;
             updateTimeUI();
             updateSAPointEditor();
@@ -2525,6 +2554,7 @@ function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margi
         const onUp = () => {
             window.removeEventListener('mousemove', onMove);
             window.removeEventListener('mouseup', onUp);
+            document.body.style.cursor = '';
             saveDraftToLocal();
             updateSACurrentValues();
             updateSAPointEditor();
