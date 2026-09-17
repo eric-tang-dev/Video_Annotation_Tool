@@ -2200,16 +2200,21 @@ function renderSAGraph() {
     const wrap = document.getElementById('saGraphWrap');
     if (!svg || !wrap) return;
 
-    const width = Math.max(700, Math.round(wrap.clientWidth || 1100));
-    const height = Math.max(190, Math.round(wrap.clientHeight || 220));
-    const margin = { left: 46, right: 18, top: 30, bottom: 34 };
-    const plotWidth = width - margin.left - margin.right;
-    const plotHeight = height - margin.top - margin.bottom;
+    // Use the wrap's real pixel size for the viewBox. Forcing a taller viewBox
+    // than the 145px panel (via Math.max(190, ...)) triggered default SVG
+    // letterboxing (xMidYMid meet), which centered the plot and made scrubbing
+    // map the full panel width while the visible graph only occupied the middle.
+    const width = Math.max(1, Math.round(wrap.clientWidth || 1));
+    const height = Math.max(1, Math.round(wrap.clientHeight || 1));
+    const margin = { left: 46, right: 18, top: 28, bottom: 28 };
+    const plotWidth = Math.max(1, width - margin.left - margin.right);
+    const plotHeight = Math.max(1, height - margin.top - margin.bottom);
     const duration = Math.max(1, video_length || video.duration || 1);
     const xForTime = time => margin.left + (Math.max(0, Math.min(duration, Number(time) || 0)) / duration) * plotWidth;
     const yForValue = value => margin.top + ((SA_MAX - clampSAValue(value)) / (SA_MAX - SA_MIN)) * plotHeight;
 
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
     svg.innerHTML = '';
 
     const validSteps = all_steps
