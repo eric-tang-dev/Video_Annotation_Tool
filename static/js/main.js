@@ -408,13 +408,22 @@ document.addEventListener('keydown', (e) => {
     }
 
 
-    // Spacebar = Toggle Play/Pause
+    // Spacebar = deselect SA variable if one is selected; otherwise play/pause.
     if (e.key === ' ') {
         // Keep Space for activating focused SA controls / buttons instead of play/pause.
         if (e.target.closest('button, .sa-control-row, .sa-point-list-item')) {
             return;
         }
         e.preventDefault(); // stop page from scrolling down
+
+        if (IS_UAV_TESTING && selectedSAField) {
+            selectedSAField = null;
+            selectedSAPoint = null;
+            updateSAPointEditor();
+            renderSAGraph();
+            return;
+        }
+
         togglePlay();
     }
 
@@ -2331,14 +2340,16 @@ function renderSAGraph() {
         svg.appendChild(label);
     });
 
-    // Three step-style SA curves. Each value stays level until the next change event.
-    // Individual change points stay visually quiet until their series is hovered or
-    // a point is selected, which keeps dense sections of the graph readable.
+    // SA curves: show all three when no variable is selected; only the selected
+    // field's series when one is active.
     //
     // The data model always keeps an origin point at t=0 (default value 1), but we
     // only draw a series once real change points exist. With only the origin left,
     // nothing is rendered for that field — avoiding three flat overlapping lines.
-    SA_FIELDS.forEach(field => {
+    const fieldsToDraw = selectedSAField ? [selectedSAField] : SA_FIELDS;
+    fieldsToDraw.forEach(field => {
+        if (!SA_FIELDS.includes(field)) return;
+
         const points = sanitizeSAPoints(saData[field]);
         saData[field] = points;
 
