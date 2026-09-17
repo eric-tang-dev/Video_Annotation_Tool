@@ -2539,10 +2539,9 @@ function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margi
             const newTime = Math.max(0, Math.min(duration, Math.round(timeFromClientX(moveEvent.clientX) * 10) / 10));
 
             selected.point.time = newTime;
-
-            saData[field] = sanitizeSAPoints(
-                saData[field].filter(p => p._id === pointId || p.time < newTime)
-            );
+            // Only move this node. Do not drop later points when the dragged
+            // node's time changes (the old filter deleted them).
+            saData[field] = sanitizeSAPoints(saData[field]);
 
             video.currentTime = newTime;
             updateTimeUI();
