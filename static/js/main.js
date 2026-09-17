@@ -1849,15 +1849,27 @@ function sanitizeSAPoints(points) {
         }))
         .sort((a, b) => a.time - b.time);
 
-    // Keep every recorded change point exactly as entered. Do not merge nearby
-    // timestamps and do not remove consecutive points with the same value.
-    if (cleaned.length === 0 || cleaned[0].time > 0.001) {
-        cleaned.unshift({ time: 0, value: SA_DEFAULT, _id: nextSAPointId() });
-    } else if (cleaned[0].time < 0.001) {
-        cleaned[0].time = 0;
+    // Collapse same-timestamp points into one node. A score change at a given
+    // time is a single point that may jump by more than 1 (e.g. 1 → 3), so
+    // intermediate same-time values like 2 must not be kept.
+    const merged = [];
+    cleaned.forEach(point => {
+        if (merged.length > 0 && Math.abs(merged[merged.length - 1].time - point.time) < 0.001) {
+            merged[merged.length - 1].time = point.time < 0.001 ? 0 : point.time;
+            merged[merged.length - 1].value = point.value;
+            merged[merged.length - 1]._id = point._id;
+            return;
+        }
+        merged.push(point);
+    });
+
+    if (merged.length === 0 || merged[0].time > 0.001) {
+        merged.unshift({ time: 0, value: SA_DEFAULT, _id: nextSAPointId() });
+    } else if (merged[0].time < 0.001) {
+        merged[0].time = 0;
     }
 
-    return cleaned;
+    return merged;
 }
 
 function serializeSAPoints(points) {
@@ -1911,14 +1923,27 @@ function adjustSA(field, delta) {
     if (nextValue === currentValue) return;
 
     const points = Array.isArray(saData[field]) ? [...saData[field]] : [];
-    const newPoint = { time, value: nextValue, _id: nextSAPointId() };
-    points.push(newPoint);
+    const existingIndex = points.findIndex(point => Math.abs((Number(point.time) || 0) - time) < 0.001);
 
-    // Intentionally preserve every button press as its own point, even if
-    // multiple points are created at the same or nearly the same timestamp.
+    let pointId;
+    if (existingIndex >= 0) {
+        // Same timestamp: update this node in place so score can jump by >1
+        // without creating intermediate points (1→2→3 at 32.5s becomes 1→3).
+        points[existingIndex] = {
+            ...points[existingIndex],
+            time,
+            value: nextValue,
+            _id: points[existingIndex]._id || nextSAPointId()
+        };
+        pointId = points[existingIndex]._id;
+    } else {
+        pointId = nextSAPointId();
+        points.push({ time, value: nextValue, _id: pointId });
+    }
+
     saData[field] = sanitizeSAPoints(points);
     selectedSAField = field;
-    selectedSAPoint = { field, id: newPoint._id };
+    selectedSAPoint = { field, id: pointId };
     saveDraftToLocal();
     renderSAGraph();
     updateSACurrentValues();
