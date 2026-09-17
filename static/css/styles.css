@@ -472,8 +472,15 @@ video {
 .sa-point-list-item-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     margin-bottom: 6px;
+}
+
+.sa-point-list-item-time {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #212529;
+    letter-spacing: -0.02em;
 }
 
 .sa-point-list-empty {
@@ -487,7 +494,7 @@ video {
 }
 
 .sa-point-marker {
-    opacity: 0.10;
+    opacity: 0.92;
     transition: opacity 0.12s ease, r 0.12s ease;
     pointer-events: none;
 }

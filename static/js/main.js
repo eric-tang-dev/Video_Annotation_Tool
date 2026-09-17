@@ -2122,11 +2122,11 @@ function renderSAPointList() {
     saData[selectedSAField] = points;
 
     list.style.display = 'block';
-    if (heading) heading.textContent = `${SA_FIELD_LABELS[selectedSAField] || selectedSAField} points`;
+    if (heading) heading.textContent = SA_FIELD_LABELS[selectedSAField] || selectedSAField;
     if (count) count.textContent = `${points.length}`;
 
     if (points.length === 0) {
-        items.innerHTML = `<div class="sa-point-list-empty">No points yet.</div>`;
+        items.innerHTML = `<div class="sa-point-list-empty">No scores yet.</div>`;
         return;
     }
 
@@ -2142,17 +2142,16 @@ function renderSAPointList() {
                  onclick="selectSAPoint('${selectedSAField}', '${point._id}', { seek: true })"
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();selectSAPoint('${selectedSAField}', '${point._id}', { seek: true });}">
                 <div class="sa-point-list-item-header">
-                    <strong class="small">Point</strong>
-                    <span class="small text-muted font-monospace">${formatShortTimePrecise(point.time)}</span>
+                    <span class="sa-point-list-item-time font-monospace">${formatShortTimePrecise(point.time)}</span>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
                             onclick="event.stopPropagation();adjustSAPointById('${selectedSAField}', '${point._id}', -1)"
-                            aria-label="Decrease point value">&#8595;</button>
+                            aria-label="Decrease score">&#8595;</button>
                     <span class="sa-value-badge">${point.value}</span>
                     <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
                             onclick="event.stopPropagation();adjustSAPointById('${selectedSAField}', '${point._id}', 1)"
-                            aria-label="Increase point value">&#8593;</button>
+                            aria-label="Increase score">&#8593;</button>
                     <button class="btn btn-outline-danger btn-sm ms-auto" type="button"
                             onclick="event.stopPropagation();deleteSAPointById('${selectedSAField}', '${point._id}')">Delete</button>
                 </div>
@@ -2391,7 +2390,7 @@ function renderSAGraph() {
             const marker = createSvgElement('circle', {
                 cx: xForTime(point.time),
                 cy: yForValue(point.value),
-                r: isSelected ? 6 : 4,
+                r: isSelected ? 8 : 6,
                 fill: SA_COLORS[field],
                 stroke: isSelected ? '#212529' : '#ffffff',
                 'stroke-width': isSelected ? 2.5 : 1.5,
@@ -2402,7 +2401,7 @@ function renderSAGraph() {
             const hit = createSvgElement('circle', {
                 cx: xForTime(point.time),
                 cy: yForValue(point.value),
-                r: 10,
+                r: 14,
                 fill: 'transparent',
                 class: 'sa-point-hit',
                 cursor: 'grab',
