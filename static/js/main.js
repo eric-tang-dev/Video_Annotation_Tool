@@ -1848,7 +1848,8 @@ function clampSAValue(value) {
     return Math.max(SA_MIN, Math.min(SA_MAX, Math.round(Number(value) || SA_DEFAULT)));
 }
 
-function sanitizeSAPoints(points) {
+function sanitizeSAPoints(points, options = {}) {
+    const mergeSameTime = options.mergeSameTime === true;
     const source = Array.isArray(points) ? points : [];
     const cleaned = source
         .map(point => ({
@@ -1856,33 +1857,64 @@ function sanitizeSAPoints(points) {
             value: clampSAValue(point.value),
             _id: point._id || nextSAPointId()
         }))
-        .sort((a, b) => a.time - b.time);
+        .sort((a, b) => a.time - b.time || String(a._id).localeCompare(String(b._id)));
 
-    // Collapse same-timestamp points into one node. A score change at a given
-    // time is a single point that may jump by more than 1 (e.g. 1 → 3), so
-    // intermediate same-time values like 2 must not be kept.
-    const merged = [];
-    cleaned.forEach(point => {
-        if (merged.length > 0 && Math.abs(merged[merged.length - 1].time - point.time) < 0.001) {
-            merged[merged.length - 1].time = point.time < 0.001 ? 0 : point.time;
-            merged[merged.length - 1].value = point.value;
-            merged[merged.length - 1]._id = point._id;
-            return;
-        }
-        merged.push(point);
-    });
-
-    if (merged.length === 0 || merged[0].time > 0.001) {
-        merged.unshift({ time: 0, value: SA_DEFAULT, _id: nextSAPointId() });
-    } else if (merged[0].time < 0.001) {
-        merged[0].time = 0;
+    // Same-time merge is opt-in (load/save only). During live drag/render it must
+    // stay off — otherwise dragging a node across another collapses and deletes it.
+    let result = cleaned;
+    if (mergeSameTime) {
+        const merged = [];
+        cleaned.forEach(point => {
+            if (merged.length > 0 && Math.abs(merged[merged.length - 1].time - point.time) < 0.001) {
+                merged[merged.length - 1].time = point.time < 0.001 ? 0 : point.time;
+                merged[merged.length - 1].value = point.value;
+                merged[merged.length - 1]._id = point._id;
+                return;
+            }
+            merged.push(point);
+        });
+        result = merged;
     }
 
-    return merged;
+    if (result.length === 0 || result[0].time > 0.001) {
+        result.unshift({ time: 0, value: SA_DEFAULT, _id: nextSAPointId() });
+    } else if (result[0].time < 0.001) {
+        result[0].time = 0;
+    }
+
+    return result;
+}
+
+function separateSAPointTimeCollisions(field, pointId, preferredDir, duration) {
+    const step = 0.1;
+    let dir = preferredDir >= 0 ? 1 : -1;
+
+    for (let attempt = 0; attempt < 500; attempt++) {
+        const points = sanitizeSAPoints(saData[field]);
+        saData[field] = points;
+
+        const me = points.find(point => point._id === pointId);
+        if (!me) return;
+
+        const conflict = points.find(point => (
+            point._id !== pointId && Math.abs(point.time - me.time) < 0.001
+        ));
+        if (!conflict) return;
+
+        let nextTime = Math.round((me.time + dir * step) * 10) / 10;
+        if (nextTime < 0 || nextTime > duration) {
+            dir *= -1;
+            nextTime = Math.round((me.time + dir * step) * 10) / 10;
+        }
+        if (nextTime < 0) nextTime = step;
+        if (nextTime > duration) nextTime = Math.max(0, Math.round((duration - step) * 10) / 10);
+
+        me.time = nextTime;
+    }
 }
 
 function serializeSAPoints(points) {
-    return sanitizeSAPoints(points).map(point => ({
+    return sanitizeSAPoints(points, { mergeSameTime: true }).map(point => ({
         time: point.time,
         value: point.value
     }));
@@ -1904,7 +1936,7 @@ function loadSAFromPayload(payload) {
     const savedSA = payload && payload.situational_awareness;
     SA_FIELDS.forEach(field => {
         saData[field] = savedSA && Array.isArray(savedSA[field])
-            ? sanitizeSAPoints(savedSA[field])
+            ? sanitizeSAPoints(savedSA[field], { mergeSameTime: true })
             : [{ time: 0, value: SA_DEFAULT, _id: nextSAPointId() }];
     });
     selectedSAPoint = null;
@@ -2495,6 +2527,7 @@ function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margi
         const startRecord = getSelectedSAPointRecord();
         const startValue = startRecord ? startRecord.point.value : SA_DEFAULT;
         let dragAxis = null; // 'x' | 'y' — lock after a short move so drags stay intentional
+        let lastDragDirX = 1;
         const AXIS_LOCK_PX = 8;
         // One full score band of travel is required per level (1→2→3), so a
         // flick cannot jump straight across the scale in one seamless motion.
@@ -2536,11 +2569,13 @@ function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margi
                 return;
             }
 
+            if (dx !== 0) lastDragDirX = dx > 0 ? 1 : -1;
+
             const newTime = Math.max(0, Math.min(duration, Math.round(timeFromClientX(moveEvent.clientX) * 10) / 10));
 
             selected.point.time = newTime;
-            // Only move this node. Do not drop later points when the dragged
-            // node's time changes (the old filter deleted them).
+            // Sort/normalize only — never merge same-time points while dragging,
+            // or crossing another node would delete it.
             saData[field] = sanitizeSAPoints(saData[field]);
 
             video.currentTime = newTime;
@@ -2553,6 +2588,13 @@ function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margi
             window.removeEventListener('mousemove', onMove);
             window.removeEventListener('mouseup', onUp);
             document.body.style.cursor = '';
+
+            if (dragAxis === 'x') {
+                separateSAPointTimeCollisions(field, pointId, lastDragDirX, duration);
+            } else {
+                saData[field] = sanitizeSAPoints(saData[field]);
+            }
+
             saveDraftToLocal();
             updateSACurrentValues();
             updateSAPointEditor();
