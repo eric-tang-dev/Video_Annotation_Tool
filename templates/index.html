@@ -161,47 +161,45 @@
                     <strong>Situational Awareness</strong>
                     <span class="small text-muted">Scale 1-5</span>
                 </div>
-                <div class="sa-control-row">
+                <div class="sa-control-row" id="saFieldRowPerception" data-sa-field="perception"
+                     role="button" tabindex="0" onclick="selectSAField('perception')"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();selectSAField('perception');}">
                     <span class="sa-field-label perception-label">Perception</span>
                     <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
-                            onclick="adjustSA('perception', -1)" aria-label="Decrease perception">&#8595;</button>
+                            onclick="event.stopPropagation();adjustSA('perception', -1)" aria-label="Decrease perception">&#8595;</button>
                     <span class="sa-value-badge" id="saValuePerception">1</span>
                     <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
-                            onclick="adjustSA('perception', 1)" aria-label="Increase perception">&#8593;</button>
+                            onclick="event.stopPropagation();adjustSA('perception', 1)" aria-label="Increase perception">&#8593;</button>
                 </div>
 
-                <div class="sa-control-row">
+                <div class="sa-control-row" id="saFieldRowComprehension" data-sa-field="comprehension"
+                     role="button" tabindex="0" onclick="selectSAField('comprehension')"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();selectSAField('comprehension');}">
                     <span class="sa-field-label comprehension-label">Comprehension</span>
                     <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
-                            onclick="adjustSA('comprehension', -1)" aria-label="Decrease comprehension">&#8595;</button>
+                            onclick="event.stopPropagation();adjustSA('comprehension', -1)" aria-label="Decrease comprehension">&#8595;</button>
                     <span class="sa-value-badge" id="saValueComprehension">1</span>
                     <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
-                            onclick="adjustSA('comprehension', 1)" aria-label="Increase comprehension">&#8593;</button>
+                            onclick="event.stopPropagation();adjustSA('comprehension', 1)" aria-label="Increase comprehension">&#8593;</button>
                 </div>
 
-                <div class="sa-control-row">
+                <div class="sa-control-row" id="saFieldRowProjection" data-sa-field="projection"
+                     role="button" tabindex="0" onclick="selectSAField('projection')"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();selectSAField('projection');}">
                     <span class="sa-field-label projection-label">Projection</span>
                     <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
-                            onclick="adjustSA('projection', -1)" aria-label="Decrease projection">&#8595;</button>
+                            onclick="event.stopPropagation();adjustSA('projection', -1)" aria-label="Decrease projection">&#8595;</button>
                     <span class="sa-value-badge" id="saValueProjection">1</span>
                     <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
-                            onclick="adjustSA('projection', 1)" aria-label="Increase projection">&#8593;</button>
+                            onclick="event.stopPropagation();adjustSA('projection', 1)" aria-label="Increase projection">&#8593;</button>
                 </div>
 
-                <div class="sa-point-editor mt-3" id="saPointEditor" style="display:none;">
+                <div class="sa-point-list mt-3" id="saPointList" style="display:none;">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <strong class="small" id="saPointEditorLabel">Selected point</strong>
-                        <span class="small text-muted font-monospace" id="saPointEditorTime"></span>
+                        <strong class="small" id="saPointListHeading">Points</strong>
+                        <span class="small text-muted" id="saPointListCount"></span>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
-                                onclick="adjustSelectedSAPoint(-1)" aria-label="Decrease selected SA point">&#8595;</button>
-                        <span class="sa-value-badge" id="saPointEditorValue">1</span>
-                        <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
-                                onclick="adjustSelectedSAPoint(1)" aria-label="Increase selected SA point">&#8593;</button>
-                        <button class="btn btn-outline-danger btn-sm ms-auto" type="button"
-                                onclick="deleteSelectedSAPoint()">Delete</button>
-                    </div>
+                    <div class="sa-point-list-items" id="saPointListItems"></div>
                 </div>
             </div>
             {% endif %}

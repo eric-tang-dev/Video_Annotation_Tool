@@ -37,6 +37,7 @@ const SA_COLORS = {
 
 let saPointIdCounter = 1;
 let selectedSAPoint = null; // { field, id }
+let selectedSAField = null; // "perception" | "comprehension" | "projection"
 
 function nextSAPointId() {
     return `sa-point-${Date.now()}-${saPointIdCounter++}`;
@@ -387,9 +388,32 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
+    // UAV mode: Left/Right jump between points on the selected variable.
+    // Up/Down adjust the currently selected point's score.
+    if (IS_UAV_TESTING) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            if (selectedSAField) {
+                e.preventDefault();
+                jumpToNearestSAPoint(e.key === 'ArrowLeft' ? -1 : 1);
+                return;
+            }
+        }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            if (getSelectedSAPointRecord()) {
+                e.preventDefault();
+                adjustSelectedSAPoint(e.key === 'ArrowUp' ? 1 : -1);
+                return;
+            }
+        }
+    }
+
 
     // Spacebar = Toggle Play/Pause
     if (e.key === ' ') {
+        // Keep Space for activating focused SA controls / buttons instead of play/pause.
+        if (e.target.closest('button, .sa-control-row, .sa-point-list-item')) {
+            return;
+        }
         e.preventDefault(); // stop page from scrolling down
         togglePlay();
     }
@@ -1843,6 +1867,18 @@ function serializeSAPoints(points) {
     }));
 }
 
+const SA_FIELD_LABELS = {
+    perception: 'Perception',
+    comprehension: 'Comprehension',
+    projection: 'Projection'
+};
+
+const SA_FIELD_ROW_IDS = {
+    perception: 'saFieldRowPerception',
+    comprehension: 'saFieldRowComprehension',
+    projection: 'saFieldRowProjection'
+};
+
 function loadSAFromPayload(payload) {
     const savedSA = payload && payload.situational_awareness;
     SA_FIELDS.forEach(field => {
@@ -1851,6 +1887,7 @@ function loadSAFromPayload(payload) {
             : [{ time: 0, value: SA_DEFAULT, _id: nextSAPointId() }];
     });
     selectedSAPoint = null;
+    selectedSAField = null;
     updateSAPointEditor();
 }
 
@@ -1880,6 +1917,7 @@ function adjustSA(field, delta) {
     // Intentionally preserve every button press as its own point, even if
     // multiple points are created at the same or nearly the same timestamp.
     saData[field] = sanitizeSAPoints(points);
+    selectedSAField = field;
     selectedSAPoint = { field, id: newPoint._id };
     saveDraftToLocal();
     renderSAGraph();
@@ -1895,9 +1933,36 @@ function getSelectedSAPointRecord() {
     return { field: selectedSAPoint.field, point };
 }
 
-function selectSAPoint(field, id) {
+function selectSAField(field) {
     if (!IS_UAV_TESTING || !SA_FIELDS.includes(field)) return;
+
+    if (selectedSAField === field) {
+        selectedSAField = null;
+        selectedSAPoint = null;
+    } else {
+        selectedSAField = field;
+        if (!selectedSAPoint || selectedSAPoint.field !== field) {
+            selectedSAPoint = null;
+        }
+    }
+
+    updateSAPointEditor();
+    renderSAGraph();
+}
+
+function selectSAPoint(field, id, options = {}) {
+    if (!IS_UAV_TESTING || !SA_FIELDS.includes(field)) return;
+    selectedSAField = field;
     selectedSAPoint = { field, id };
+
+    if (options.seek) {
+        const record = getSelectedSAPointRecord();
+        if (record) {
+            video.currentTime = record.point.time;
+            updateTimeUI();
+        }
+    }
+
     updateSAPointEditor();
     renderSAGraph();
 }
@@ -1911,12 +1976,23 @@ function clearSelectedSAPoint() {
 function adjustSelectedSAPoint(delta) {
     const selected = getSelectedSAPointRecord();
     if (!selected) return;
+    adjustSAPointById(selected.field, selected.point._id, delta);
+}
 
-    const nextValue = clampSAValue(selected.point.value + delta);
-    if (nextValue === selected.point.value) return;
+function adjustSAPointById(field, id, delta) {
+    if (!IS_UAV_TESTING || !SA_FIELDS.includes(field)) return;
 
-    selected.point.value = nextValue;
-    saData[selected.field] = sanitizeSAPoints(saData[selected.field]);
+    const points = saData[field] || [];
+    const point = points.find(item => item._id === id);
+    if (!point) return;
+
+    const nextValue = clampSAValue(point.value + delta);
+    if (nextValue === point.value) return;
+
+    point.value = nextValue;
+    saData[field] = sanitizeSAPoints(saData[field]);
+    selectedSAField = field;
+    selectedSAPoint = { field, id };
     saveDraftToLocal();
     renderSAGraph();
     updateSACurrentValues();
@@ -1926,41 +2002,136 @@ function adjustSelectedSAPoint(delta) {
 function deleteSelectedSAPoint() {
     const selected = getSelectedSAPointRecord();
     if (!selected) return;
+    deleteSAPointById(selected.field, selected.point._id);
+}
 
-    saData[selected.field] = (saData[selected.field] || []).filter(point => point._id !== selected.point._id);
-    saData[selected.field] = sanitizeSAPoints(saData[selected.field]);
-    selectedSAPoint = null;
+function deleteSAPointById(field, id) {
+    if (!IS_UAV_TESTING || !SA_FIELDS.includes(field)) return;
+
+    saData[field] = (saData[field] || []).filter(point => point._id !== id);
+    saData[field] = sanitizeSAPoints(saData[field]);
+
+    if (selectedSAPoint && selectedSAPoint.field === field && selectedSAPoint.id === id) {
+        selectedSAPoint = null;
+    }
+
     saveDraftToLocal();
     renderSAGraph();
     updateSACurrentValues();
     updateSAPointEditor();
 }
 
-function updateSAPointEditor() {
-    if (!IS_UAV_TESTING) return;
+function jumpToNearestSAPoint(direction) {
+    if (!IS_UAV_TESTING || !selectedSAField || !SA_FIELDS.includes(selectedSAField)) return;
 
-    const editor = document.getElementById('saPointEditor');
-    if (!editor) return;
+    const points = sanitizeSAPoints(saData[selectedSAField] || []);
+    saData[selectedSAField] = points;
+    if (points.length === 0) return;
 
     const selected = getSelectedSAPointRecord();
-    if (!selected) {
-        editor.style.display = 'none';
+    const referenceTime = (selected && selected.field === selectedSAField)
+        ? selected.point.time
+        : (video.currentTime || 0);
+
+    let target = null;
+    if (direction < 0) {
+        for (let i = points.length - 1; i >= 0; i--) {
+            if (points[i].time < referenceTime - 0.001) {
+                target = points[i];
+                break;
+            }
+        }
+    } else {
+        for (let i = 0; i < points.length; i++) {
+            if (points[i].time > referenceTime + 0.001) {
+                target = points[i];
+                break;
+            }
+        }
+    }
+
+    if (!target) return;
+    selectSAPoint(selectedSAField, target._id, { seek: true });
+}
+
+function updateSAFieldSelectionUI() {
+    SA_FIELDS.forEach(field => {
+        const row = document.getElementById(SA_FIELD_ROW_IDS[field]);
+        if (!row) return;
+        row.classList.toggle('selected', selectedSAField === field);
+        row.setAttribute('aria-pressed', selectedSAField === field ? 'true' : 'false');
+    });
+}
+
+function updateSAPointEditor() {
+    if (!IS_UAV_TESTING) return;
+    updateSAFieldSelectionUI();
+    renderSAPointList();
+}
+
+function renderSAPointList() {
+    if (!IS_UAV_TESTING) return;
+
+    const list = document.getElementById('saPointList');
+    const items = document.getElementById('saPointListItems');
+    const heading = document.getElementById('saPointListHeading');
+    const count = document.getElementById('saPointListCount');
+    if (!list || !items) return;
+
+    if (!selectedSAField) {
+        list.style.display = 'none';
+        items.innerHTML = '';
         return;
     }
 
-    const labels = {
-        perception: 'Perception',
-        comprehension: 'Comprehension',
-        projection: 'Projection'
-    };
+    const points = sanitizeSAPoints(saData[selectedSAField] || []);
+    saData[selectedSAField] = points;
 
-    editor.style.display = 'block';
-    const label = document.getElementById('saPointEditorLabel');
-    const time = document.getElementById('saPointEditorTime');
-    const value = document.getElementById('saPointEditorValue');
-    if (label) label.textContent = labels[selected.field] || selected.field;
-    if (time) time.textContent = formatShortTimePrecise(selected.point.time);
-    if (value) value.textContent = String(selected.point.value);
+    list.style.display = 'block';
+    if (heading) heading.textContent = `${SA_FIELD_LABELS[selectedSAField] || selectedSAField} points`;
+    if (count) count.textContent = `${points.length}`;
+
+    if (points.length === 0) {
+        items.innerHTML = `<div class="sa-point-list-empty">No points yet.</div>`;
+        return;
+    }
+
+    items.innerHTML = points.map(point => {
+        const isSelected = !!(selectedSAPoint &&
+            selectedSAPoint.field === selectedSAField &&
+            selectedSAPoint.id === point._id);
+        return `
+            <div class="sa-point-list-item${isSelected ? ' selected' : ''}"
+                 data-point-id="${point._id}"
+                 role="button"
+                 tabindex="0"
+                 onclick="selectSAPoint('${selectedSAField}', '${point._id}', { seek: true })"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();selectSAPoint('${selectedSAField}', '${point._id}', { seek: true });}">
+                <div class="sa-point-list-item-header">
+                    <strong class="small">Point</strong>
+                    <span class="small text-muted font-monospace">${formatShortTimePrecise(point.time)}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
+                            onclick="event.stopPropagation();adjustSAPointById('${selectedSAField}', '${point._id}', -1)"
+                            aria-label="Decrease point value">&#8595;</button>
+                    <span class="sa-value-badge">${point.value}</span>
+                    <button class="btn btn-outline-secondary btn-sm sa-arrow-btn" type="button"
+                            onclick="event.stopPropagation();adjustSAPointById('${selectedSAField}', '${point._id}', 1)"
+                            aria-label="Increase point value">&#8593;</button>
+                    <button class="btn btn-outline-danger btn-sm ms-auto" type="button"
+                            onclick="event.stopPropagation();deleteSAPointById('${selectedSAField}', '${point._id}')">Delete</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    if (selectedSAPoint && selectedSAPoint.field === selectedSAField) {
+        const selectedItem = items.querySelector(`[data-point-id="${selectedSAPoint.id}"]`);
+        if (selectedItem && typeof selectedItem.scrollIntoView === 'function') {
+            selectedItem.scrollIntoView({ block: 'nearest' });
+        }
+    }
 }
 
 function formatShortTimePrecise(seconds) {
@@ -2266,6 +2437,7 @@ function addSAPointInteractions({ svg, field, pointId, hit, marker, width, margi
         event.preventDefault();
         event.stopPropagation();
 
+        selectedSAField = field;
         selectedSAPoint = { field, id: pointId };
         updateSAPointEditor();
         renderSAGraph();
