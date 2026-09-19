@@ -1556,4 +1556,36 @@ UAV_KALTURA_VIDEOS = [
         "uiconf_id": 58010592,
         "entry_id": "1_jxgakmbd"
     },
+    {
+        "category": "uav",
+        "video_name": "uav_8",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_0w29pmke"
+    },
+    {
+        "category": "uav",
+        "video_name": "uav_9",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_vdmxulwj"
+    },
+    {
+        "category": "uav",
+        "video_name": "uav_11",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_zzes4bd8"
+    },
+    {
+        "category": "uav",
+        "video_name": "uav_12",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_8fteb9jp"
+    },
 ]
