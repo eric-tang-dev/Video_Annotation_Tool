@@ -1494,3 +1494,66 @@ KALTURA_VIDEOS = [
         "entry_id": "1_fvmm7gbw"
     },
 ]
+
+# -----------------------------
+# UAV TESTING CATALOG (isolated)
+# Only shown to the uav_testing expert account.
+# -----------------------------
+UAV_KALTURA_VIDEOS = [
+    {
+        "category": "uav",
+        "video_name": "uav_1",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_gimrclrh"
+    },
+    {
+        "category": "uav",
+        "video_name": "uav_2",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_7xp2fye3"
+    },
+    {
+        "category": "uav",
+        "video_name": "uav_3",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_y3tys4ej"
+    },
+    {
+        "category": "uav",
+        "video_name": "uav_4",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_gk06c84m"
+    },
+    {
+        "category": "uav",
+        "video_name": "uav_5",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_24q5w25p"
+    },
+    {
+        "category": "uav",
+        "video_name": "uav_6",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_nvpx550o"
+    },
+    {
+        "category": "uav",
+        "video_name": "uav_7",
+        "target_id": "kaltura_player",
+        "wid": "_6514622",
+        "uiconf_id": 58010592,
+        "entry_id": "1_jxgakmbd"
+    },
+]

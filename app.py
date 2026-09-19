@@ -4,7 +4,7 @@ from pathlib import Path
 from flask import Flask, render_template, request, jsonify, send_from_directory, session, redirect, url_for
 from google.cloud import storage
 from google.api_core.exceptions import NotFound
-from video_index import KALTURA_VIDEOS
+from video_index import KALTURA_VIDEOS, UAV_KALTURA_VIDEOS
 from entry_id_aliases import ENTRY_ID_ALIASES
 
 
@@ -24,6 +24,26 @@ results_directory.mkdir(parents=True, exist_ok=True)
 # -----------------------------
 
 VALID_EXPERT_IDS = {"12345", "100121_eric", "110121_shen", "120121_francis", "130121_jessica", "stacie_1", "dagne_1", "uav_testing"}
+
+
+def get_videos_for_expert(expert_id: str):
+    """Return the video catalog visible to this expert. UAV testing is isolated."""
+    if expert_id == "uav_testing":
+        return UAV_KALTURA_VIDEOS
+    return KALTURA_VIDEOS
+
+
+def find_video_for_expert(expert_id: str, entry_id: str | None):
+    """Resolve a video from the expert's catalog only (no cross-library access)."""
+    videos = get_videos_for_expert(expert_id)
+    if not videos:
+        return None
+    if entry_id:
+        matched = next((v for v in videos if v["entry_id"] == entry_id), None)
+        if matched:
+            return matched
+    return videos[0]
+
 
 # -----------------------------
 # STEP OPTIONS FOR DROPDOWN
@@ -255,7 +275,8 @@ STEP_OPTIONS_BY_CATEGORY = {
         "Clamp the feeding tube, remove syringe, and cap the end of the feeding tube. Restart feeding, if indicated, according to agency policy and medication recommendations",
         "Ensure that the patient is safe before leaving the room and has the call light within reach",
         "Document the procedure"
-    ]
+    ],
+    "uav": []
 }
 
 # -----------------------------
@@ -353,20 +374,14 @@ def index():
     # Read the selected entry_id from the query string
     requested_entry_id = request.args.get("entry_id")
 
-    # Default to the first video if no query param is provided
-    video = KALTURA_VIDEOS[0]
-
-    # If entry_id is provided, find the matching video in the hardcoded catalog
-    if requested_entry_id:
-        matched_video = next(
-            (v for v in KALTURA_VIDEOS if v["entry_id"] == requested_entry_id),
-            None
-        )
-        if matched_video:
-            video = matched_video
+    # Resolve only within this expert's catalog (UAV vs nursing stay isolated).
+    video = find_video_for_expert(expert_id, requested_entry_id)
+    if not video:
+        return redirect(url_for('select_video'))
 
     video_file = True   # keep template logic intact
     video_name = video["video_name"]
+    videos = get_videos_for_expert(expert_id)
 
     # Load saved annotation data from GCS using the selected video's entry_id
     saved_data = load_annotation_from_gcs(video['entry_id'], expert_id)
@@ -377,7 +392,7 @@ def index():
         video_name=video_name,
         saved_data=saved_data,
         kaltura_video=video,
-        all_videos=KALTURA_VIDEOS,
+        all_videos=videos,
         step_options_by_category=STEP_OPTIONS_BY_CATEGORY,
         selected_entry_id=video["entry_id"],
         expert_id=expert_id,
@@ -406,23 +421,27 @@ def select_video():
 
     selected_entry_id = request.args.get("entry_id")
     completion_index = load_completion_index(expert_id)
+    videos = get_videos_for_expert(expert_id)
 
-    CATEGORY_ORDER = [
-        "foley-catheter",
-        "sterile-gloves",
-        "ostomy-skills",
-        "venipuncture",
-        "ng-insertion",
-        "enteral-feeding",
-        "ppe-ambulation",
-        "im-injection",
-        "enteral-medication"
-    ]
+    if expert_id == "uav_testing":
+        CATEGORY_ORDER = ["uav"]
+    else:
+        CATEGORY_ORDER = [
+            "foley-catheter",
+            "sterile-gloves",
+            "ostomy-skills",
+            "venipuncture",
+            "ng-insertion",
+            "enteral-feeding",
+            "ppe-ambulation",
+            "im-injection",
+            "enteral-medication"
+        ]
 
     grouped_videos = {category: [] for category in CATEGORY_ORDER}
     grouped_videos["other"] = []
 
-    for video in KALTURA_VIDEOS:
+    for video in videos:
         video_copy = video.copy()
         resolved_entry_id = resolve_annotation_entry_id(video["entry_id"])
         video_copy["completed"] = bool(completion_index.get(resolved_entry_id, False))
@@ -442,6 +461,11 @@ def select_video():
         if name.startswith('S'):
             parts = name.split('_')
             number_part = parts[0][1:] 
+            if number_part.isdigit():
+                return int(number_part)
+
+        if name.startswith('uav_'):
+            number_part = name.split('_', 1)[1]
             if number_part.isdigit():
                 return int(number_part)
                 
