@@ -41,6 +41,7 @@ let selectedSAPoint = null; // { field, id }
 let selectedSAField = null; // "perception" | "comprehension" | "projection"
 let uavRightScrubActive = false;
 let uavSavedPlaybackRate = 1;
+let uavScrubFallbackInterval = null;
 
 function nextSAPointId() {
     return `sa-point-${Date.now()}-${saPointIdCounter++}`;
@@ -190,6 +191,20 @@ let video = {
 
     get paused() {
         return playerState !== 'playing';
+    },
+
+    // Proxy to Kaltura Playkit's native playbackRate (used by UAV 3x scrub + speed control).
+    get playbackRate() {
+        if (!window.kalturaPlayerInstance) return 1;
+        const rate = Number(window.kalturaPlayerInstance.playbackRate);
+        return Number.isFinite(rate) && rate > 0 ? rate : 1;
+    },
+
+    set playbackRate(rate) {
+        if (!window.kalturaPlayerInstance || !kalturaReady) return;
+        const next = Number(rate);
+        if (!Number.isFinite(next) || next <= 0) return;
+        window.kalturaPlayerInstance.playbackRate = next;
     }
 };
 
@@ -1913,34 +1928,84 @@ function togglePlay() {
     else video.pause();
 }
 
-function startUAVForwardScrub() {
-    if (!IS_UAV_TESTING || !video || uavRightScrubActive) return;
-    uavRightScrubActive = true;
-    uavSavedPlaybackRate = Number(video.playbackRate) || 1;
-    try {
-        video.playbackRate = 3;
-    } catch (err) {
-        // Some players may reject rate changes; keep scrubbing at default rate.
-    }
-    if (typeof video.play === 'function') {
-        const playResult = video.play();
-        if (playResult && typeof playResult.catch === 'function') {
-            playResult.catch(() => {});
-        }
+function setSpeed(rate) {
+    const next = Number(rate);
+    if (!Number.isFinite(next) || next <= 0) return;
+    video.playbackRate = next;
+
+    const btnSpeed = document.getElementById('btnSpeed');
+    if (btnSpeed) btnSpeed.innerText = `${next}x`;
+
+    const speedRange = document.getElementById('speedRange');
+    if (speedRange && Math.abs(Number(speedRange.value) - next) > 0.001) {
+        speedRange.value = String(next);
     }
 }
 
-function stopUAVForwardScrub() {
-    if (!uavRightScrubActive) return;
-    uavRightScrubActive = false;
-    if (!video) return;
+function startUAVForwardScrub() {
+    if (!IS_UAV_TESTING || uavRightScrubActive) return;
+
+    const player = window.kalturaPlayerInstance;
+    if (!player || !kalturaReady) return;
+
+    uavRightScrubActive = true;
+    uavSavedPlaybackRate = Number(player.playbackRate) || 1;
+
+    // Prefer Kaltura Playkit native rate control.
+    let nativeRateOk = false;
     try {
-        video.playbackRate = uavSavedPlaybackRate || 1;
+        player.playbackRate = 3;
+        nativeRateOk = Math.abs((Number(player.playbackRate) || 0) - 3) < 0.05;
+    } catch (err) {
+        nativeRateOk = false;
+    }
+
+    if (nativeRateOk) {
+        const playResult = player.play();
+        if (playResult && typeof playResult.catch === 'function') {
+            playResult.catch(() => {});
+        }
+        return;
+    }
+
+    // Fallback: seek-scrub at ~3x if the player rejects playbackRate changes.
+    try { player.pause(); } catch (err) {}
+    const tickMs = 50;
+    uavScrubFallbackInterval = setInterval(() => {
+        if (!window.kalturaPlayerInstance) {
+            stopUAVForwardScrub();
+            return;
+        }
+        const duration = Math.max(0, Number(window.kalturaPlayerInstance.duration) || video_length || 0);
+        const current = Number(window.kalturaPlayerInstance.currentTime) || 0;
+        const next = Math.min(duration, current + 3 * (tickMs / 1000));
+        window.kalturaPlayerInstance.currentTime = next;
+        updateTimeUI();
+        if (next >= duration - 0.05) stopUAVForwardScrub();
+    }, tickMs);
+}
+
+function stopUAVForwardScrub() {
+    if (!uavRightScrubActive && !uavScrubFallbackInterval) return;
+    uavRightScrubActive = false;
+
+    if (uavScrubFallbackInterval) {
+        clearInterval(uavScrubFallbackInterval);
+        uavScrubFallbackInterval = null;
+    }
+
+    const player = window.kalturaPlayerInstance;
+    if (!player) return;
+
+    try {
+        player.playbackRate = uavSavedPlaybackRate || 1;
     } catch (err) {
         // ignore restore failures
     }
-    if (typeof video.pause === 'function') {
-        video.pause();
+    try {
+        player.pause();
+    } catch (err) {
+        // ignore
     }
 }
 
@@ -2092,16 +2157,38 @@ function getSAValueAtTime(field, time) {
     return value;
 }
 
+// The SVG may extend the last step value to the end of the video for readability,
+// but that visual tail is not a label. Anything strictly after the last saved node
+// is unlabeled until the user creates a new point there.
+function getLastSALabelTime(field) {
+    const points = sanitizeSAPoints(saData[field] || []);
+    saData[field] = points;
+    if (!points.length) return null;
+    return points[points.length - 1].time;
+}
+
+function isSATimeUnlabeled(field, time) {
+    const lastLabelTime = getLastSALabelTime(field);
+    if (lastLabelTime === null) return true;
+    return Number(time) > lastLabelTime + 0.001;
+}
+
 function adjustSA(field, delta) {
     if (!IS_UAV_TESTING || !SA_FIELDS.includes(field)) return;
 
     const time = Math.max(0, Math.round(video.currentTime * 10) / 10);
+    const unlabeled = isSATimeUnlabeled(field, time);
+    // In the visual extension past the last node, treat the region as unlabeled for
+    // editing: still use the continued step value as the baseline, but always mint a
+    // new node at the playhead instead of editing an earlier label.
     const currentValue = getSAValueAtTime(field, time);
     const nextValue = clampSAValue(currentValue + delta);
     if (nextValue === currentValue) return;
 
     const points = Array.isArray(saData[field]) ? [...saData[field]] : [];
-    const existingIndex = points.findIndex(point => Math.abs((Number(point.time) || 0) - time) < 0.001);
+    const existingIndex = unlabeled
+        ? -1
+        : points.findIndex(point => Math.abs((Number(point.time) || 0) - time) < 0.001);
 
     let pointId;
     if (existingIndex >= 0) {
