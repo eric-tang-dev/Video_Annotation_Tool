@@ -1450,8 +1450,18 @@ function renderList() {
         const scoreDifficulty = step.difficulty_rating ?? 0.5;
         const compositeAverage = (scoreCorrectness + scorePerformance + scoreDifficulty) / 3;
 
-        const hue = compositeAverage * 120; 
-        const badgeColor = `style="background-color: hsl(${hue}, 70%, 45%); color: white;"`;
+        const ratingColorStyle = (score) => {
+            const hue = (Number(score) || 0) * 120;
+            return `background-color: hsl(${hue}, 70%, 42%); color: #fff;`;
+        };
+
+        // Left border reflects overall score so the list is scannable at a glance.
+        if (!missingStepDetected && !isSterile && !isAllowance) {
+            const hue = compositeAverage * 120;
+            div.style.borderLeftColor = `hsl(${hue}, 70%, 42%)`;
+            div.style.borderLeftWidth = '4px';
+            div.style.borderLeftStyle = 'solid';
+        }
 
         const timeDisplayString = (isNaN(step.start) || isNaN(step.end)) 
             ? "Missing Step" 
@@ -1465,12 +1475,20 @@ function renderList() {
                 <div class="small text-muted">${timeDisplayString}</div>`;
         } else {
             div.innerHTML = `
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-start gap-2">
                     <strong>${step.name}</strong>
-                    <span class="badge" ${badgeColor}>${compositeAverage.toFixed(2)}</span>
+                    <span class="small text-muted text-nowrap">${timeDisplayString}</span>
                 </div>
-                <div class="small text-muted">
-                    ${timeDisplayString}
+                <div class="step-rating-row mt-2">
+                    <span class="step-rating-pill" style="${ratingColorStyle(scoreCorrectness)}" title="Correctness">
+                        <span class="step-rating-label">C</span>${Number(scoreCorrectness).toFixed(1)}
+                    </span>
+                    <span class="step-rating-pill" style="${ratingColorStyle(scorePerformance)}" title="Performance">
+                        <span class="step-rating-label">P</span>${Number(scorePerformance).toFixed(1)}
+                    </span>
+                    <span class="step-rating-pill" style="${ratingColorStyle(scoreDifficulty)}" title="Difficulty">
+                        <span class="step-rating-label">D</span>${Number(scoreDifficulty).toFixed(1)}
+                    </span>
                 </div>`;
         }
         // Add onclick to entire block (click to select it)

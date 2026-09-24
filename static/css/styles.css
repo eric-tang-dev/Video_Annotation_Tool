@@ -66,6 +66,32 @@ video {
     border-left: 4px solid #8A2BE2; 
 }
 
+.step-rating-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.step-rating-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 3.4rem;
+    justify-content: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.step-rating-label {
+    opacity: 0.85;
+    font-weight: 600;
+    font-size: 0.7rem;
+}
+
 /* Delete Button (hidden, slides in when hovered over) */
 .list-delete-btn {
     position: absolute;
