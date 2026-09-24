@@ -1,6 +1,7 @@
 // State Variables 
 let all_steps = []
 let active_step_id = null
+let editFormOpen = false // form opens only when a step box is clicked
 let temp_start_time = null
 let video_length = 1
 let kalturaReady = false
@@ -346,8 +347,8 @@ function initializeKalturaBindings() {
                     .sort((a, b) => a.start - b.start);
 
                 if (validTimelineSteps.length > 0) {
-                    // Pass the first chronological item directly into your select engine
-                    selectStep(validTimelineSteps[0].id);
+                    // Select the first step for highlight/seek, but do not open the edit form.
+                    selectStep(validTimelineSteps[0].id, { openForm: false });
                 }
 
             updateTimeUI();
@@ -904,13 +905,15 @@ function handleCommentSelectChange() {
         3. Opens the Evaluation Form
         4. Fills the form with the step's current information
 */
-function selectStep(id) {
+function selectStep(id, options = {}) {
     // Ensure the step exists
     const step = all_steps.find(a => a.id === id);
     if (!step) return;
 
+    const openForm = options.openForm !== false;
 
     active_step_id = id;
+    editFormOpen = openForm;
 
     // move video to the step's start time
     if (step && !isNaN(step.start)) {
@@ -921,9 +924,13 @@ function selectStep(id) {
     renderTimeline();
     renderList(); 
 
-
-    // Show the form
+    // Show the form only when explicitly opening it (e.g. clicking a step box).
     const form = document.getElementById('editForm');
+    if (!openForm) {
+        if (form) form.style.display = 'none';
+        return;
+    }
+
     form.style.display = 'block';
 
     // determine if the step is a missing step (has NaN timestamps) 
@@ -1256,6 +1263,7 @@ function commitEdit() {
             }
 
             active_step_id = null;
+            editFormOpen = false;
             document.getElementById('editForm').style.display = 'none';
             saveDraftToLocal();
             renderTimeline();
@@ -1296,6 +1304,7 @@ function commitEdit() {
         // for missing steps with NaN timestamps, don't enforce tStart < tEnd
         if (isNaN(step.start)) {
             active_step_id = null;
+            editFormOpen = false;
             document.getElementById('editForm').style.display = 'none';
             saveDraftToLocal();
             renderTimeline();
@@ -1322,6 +1331,7 @@ function commitEdit() {
     
     // Set the step to "Not Active" and hide the Evaluation Form 
     active_step_id = null;
+    editFormOpen = false;
     document.getElementById('editForm').style.display = 'none';
 
     // Save the step's data locally only
@@ -1565,7 +1575,7 @@ function renderList() {
 
         list.appendChild(div);
 
-        if (step.id === active_step_id) {
+        if (step.id === active_step_id && editFormOpen) {
             const formSlot = document.createElement('div');
             formSlot.id = "activeFormSlot";
             formSlot.className = "my-2 w-100";
@@ -1575,9 +1585,11 @@ function renderList() {
 
     const targetSlot = document.getElementById('activeFormSlot');
     
-    if (targetSlot && actualForm) {
+    if (targetSlot && actualForm && editFormOpen) {
         targetSlot.appendChild(actualForm);
         actualForm.style.display = 'block';
+    } else if (actualForm && !editFormOpen) {
+        actualForm.style.display = 'none';
     }
 }
 
@@ -1680,6 +1692,7 @@ document.addEventListener('mousedown', (e) => {
     if (!clickedTimeline && !clickedSAGraph && !clickedSidebar && !clickedControls && !clickedVideoFrame) {
         if (active_step_id !== null) {
             active_step_id = null;
+            editFormOpen = false;
             document.getElementById('editForm').style.display = 'none';
             renderTimeline();
             renderList();
@@ -1773,6 +1786,7 @@ function deleteStep(id) {
     // If open, clear the Evaluation Form and close it
     if (active_step_id === id) {
         active_step_id = null;
+        editFormOpen = false;
         document.getElementById('editForm').style.display = 'none';
     }
 
@@ -2902,7 +2916,7 @@ function jumpToStep(direction) {
         if (video && typeof video.pause === 'function') {
             video.pause(); // Ensure the video is explicitly paused at the target point
         }
-        selectStep(targetStep.id); // Re-focuses text fields, timeline highlight states, and scrolls into view
+        selectStep(targetStep.id, { openForm: false });
     }
 }
 
