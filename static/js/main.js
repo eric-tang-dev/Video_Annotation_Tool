@@ -39,6 +39,8 @@ const SA_COLORS = {
 let saPointIdCounter = 1;
 let selectedSAPoint = null; // { field, id }
 let selectedSAField = null; // "perception" | "comprehension" | "projection"
+let uavRightScrubActive = false;
+let uavSavedPlaybackRate = 1;
 
 function nextSAPointId() {
     return `sa-point-${Date.now()}-${saPointIdCounter++}`;
@@ -389,22 +391,28 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    // UAV mode: Left/Right jump between points on the selected variable.
-    // Up/Down adjust the currently selected point's score.
-    if (IS_UAV_TESTING) {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            if (selectedSAField) {
-                e.preventDefault();
-                jumpToNearestSAPoint(e.key === 'ArrowLeft' ? -1 : 1);
-                return;
+    // UAV keyboard controls (require a selected SA variable):
+    // Right  = scrub forward at 3x (works through unlabeled sections)
+    // Left   = jump to previous label
+    // Up/Down = raise/lower rating at the current playhead (creates a point if unlabeled)
+    if (IS_UAV_TESTING && selectedSAField) {
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            if (!e.repeat) startUAVForwardScrub();
+            return;
+        }
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            if (!e.repeat) {
+                stopUAVForwardScrub();
+                jumpToNearestSAPoint(-1);
             }
+            return;
         }
         if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-            if (getSelectedSAPointRecord()) {
-                e.preventDefault();
-                adjustSelectedSAPoint(e.key === 'ArrowUp' ? 1 : -1);
-                return;
-            }
+            e.preventDefault();
+            adjustSA(selectedSAField, e.key === 'ArrowUp' ? 1 : -1);
+            return;
         }
     }
 
@@ -418,6 +426,7 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault(); // stop page from scrolling down
 
         if (IS_UAV_TESTING && selectedSAField) {
+            stopUAVForwardScrub();
             selectedSAField = null;
             selectedSAPoint = null;
             updateSAPointEditor();
@@ -486,6 +495,17 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault(); // Stop default browser behavior
         executeUndo();
     }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (!IS_UAV_TESTING) return;
+    if (e.key === 'ArrowRight') {
+        stopUAVForwardScrub();
+    }
+});
+
+window.addEventListener('blur', () => {
+    if (IS_UAV_TESTING) stopUAVForwardScrub();
 });
 
 /*
@@ -1893,6 +1913,37 @@ function togglePlay() {
     else video.pause();
 }
 
+function startUAVForwardScrub() {
+    if (!IS_UAV_TESTING || !video || uavRightScrubActive) return;
+    uavRightScrubActive = true;
+    uavSavedPlaybackRate = Number(video.playbackRate) || 1;
+    try {
+        video.playbackRate = 3;
+    } catch (err) {
+        // Some players may reject rate changes; keep scrubbing at default rate.
+    }
+    if (typeof video.play === 'function') {
+        const playResult = video.play();
+        if (playResult && typeof playResult.catch === 'function') {
+            playResult.catch(() => {});
+        }
+    }
+}
+
+function stopUAVForwardScrub() {
+    if (!uavRightScrubActive) return;
+    uavRightScrubActive = false;
+    if (!video) return;
+    try {
+        video.playbackRate = uavSavedPlaybackRate || 1;
+    } catch (err) {
+        // ignore restore failures
+    }
+    if (typeof video.pause === 'function') {
+        video.pause();
+    }
+}
+
 
 // This function skips 'amt' seconds 
 function skip(amt) {
@@ -2089,6 +2140,7 @@ function selectSAField(field) {
     if (!IS_UAV_TESTING || !SA_FIELDS.includes(field)) return;
 
     if (selectedSAField === field) {
+        stopUAVForwardScrub();
         selectedSAField = null;
         selectedSAPoint = null;
     } else {
