@@ -1401,6 +1401,47 @@ function renderTimeline() {
             d. Adds a Delete Button, and attaches onclick logic to it (click to delete)
             e. Adds the <div> to the HTML page
 */
+function adjustStepListRating(stepId, field, delta) {
+    if (IS_UAV_TESTING) return;
+
+    const step = all_steps.find(item => item.id === stepId);
+    if (!step) return;
+
+    const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
+    const isAllowance = step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME;
+    if (isSterile || isAllowance) return;
+
+    const ratingKey = `${field}_rating`;
+    if (!['correctness_rating', 'performance_rating', 'difficulty_rating'].includes(ratingKey)) return;
+
+    const current = Number(step[ratingKey] ?? 0.5);
+    const next = Math.max(0, Math.min(1, Math.round((current + delta) * 10) / 10));
+    if (next === current) return;
+
+    step[ratingKey] = next;
+
+    // Keep the open edit form in sync when this step is selected.
+    if (step.id === active_step_id) {
+        const inputIds = {
+            correctness: 'inpCorrectnessRating',
+            performance: 'inpPerformanceRating',
+            difficulty: 'inpDifficultyRating'
+        };
+        const labelIds = {
+            correctness: 'lblCorrectnessVal',
+            performance: 'lblPerformanceVal',
+            difficulty: 'lblDifficultyVal'
+        };
+        const input = document.getElementById(inputIds[field]);
+        const label = document.getElementById(labelIds[field]);
+        if (input) input.value = String(next);
+        if (label) label.innerText = next.toFixed(1);
+    }
+
+    saveDraftToLocal();
+    renderList();
+}
+
 function renderList() {
     const list = document.getElementById('actionList');
     if (!list) return;
@@ -1455,6 +1496,25 @@ function renderList() {
             return `background-color: hsl(${hue}, 70%, 42%); color: #fff;`;
         };
 
+        const ratingsLocked = isSterile || isAllowance;
+        const ratingControlHtml = (label, title, field, score) => {
+            const lockedClass = ratingsLocked ? ' is-locked' : '';
+            const downBtn = ratingsLocked ? '' : `
+                <button type="button" class="step-rating-arrow" aria-label="Decrease ${title}"
+                    onclick="event.stopPropagation();adjustStepListRating(${JSON.stringify(step.id)}, '${field}', -0.1)">&#8595;</button>`;
+            const upBtn = ratingsLocked ? '' : `
+                <button type="button" class="step-rating-arrow" aria-label="Increase ${title}"
+                    onclick="event.stopPropagation();adjustStepListRating(${JSON.stringify(step.id)}, '${field}', 0.1)">&#8593;</button>`;
+            return `
+                <div class="step-rating-control${lockedClass}" style="${ratingColorStyle(score)}" title="${title}">
+                    ${downBtn}
+                    <span class="step-rating-value">
+                        <span class="step-rating-label">${label}</span>${Number(score).toFixed(1)}
+                    </span>
+                    ${upBtn}
+                </div>`;
+        };
+
         // Left border reflects overall score so the list is scannable at a glance.
         if (!missingStepDetected && !isSterile && !isAllowance) {
             const hue = compositeAverage * 120;
@@ -1480,15 +1540,9 @@ function renderList() {
                     <span class="small text-muted text-nowrap">${timeDisplayString}</span>
                 </div>
                 <div class="step-rating-row mt-2">
-                    <span class="step-rating-pill" style="${ratingColorStyle(scoreCorrectness)}" title="Correctness">
-                        <span class="step-rating-label">C</span>${Number(scoreCorrectness).toFixed(1)}
-                    </span>
-                    <span class="step-rating-pill" style="${ratingColorStyle(scorePerformance)}" title="Performance">
-                        <span class="step-rating-label">P</span>${Number(scorePerformance).toFixed(1)}
-                    </span>
-                    <span class="step-rating-pill" style="${ratingColorStyle(scoreDifficulty)}" title="Difficulty">
-                        <span class="step-rating-label">D</span>${Number(scoreDifficulty).toFixed(1)}
-                    </span>
+                    ${ratingControlHtml('C', 'Correctness', 'correctness', scoreCorrectness)}
+                    ${ratingControlHtml('P', 'Performance', 'performance', scorePerformance)}
+                    ${ratingControlHtml('D', 'Difficulty', 'difficulty', scoreDifficulty)}
                 </div>`;
         }
         // Add onclick to entire block (click to select it)
