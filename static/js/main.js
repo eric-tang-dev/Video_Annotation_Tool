@@ -23,6 +23,8 @@ const STERILE_BREACH_COMMENTS = [
 
 const ALLOWANCE_STEP_NAME = "Allowance";
 const ALLOWANCE_DEFAULT_RATING = 0.5;
+const RATING_DEFAULT = 0.5;
+const DIFFICULTY_DEFAULT_RATING = 0.0; // Allowance/Difficulty: low is good (green)
 let allowance_start_time = null; // Track live recording toggles
 
 const IS_UAV_TESTING = !!window.IS_UAV_TESTING;
@@ -559,7 +561,7 @@ function loadSavedData() {
     for (let i = 0; i < count; i++) {
         const name = actions[i] ?? "Untitled Action";
 
-        const defaultRating = evaluation[i] ?? 0.5;
+        const defaultRating = evaluation[i] ?? RATING_DEFAULT;
         const defaultComment = comments[i] ?? "";
 
         // Extract raw timestamp values from the array row 
@@ -581,7 +583,9 @@ function loadSavedData() {
             // New flat independent properties
             correctness_rating: preferredData.correctness_evaluation ? (preferredData.correctness_evaluation[i] ?? defaultRating) : defaultRating,
             performance_rating: preferredData.performance_evaluation ? (preferredData.performance_evaluation[i] ?? defaultRating) : defaultRating,
-            difficulty_rating: preferredData.difficulty_evaluation ? (preferredData.difficulty_evaluation[i] ?? defaultRating) : defaultRating,
+            difficulty_rating: preferredData.difficulty_evaluation
+                ? (preferredData.difficulty_evaluation[i] ?? DIFFICULTY_DEFAULT_RATING)
+                : DIFFICULTY_DEFAULT_RATING,
             
             correctness_comment: preferredData.correctness_comments ? (preferredData.correctness_comments[i] ?? defaultComment) : defaultComment,
             performance_comment: preferredData.performance_comments ? (preferredData.performance_comments[i] ?? defaultComment) : defaultComment,
@@ -650,8 +654,12 @@ function finishCapture() {
         name: "Untitled Action",
         start: temp_start_time,
         end: Math.max(end_time, temp_start_time + 0.5), // minimum 0.5-second step
-        rating: 0.5, 
-        comment: ''
+        correctness_rating: RATING_DEFAULT,
+        performance_rating: RATING_DEFAULT,
+        difficulty_rating: DIFFICULTY_DEFAULT_RATING,
+        correctness_comment: '',
+        performance_comment: '',
+        difficulty_comment: ''
     };
 
 
@@ -1043,13 +1051,13 @@ function selectStep(id, options = {}) {
     txtDifficulty.value = step.difficulty_comment || '';
 
     // If the step is missing (NaN) or existing, sync current numeric states to sliders
-    if (sliderCorrectness) sliderCorrectness.value = step.correctness_rating ?? 0.5;
+    if (sliderCorrectness) sliderCorrectness.value = step.correctness_rating ?? RATING_DEFAULT;
     if (lblCorrectness) lblCorrectness.innerText = Number(sliderCorrectness.value).toFixed(1);
 
-    if (sliderPerformance) sliderPerformance.value = step.performance_rating ?? 0.5;
+    if (sliderPerformance) sliderPerformance.value = step.performance_rating ?? RATING_DEFAULT;
     if (lblPerformance) lblPerformance.innerText = Number(sliderPerformance.value).toFixed(1);
 
-    if (sliderDifficulty) sliderDifficulty.value = step.difficulty_rating ?? 0.5;
+    if (sliderDifficulty) sliderDifficulty.value = step.difficulty_rating ?? DIFFICULTY_DEFAULT_RATING;
     if (lblDifficulty) lblDifficulty.innerText = Number(sliderDifficulty.value).toFixed(1);
 
     const actionSelect = document.getElementById('inpActionSelect');
@@ -1459,7 +1467,8 @@ function adjustStepListRating(stepId, field, delta) {
     const ratingKey = `${field}_rating`;
     if (!['correctness_rating', 'performance_rating', 'difficulty_rating'].includes(ratingKey)) return;
 
-    const current = Number(step[ratingKey] ?? 0.5);
+    const fallback = field === 'difficulty' ? DIFFICULTY_DEFAULT_RATING : RATING_DEFAULT;
+    const current = Number(step[ratingKey] ?? fallback);
     const next = Math.max(0, Math.min(1, Math.round((current + delta) * 10) / 10));
     if (next === current) return;
 
@@ -1530,20 +1539,28 @@ function renderList() {
 
         div.className = `action-item p-2 mb-1 border rounded ${backgroundClass} ${step.id === active_step_id ? 'active' : ''}`;
 
-        // Calculate average rating for the step (used for badge color)
-        const scoreCorrectness = step.correctness_rating ?? 0.5;
-        const scorePerformance = step.performance_rating ?? 0.5;
-        const scoreDifficulty = step.difficulty_rating ?? 0.5;
-        const compositeAverage = (scoreCorrectness + scorePerformance + scoreDifficulty) / 3;
+        // Calculate ratings for the step (used for pill colors / border)
+        const scoreCorrectness = step.correctness_rating ?? RATING_DEFAULT;
+        const scorePerformance = step.performance_rating ?? RATING_DEFAULT;
+        const scoreDifficulty = step.difficulty_rating ?? DIFFICULTY_DEFAULT_RATING;
+        // Difficulty is inverted for "goodness" (0 = green/good, 1 = red/hard).
+        const compositeAverage = (scoreCorrectness + scorePerformance + (1 - scoreDifficulty)) / 3;
 
-        const ratingColorStyle = (score) => {
-            const hue = (Number(score) || 0) * 120;
+        const ratingColorStyle = (score, inverted = false) => {
+            const normalized = inverted
+                ? (1 - (Number(score) || 0))
+                : (Number(score) || 0);
+            const hue = normalized * 120;
             return `background-color: hsl(${hue}, 70%, 42%); color: #fff;`;
         };
 
+        const hasComment = (text) => typeof text === 'string' && text.trim().length > 0;
+
         const ratingsLocked = isSterile || isAllowance;
-        const ratingControlHtml = (label, title, field, score) => {
+        const ratingControlHtml = (label, title, field, score, inverted = false) => {
             const lockedClass = ratingsLocked ? ' is-locked' : '';
+            const commentKey = `${field}_comment`;
+            const showCommentBadge = hasComment(step[commentKey]);
             const downBtn = ratingsLocked ? '' : `
                 <button type="button" class="step-rating-arrow" aria-label="Decrease ${title}"
                     onclick="event.stopPropagation();adjustStepListRating(${JSON.stringify(step.id)}, '${field}', -0.1)">&#8595;</button>`;
@@ -1551,12 +1568,17 @@ function renderList() {
                 <button type="button" class="step-rating-arrow" aria-label="Increase ${title}"
                     onclick="event.stopPropagation();adjustStepListRating(${JSON.stringify(step.id)}, '${field}', 0.1)">&#8593;</button>`;
             return `
-                <div class="step-rating-control${lockedClass}" style="${ratingColorStyle(score)}" title="${title}">
-                    ${downBtn}
-                    <span class="step-rating-value">
-                        <span class="step-rating-label">${label}</span>${Number(score).toFixed(1)}
-                    </span>
-                    ${upBtn}
+                <div class="step-rating-wrap">
+                    ${showCommentBadge
+                        ? `<span class="step-comment-badge" title="${title} has a comment">${label}</span>`
+                        : `<span class="step-comment-badge-spacer" aria-hidden="true"></span>`}
+                    <div class="step-rating-control${lockedClass}" style="${ratingColorStyle(score, inverted)}" title="${title}">
+                        ${downBtn}
+                        <span class="step-rating-value">
+                            <span class="step-rating-label">${label}</span>${Number(score).toFixed(1)}
+                        </span>
+                        ${upBtn}
+                    </div>
                 </div>`;
         };
 
@@ -1585,9 +1607,9 @@ function renderList() {
                     <span class="small text-muted text-nowrap">${timeDisplayString}</span>
                 </div>
                 <div class="step-rating-row mt-2">
-                    ${ratingControlHtml('C', 'Correctness', 'correctness', scoreCorrectness)}
-                    ${ratingControlHtml('P', 'Performance', 'performance', scorePerformance)}
-                    ${ratingControlHtml('D', 'Difficulty', 'difficulty', scoreDifficulty)}
+                    ${ratingControlHtml('C', 'Correctness', 'correctness', scoreCorrectness, false)}
+                    ${ratingControlHtml('P', 'Performance', 'performance', scorePerformance, false)}
+                    ${ratingControlHtml('D', 'Difficulty', 'difficulty', scoreDifficulty, true)}
                 </div>`;
         }
         // Add onclick to entire block (click to select it)
