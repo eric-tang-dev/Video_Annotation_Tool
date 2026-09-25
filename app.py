@@ -23,7 +23,7 @@ results_directory.mkdir(parents=True, exist_ok=True)
 # EXPERT IDS 
 # -----------------------------
 
-VALID_EXPERT_IDS = {"12345", "100121_eric", "110121_shen", "120121_francis", "130121_jessica", "stacie_1", "dagne_1", "uav_testing"}
+VALID_EXPERT_IDS = {"12345", "100121_eric", "110121_shen", "120121_francis", "130121_jessica", "stacie_1", "dagne_1", "uav_testing", "shen1", "team2"}
 
 
 def get_videos_for_expert(expert_id: str):
