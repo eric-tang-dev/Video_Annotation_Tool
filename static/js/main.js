@@ -1570,7 +1570,7 @@ function renderList() {
             return `
                 <div class="step-rating-wrap">
                     ${showCommentBadge
-                        ? `<span class="step-comment-badge" title="${title} has a comment">${label}</span>`
+                        ? `<span class="step-comment-badge" title="${title} has a comment">C</span>`
                         : `<span class="step-comment-badge-spacer" aria-hidden="true"></span>`}
                     <div class="step-rating-control${lockedClass}" style="${ratingColorStyle(score, inverted)}" title="${title}">
                         ${downBtn}
