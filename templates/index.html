@@ -278,6 +278,12 @@
                 {% endif %}
                 
                 <button class="btn btn-primary w-100 btn-sm mt-2" onclick="commitEdit()">Confirm (Enter)</button>
+                {% if not is_uav_testing %}
+                <button type="button" id="btnFlagAmbiguous" class="btn btn-sm w-100 mt-2 step-ambiguous-btn" style="display:none;"
+                        onclick="if(active_step_id!=null)toggleStepAmbiguous(active_step_id)">
+                    Flag Ambiguous
+                </button>
+                {% endif %}
             </div>
 
         </div>

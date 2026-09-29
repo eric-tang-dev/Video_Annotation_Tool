@@ -165,6 +165,30 @@ video {
     min-width: 4.5rem;
 }
 
+.step-ambiguous-btn {
+    border: 1px solid #c45c26 !important;
+    background: #fff7f2 !important;
+    color: #9a3412 !important;
+    font-weight: 700;
+}
+
+.step-ambiguous-btn:hover {
+    background: #ffedd5 !important;
+    color: #7c2d12 !important;
+    border-color: #9a3412 !important;
+}
+
+.step-ambiguous-btn.is-flagged {
+    background: #c45c26 !important;
+    border-color: #9a3412 !important;
+    color: #fff !important;
+}
+
+.step-ambiguous-btn.is-flagged:hover {
+    background: #9a3412 !important;
+    color: #fff !important;
+}
+
 /* Delete Button (hidden, slides in when hovered over) */
 .list-delete-btn {
     position: absolute;

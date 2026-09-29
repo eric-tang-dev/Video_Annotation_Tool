@@ -93,7 +93,8 @@ function buildCurrentVideoPayload() {
         difficulty_evaluation: all_steps.map(a => a.difficulty_rating),
         correctness_comments: all_steps.map(a => a.correctness_comment),
         performance_comments: all_steps.map(a => a.performance_comment),
-        difficulty_comments: all_steps.map(a => a.difficulty_comment)
+        difficulty_comments: all_steps.map(a => a.difficulty_comment),
+        ambiguous: all_steps.map(a => !!a.ambiguous)
     };
 }
 
@@ -590,6 +591,7 @@ function loadSavedData() {
             correctness_comment: preferredData.correctness_comments ? (preferredData.correctness_comments[i] ?? defaultComment) : defaultComment,
             performance_comment: preferredData.performance_comments ? (preferredData.performance_comments[i] ?? defaultComment) : defaultComment,
             difficulty_comment: preferredData.difficulty_comments ? (preferredData.difficulty_comments[i] ?? defaultComment) : defaultComment,
+            ambiguous: Array.isArray(preferredData.ambiguous) ? !!preferredData.ambiguous[i] : false,
             
             isSterileBreach: (name === STERILE_BREACH_NAME)
         };
@@ -659,7 +661,8 @@ function finishCapture() {
         difficulty_rating: DIFFICULTY_DEFAULT_RATING,
         correctness_comment: '',
         performance_comment: '',
-        difficulty_comment: ''
+        difficulty_comment: '',
+        ambiguous: false
     };
 
 
@@ -689,6 +692,13 @@ function addSterileBreachStep() {
         end: end,
         rating: STERILE_BREACH_RATING,
         comment: '',
+        correctness_rating: STERILE_BREACH_RATING,
+        performance_rating: STERILE_BREACH_RATING,
+        difficulty_rating: STERILE_BREACH_RATING,
+        correctness_comment: '',
+        performance_comment: '',
+        difficulty_comment: '',
+        ambiguous: false,
         isSterileBreach: true
     };
 
@@ -763,6 +773,7 @@ function toggleAllowanceStep() {
             correctness_comment: '',
             performance_comment: '',
             difficulty_comment: '',
+            ambiguous: false,
             isAllowanceStep: true
         };
 
@@ -1496,6 +1507,37 @@ function adjustStepListRating(stepId, field, delta) {
     renderList();
 }
 
+function toggleStepAmbiguous(stepId) {
+    if (IS_UAV_TESTING) return;
+
+    const step = all_steps.find(item => item.id === stepId);
+    if (!step) return;
+
+    step.ambiguous = !step.ambiguous;
+    saveDraftToLocal();
+    renderList();
+    updateAmbiguousButtonUI();
+}
+
+function updateAmbiguousButtonUI() {
+    if (IS_UAV_TESTING) return;
+
+    const btn = document.getElementById('btnFlagAmbiguous');
+    if (!btn) return;
+
+    const step = all_steps.find(item => item.id === active_step_id);
+    if (!step || !editFormOpen) {
+        btn.style.display = 'none';
+        return;
+    }
+
+    btn.style.display = 'block';
+    const flagged = !!step.ambiguous;
+    btn.classList.toggle('is-flagged', flagged);
+    btn.textContent = flagged ? 'Ambiguous (flagged)' : 'Flag Ambiguous';
+    btn.setAttribute('aria-pressed', flagged ? 'true' : 'false');
+}
+
 function renderList() {
     const list = document.getElementById('actionList');
     if (!list) return;
@@ -1543,10 +1585,21 @@ function renderList() {
         const scoreCorrectness = step.correctness_rating ?? RATING_DEFAULT;
         const scorePerformance = step.performance_rating ?? RATING_DEFAULT;
         const scoreDifficulty = step.difficulty_rating ?? DIFFICULTY_DEFAULT_RATING;
+        const isDefaultRating = (score, field) => {
+            const fallback = field === 'difficulty' ? DIFFICULTY_DEFAULT_RATING : RATING_DEFAULT;
+            return Math.abs((Number(score) || 0) - fallback) < 0.001;
+        };
         // Difficulty is inverted for "goodness" (0 = green/good, 1 = red/hard).
         const compositeAverage = (scoreCorrectness + scorePerformance + (1 - scoreDifficulty)) / 3;
+        const allRatingsDefault =
+            isDefaultRating(scoreCorrectness, 'correctness') &&
+            isDefaultRating(scorePerformance, 'performance') &&
+            isDefaultRating(scoreDifficulty, 'difficulty');
 
-        const ratingColorStyle = (score, inverted = false) => {
+        const ratingColorStyle = (score, inverted = false, isDefault = false) => {
+            if (isDefault) {
+                return 'background-color: #6c757d; color: #fff;';
+            }
             const normalized = inverted
                 ? (1 - (Number(score) || 0))
                 : (Number(score) || 0);
@@ -1561,6 +1614,7 @@ function renderList() {
             const lockedClass = ratingsLocked ? ' is-locked' : '';
             const commentKey = `${field}_comment`;
             const showCommentBadge = hasComment(step[commentKey]);
+            const atDefault = isDefaultRating(score, field);
             const downBtn = ratingsLocked ? '' : `
                 <button type="button" class="step-rating-arrow" aria-label="Decrease ${title}"
                     onclick="event.stopPropagation();adjustStepListRating(${JSON.stringify(step.id)}, '${field}', -0.1)">&#8595;</button>`;
@@ -1572,7 +1626,7 @@ function renderList() {
                     ${showCommentBadge
                         ? `<span class="step-comment-badge" title="${title} has a comment">C</span>`
                         : `<span class="step-comment-badge-spacer" aria-hidden="true"></span>`}
-                    <div class="step-rating-control${lockedClass}" style="${ratingColorStyle(score, inverted)}" title="${title}">
+                    <div class="step-rating-control${lockedClass}${atDefault ? ' is-default' : ''}" style="${ratingColorStyle(score, inverted, atDefault)}" title="${title}">
                         ${downBtn}
                         <span class="step-rating-value">
                             <span class="step-rating-label">${label}</span>${Number(score).toFixed(1)}
@@ -1583,9 +1637,14 @@ function renderList() {
         };
 
         // Left border reflects overall score so the list is scannable at a glance.
+        // Unchanged (default) ratings use gray so experts can spot untouched steps.
         if (!missingStepDetected && !isSterile && !isAllowance) {
-            const hue = compositeAverage * 120;
-            div.style.borderLeftColor = `hsl(${hue}, 70%, 42%)`;
+            if (allRatingsDefault) {
+                div.style.borderLeftColor = '#6c757d';
+            } else {
+                const hue = compositeAverage * 120;
+                div.style.borderLeftColor = `hsl(${hue}, 70%, 42%)`;
+            }
             div.style.borderLeftWidth = '4px';
             div.style.borderLeftStyle = 'solid';
         }
@@ -1593,6 +1652,8 @@ function renderList() {
         const timeDisplayString = (isNaN(step.start) || isNaN(step.end)) 
             ? "Missing Step" 
             : `${formatTime(step.start)} - ${formatTime(step.end)}`;
+
+        const isAmbiguous = !!step.ambiguous;
 
         if (IS_UAV_TESTING) {
             div.innerHTML = `
@@ -1610,6 +1671,14 @@ function renderList() {
                     ${ratingControlHtml('C', 'Correctness', 'correctness', scoreCorrectness, false)}
                     ${ratingControlHtml('P', 'Performance', 'performance', scorePerformance, false)}
                     ${ratingControlHtml('D', 'Difficulty', 'difficulty', scoreDifficulty, true)}
+                </div>
+                <div class="mt-2 d-flex align-items-center gap-2">
+                    <button type="button"
+                        class="btn btn-sm step-ambiguous-btn${isAmbiguous ? ' is-flagged' : ''}"
+                        aria-pressed="${isAmbiguous ? 'true' : 'false'}"
+                        onclick="event.stopPropagation();toggleStepAmbiguous(${JSON.stringify(step.id)})">
+                        ${isAmbiguous ? 'Ambiguous (flagged)' : 'Flag Ambiguous'}
+                    </button>
                 </div>`;
         }
         // Add onclick to entire block (click to select it)
@@ -1648,6 +1717,8 @@ function renderList() {
     } else if (actualForm && !editFormOpen) {
         actualForm.style.display = 'none';
     }
+
+    updateAmbiguousButtonUI();
 }
 
 

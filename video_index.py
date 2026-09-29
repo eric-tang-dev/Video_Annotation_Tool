@@ -157,7 +157,7 @@ KALTURA_VIDEOS = [
         "wid": "_6514622",
         "uiconf_id": 58010592,
         "entry_id": "1_4sftgwq7"
-    },
+    }
     {
         "category": "foley-catheter",
         "video_name": "S4_compressed_foley",
