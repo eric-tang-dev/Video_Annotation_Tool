@@ -16,7 +16,7 @@ ENTRY_ID_ALIASES = {
     "1_fugpxhp9": "1_xv3090hc",   # S14_compressed_gloves
     "1_7hwxezt0": "1_bcsjp5p4",   # S15_compressed_gloves
     "1_cvix87vc": "1_3qk65el8",   # S16_compressed_gloves
-    "1_iehhih5c": "1_yc3r5qe0",   # S17_compressed_gloves
+    "1_iehhih5c": "1_s17glv0x",   # S17_compressed_gloves
     "1_00hcb7us": "1_hxpqt5l2",   # S18_compressed_gloves
     "1_b2x5leuh": "1_k7f8r6ha",   # S19_compressed_gloves
     "1_hw7156fj": "1_yc3r5qe0",   # S20_compressed_gloves  (note: same old ID as S17)
