@@ -26,31 +26,31 @@
         <div class="col d-flex justify-content-center align-items-center gap-2">
             {% if video_file %}
                 {% if prev_video %}
-                    <a href="/?entry_id={{ prev_video.entry_id }}" class="btn btn-outline-light btn-sm" title="Previous video: {{ prev_video.video_name }}">
-                        &larr; Prev Video
+                    <a href="/?entry_id={{ prev_video.entry_id }}" class="btn btn-outline-light btn-sm text-nowrap flex-shrink-0" title="Previous video: {{ prev_video.video_name }}">
+                        &larr; Prev
                     </a>
                 {% else %}
-                    <button class="btn btn-outline-secondary btn-sm" disabled>&larr; Prev Video</button>
+                    <button class="btn btn-outline-secondary btn-sm text-nowrap flex-shrink-0" disabled>&larr; Prev</button>
                 {% endif %}
 
-                <span class="font-monospace text-warning small">
+                <span class="font-monospace text-warning small text-truncate">
                     {{ kaltura_video.category }} / {{ video_name }}
                 </span>
         
                 <span
                     id="completedBadge"
-                    class="badge rounded-pill bg-secondary"
+                    class="badge rounded-pill bg-secondary flex-shrink-0"
                     style="display: {% if saved_data and saved_data.completed %}inline-block{% else %}none{% endif %};"
                 >
                     Completed
                 </span>
 
                 {% if next_video %}
-                    <a href="/?entry_id={{ next_video.entry_id }}" class="btn btn-outline-light btn-sm" title="Next video: {{ next_video.video_name }}">
-                        Next Video &rarr;
+                    <a href="/?entry_id={{ next_video.entry_id }}" class="btn btn-outline-light btn-sm text-nowrap flex-shrink-0" title="Next video: {{ next_video.video_name }}">
+                        Next &rarr;
                     </a>
                 {% else %}
-                    <button class="btn btn-outline-secondary btn-sm" disabled>Next Video &rarr;</button>
+                    <button class="btn btn-outline-secondary btn-sm text-nowrap flex-shrink-0" disabled>Next &rarr;</button>
                 {% endif %}
             {% endif %}
         </div>
