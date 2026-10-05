@@ -22,9 +22,17 @@
             <strong>Nursing</strong> Video Annotation System
         </div>
 
-        <!-- Current Selected Video (showing its name on top right)-->
+        <!-- Current Selected Video + Prev/Next Video -->
         <div class="col d-flex justify-content-center align-items-center gap-2">
             {% if video_file %}
+                {% if prev_video %}
+                    <a href="/?entry_id={{ prev_video.entry_id }}" class="btn btn-outline-light btn-sm" title="Previous video: {{ prev_video.video_name }}">
+                        &larr; Prev Video
+                    </a>
+                {% else %}
+                    <button class="btn btn-outline-secondary btn-sm" disabled>&larr; Prev Video</button>
+                {% endif %}
+
                 <span class="font-monospace text-warning small">
                     {{ kaltura_video.category }} / {{ video_name }}
                 </span>
@@ -36,6 +44,14 @@
                 >
                     Completed
                 </span>
+
+                {% if next_video %}
+                    <a href="/?entry_id={{ next_video.entry_id }}" class="btn btn-outline-light btn-sm" title="Next video: {{ next_video.video_name }}">
+                        Next Video &rarr;
+                    </a>
+                {% else %}
+                    <button class="btn btn-outline-secondary btn-sm" disabled>Next Video &rarr;</button>
+                {% endif %}
             {% endif %}
         </div>
 

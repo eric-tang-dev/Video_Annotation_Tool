@@ -45,6 +45,74 @@ def find_video_for_expert(expert_id: str, entry_id: str | None):
     return videos[0]
 
 
+def get_category_order(expert_id: str):
+    """Category order matching the select-video page."""
+    if expert_id == "uav_testing":
+        return ["uav"]
+    return [
+        "foley-catheter",
+        "sterile-gloves",
+        "ostomy-skills",
+        "venipuncture",
+        "ng-insertion",
+        "enteral-feeding",
+        "ppe-ambulation",
+        "im-injection",
+        "enteral-medication",
+    ]
+
+
+def get_video_number(video):
+    """Stable sort key by S-number / UAV number inferred from video_name."""
+    name = video.get("video_name", "")
+
+    if name.startswith("S"):
+        parts = name.split("_")
+        number_part = parts[0][1:]
+        if number_part.isdigit():
+            return int(number_part)
+
+    if name.startswith("uav_"):
+        number_part = name.split("_", 1)[1]
+        if number_part.isdigit():
+            return int(number_part)
+
+    return 999
+
+
+def get_ordered_videos(expert_id: str):
+    """Flat video list in the same order as the select-video page."""
+    videos = get_videos_for_expert(expert_id)
+    category_order = get_category_order(expert_id)
+
+    grouped = {category: [] for category in category_order}
+    other = []
+
+    for video in videos:
+        cat = video.get("category", "other")
+        if cat in grouped:
+            grouped[cat].append(video)
+        else:
+            other.append(video)
+
+    ordered = []
+    for cat in category_order:
+        ordered.extend(sorted(grouped[cat], key=get_video_number))
+    ordered.extend(sorted(other, key=get_video_number))
+    return ordered
+
+
+def get_adjacent_videos(expert_id: str, entry_id: str):
+    """Return (prev_video, next_video) for the current entry_id, or None at ends."""
+    ordered = get_ordered_videos(expert_id)
+    for i, video in enumerate(ordered):
+        if video["entry_id"] == entry_id:
+            prev_video = ordered[i - 1] if i > 0 else None
+            next_video = ordered[i + 1] if i < len(ordered) - 1 else None
+            return prev_video, next_video
+    return None, None
+
+
 # -----------------------------
 # STEP OPTIONS FOR DROPDOWN
 # -----------------------------
@@ -382,6 +450,7 @@ def index():
     video_file = True   # keep template logic intact
     video_name = video["video_name"]
     videos = get_videos_for_expert(expert_id)
+    prev_video, next_video = get_adjacent_videos(expert_id, video["entry_id"])
 
     # Load saved annotation data from GCS using the selected video's entry_id
     saved_data = load_annotation_from_gcs(video['entry_id'], expert_id)
@@ -396,7 +465,9 @@ def index():
         step_options_by_category=STEP_OPTIONS_BY_CATEGORY,
         selected_entry_id=video["entry_id"],
         expert_id=expert_id,
-        is_uav_testing=(expert_id == "uav_testing")
+        is_uav_testing=(expert_id == "uav_testing"),
+        prev_video=prev_video,
+        next_video=next_video,
     )
 
 
@@ -422,21 +493,7 @@ def select_video():
     selected_entry_id = request.args.get("entry_id")
     completion_index = load_completion_index(expert_id)
     videos = get_videos_for_expert(expert_id)
-
-    if expert_id == "uav_testing":
-        CATEGORY_ORDER = ["uav"]
-    else:
-        CATEGORY_ORDER = [
-            "foley-catheter",
-            "sterile-gloves",
-            "ostomy-skills",
-            "venipuncture",
-            "ng-insertion",
-            "enteral-feeding",
-            "ppe-ambulation",
-            "im-injection",
-            "enteral-medication"
-        ]
+    CATEGORY_ORDER = get_category_order(expert_id)
 
     grouped_videos = {category: [] for category in CATEGORY_ORDER}
     grouped_videos["other"] = []
@@ -454,22 +511,6 @@ def select_video():
 
     if not grouped_videos["other"]:
         grouped_videos.pop("other")
-
-    def get_video_number(v):
-        name = v.get("video_name", "") 
-        
-        if name.startswith('S'):
-            parts = name.split('_')
-            number_part = parts[0][1:] 
-            if number_part.isdigit():
-                return int(number_part)
-
-        if name.startswith('uav_'):
-            number_part = name.split('_', 1)[1]
-            if number_part.isdigit():
-                return int(number_part)
-                
-        return 999 
 
     for cat in grouped_videos:
         grouped_videos[cat] = sorted(grouped_videos[cat], key=get_video_number)
