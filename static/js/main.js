@@ -3163,10 +3163,13 @@ function rewatchCurrentStep() {
     
     // Ensure the step exists and has a valid timeline position (not a missing step)
     if (step && !isNaN(step.start) && step.start !== null) {
+        const wasPaused = video.paused;
         video.currentTime = step.start;
-        
-        // Optional: If you want the video to automatically play when they hit rewatch, 
-        // uncomment the line below:
-        // video.play();
+
+        // A paused video should play the step from the beginning.
+        // An already-playing video only jumps back to that timestamp.
+        if (wasPaused) {
+            video.play();
+        }
     }
 }
