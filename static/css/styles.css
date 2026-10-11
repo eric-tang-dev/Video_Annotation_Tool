@@ -36,6 +36,35 @@ video {
     box-shadow: none;    
 }
 
+/*
+  DEMO: fill the video pane.
+  Previous player dimensions (restore these on #kaltura_player, then delete this block):
+  width: 95%; max-width: 1200px; max-height: 80vh; aspect-ratio: 2 / 1;
+*/
+#kaltura_player {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    flex: 1 1 auto;
+    align-self: stretch;
+}
+
+#kaltura_player .kaltura-player,
+#kaltura_player .playkit-player,
+#kaltura_player .playkit-video-player,
+#kaltura_player video {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+}
+
+#kaltura_player video {
+    object-fit: cover !important;
+}
+
 /* Step List/Sidebar */
 .sidebar {
     width: 300px;     

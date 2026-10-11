@@ -88,7 +88,13 @@
             <!-- Video Player -->
             <div class="video-wrapper flex-grow-1 d-flex justify-content-center align-items-center w-100 bg-black">
                 {% if video_file %}
-                <div id="kaltura_player" style="width: 95%; max-width: 1200px; max-height: 80vh; aspect-ratio: 2 / 1;"></div>
+                <!--
+                  DEMO: player fills the video pane.
+                  Revert by replacing the style below with the previous dimensions:
+                  width: 95%; max-width: 1200px; max-height: 80vh; aspect-ratio: 2 / 1;
+                  and deleting the "DEMO: fill the video pane" block in static/css/styles.css.
+                -->
+                <div id="kaltura_player" style="width: 100%; height: 100%; max-width: none; max-height: none;"></div>
                 <script>
                     window.kalturaPlayerInstance = KalturaPlayer.setup({
                         targetId: "kaltura_player",
