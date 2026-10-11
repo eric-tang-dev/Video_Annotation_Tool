@@ -23,7 +23,7 @@ const STERILE_BREACH_COMMENTS = [
 
 const ALLOWANCE_STEP_NAME = "Allowance";
 const ALLOWANCE_DEFAULT_RATING = 0.5;
-const RATING_DEFAULT = 0.5;
+const RATING_DEFAULT = 1.0;
 const DIFFICULTY_DEFAULT_RATING = 0.0; // Allowance/Difficulty: low is good (green)
 let allowance_start_time = null; // Track live recording toggles
 
