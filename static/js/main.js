@@ -1573,34 +1573,6 @@ function stepIsMissing(step) {
     return !step || isNaN(step.start) || isNaN(step.end);
 }
 
-function stepTypeButtonsHtml(step) {
-    const missing = stepIsMissing(step);
-    const current = missing ? null : normalizeStepType(step.step_type);
-    return `<div class="step-type-row${missing ? " is-disabled" : ""}" role="group" aria-label="Step type">
-        ${STEP_TYPES.map(option => {
-            const selected = current === option.id;
-            return `<button type="button"
-                class="step-type-btn step-type-${option.id}${selected ? " is-selected" : ""}"
-                aria-pressed="${selected ? "true" : "false"}"
-                ${missing ? "disabled" : ""}
-                onclick='event.stopPropagation();setStepType(${JSON.stringify(step.id)}, ${JSON.stringify(option.id)})'>${option.label}</button>`;
-        }).join("")}
-    </div>`;
-}
-
-function setStepType(stepId, value) {
-    if (IS_UAV_TESTING) return;
-
-    const step = all_steps.find(item => item.id === stepId);
-    if (!step || stepIsMissing(step)) return;
-
-    const next = normalizeStepType(value);
-    if (next === null) return;
-    step.step_type = normalizeStepType(step.step_type) === next ? null : next;
-    saveDraftToLocal();
-    renderList();
-}
-
 function setStepTypeFromForm(value) {
     if (IS_UAV_TESTING) return;
 
@@ -1802,8 +1774,6 @@ function renderList() {
                     <strong>${step.name}</strong>
                     <span class="small text-muted text-nowrap">${timeDisplayString}</span>
                 </div>
-                ${missingStepDetected ? `<div class="missing-reason-group mt-2" role="group" aria-label="Missing step reason">${missingReasonButtonsHtml(step)}</div>` : ""}
-                ${stepTypeButtonsHtml(step)}
                 <div class="step-rating-row mt-2">
                     ${ratingControlHtml('C', 'Correctness', 'correctness', scoreCorrectness, false)}
                     ${ratingControlHtml('P', 'Performance', 'performance', scorePerformance, false)}
