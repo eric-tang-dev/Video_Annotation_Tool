@@ -254,11 +254,30 @@
                     </div>
                 </div>
         
+                {% if not is_uav_testing %}
+                <div id="missingReasonGroup" class="mb-3" style="display:none;">
+                    <label class="form-label small fw-bold">Missing reason</label>
+                    <div id="missingReasonButtons" class="missing-reason-group" role="group" aria-label="Missing step reason"></div>
+                </div>
+                {% endif %}
+
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Action Name</label>
                     <select id="inpActionSelect" class="form-select mb-2"></select>
                     <input type="text" id="inpActionName" class="form-control" placeholder="Custom step name" style="display: none;">
                 </div>
+
+                {% if not is_uav_testing %}
+                <div class="mb-3" id="stepTypeGroup">
+                    <label class="form-label small fw-bold" for="inpStepType">Step type</label>
+                    <select id="inpStepType" class="form-select form-select-sm" onchange="setStepTypeFromForm(this.value)">
+                        <option value="">Not selected</option>
+                        <option value="do">Do</option>
+                        <option value="say">Say</option>
+                        <option value="do_say">Do + Say</option>
+                    </select>
+                </div>
+                {% endif %}
 
                 {% if not is_uav_testing %}
                 <hr class="my-3">

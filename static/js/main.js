@@ -25,6 +25,16 @@ const ALLOWANCE_STEP_NAME = "Allowance";
 const ALLOWANCE_DEFAULT_RATING = 0.5;
 const RATING_DEFAULT = 1.0;
 const DIFFICULTY_DEFAULT_RATING = 0.0; // Allowance/Difficulty: low is good (green)
+const MISSING_REASONS = [
+    { id: "not_done", label: "Not done" },
+    { id: "not_visible", label: "Not visible" },
+    { id: "not_applicable", label: "Not applicable" }
+];
+const STEP_TYPES = [
+    { id: "do", label: "Do" },
+    { id: "say", label: "Say" },
+    { id: "do_say", label: "Do + Say" }
+];
 let allowance_start_time = null; // Track live recording toggles
 
 const IS_UAV_TESTING = !!window.IS_UAV_TESTING;
@@ -94,7 +104,9 @@ function buildCurrentVideoPayload() {
         correctness_comments: all_steps.map(a => a.correctness_comment),
         performance_comments: all_steps.map(a => a.performance_comment),
         difficulty_comments: all_steps.map(a => a.difficulty_comment),
-        ambiguous: all_steps.map(a => !!a.ambiguous)
+        ambiguous: all_steps.map(a => !!a.ambiguous),
+        missing_reason: all_steps.map(a => (isNaN(a.start) || isNaN(a.end)) ? normalizeMissingReason(a.missing_reason) : null),
+        step_type: all_steps.map(a => (isNaN(a.start) || isNaN(a.end)) ? null : normalizeStepType(a.step_type))
     };
 }
 
@@ -592,6 +604,12 @@ function loadSavedData() {
             performance_comment: preferredData.performance_comments ? (preferredData.performance_comments[i] ?? defaultComment) : defaultComment,
             difficulty_comment: preferredData.difficulty_comments ? (preferredData.difficulty_comments[i] ?? defaultComment) : defaultComment,
             ambiguous: Array.isArray(preferredData.ambiguous) ? !!preferredData.ambiguous[i] : false,
+            missing_reason: Number.isNaN(startTime)
+                ? (Array.isArray(preferredData.missing_reason) ? normalizeMissingReason(preferredData.missing_reason[i]) : null)
+                : null,
+            step_type: (Number.isNaN(startTime) || Number.isNaN(endTime))
+                ? null
+                : (Array.isArray(preferredData.step_type) ? normalizeStepType(preferredData.step_type[i]) : null),
             
             isSterileBreach: (name === STERILE_BREACH_NAME)
         };
@@ -662,7 +680,9 @@ function finishCapture() {
         correctness_comment: '',
         performance_comment: '',
         difficulty_comment: '',
-        ambiguous: false
+        ambiguous: false,
+        missing_reason: null,
+        step_type: null
     };
 
 
@@ -699,6 +719,8 @@ function addSterileBreachStep() {
         performance_comment: '',
         difficulty_comment: '',
         ambiguous: false,
+        missing_reason: null,
+        step_type: null,
         isSterileBreach: true
     };
 
@@ -774,6 +796,8 @@ function toggleAllowanceStep() {
             performance_comment: '',
             difficulty_comment: '',
             ambiguous: false,
+            missing_reason: null,
+            step_type: null,
             isAllowanceStep: true
         };
 
@@ -1331,6 +1355,13 @@ function commitEdit() {
         step.performance_comment = document.getElementById('inpPerformanceComment').value;
         step.difficulty_comment = document.getElementById('inpDifficultyComment').value;
 
+        const stepTypeInput = document.getElementById('inpStepType');
+        if (stepTypeInput) {
+            step.step_type = (isNaN(step.start) || isNaN(step.end))
+                ? null
+                : normalizeStepType(stepTypeInput.value);
+        }
+
 
         if (isSterile) {
             // lock name and rating
@@ -1507,6 +1538,111 @@ function adjustStepListRating(stepId, field, delta) {
     renderList();
 }
 
+function normalizeMissingReason(value) {
+    return MISSING_REASONS.some(option => option.id === value) ? value : null;
+}
+
+function missingReasonButtonsHtml(step) {
+    const current = normalizeMissingReason(step.missing_reason);
+    return MISSING_REASONS.map(option => {
+        const selected = current === option.id;
+        return `<button type="button"
+            class="missing-reason-btn missing-reason-${option.id}${selected ? " is-selected" : ""}"
+            aria-pressed="${selected ? "true" : "false"}"
+            onclick='event.stopPropagation();setMissingReason(${JSON.stringify(step.id)}, ${JSON.stringify(option.id)})'>${option.label}</button>`;
+    }).join("");
+}
+
+function setMissingReason(stepId, reason) {
+    if (IS_UAV_TESTING) return;
+
+    const step = all_steps.find(item => item.id === stepId);
+    const next = normalizeMissingReason(reason);
+    if (!step || next === null || !Number.isNaN(step.start)) return;
+    if (step.missing_reason === next) return;
+
+    step.missing_reason = next;
+    saveDraftToLocal();
+    renderList();
+}
+
+function normalizeStepType(value) {
+    return STEP_TYPES.some(option => option.id === value) ? value : null;
+}
+
+function stepIsMissing(step) {
+    return !step || isNaN(step.start) || isNaN(step.end);
+}
+
+function stepTypeButtonsHtml(step) {
+    const missing = stepIsMissing(step);
+    const current = missing ? null : normalizeStepType(step.step_type);
+    return `<div class="step-type-row${missing ? " is-disabled" : ""}" role="group" aria-label="Step type">
+        ${STEP_TYPES.map(option => {
+            const selected = current === option.id;
+            return `<button type="button"
+                class="step-type-btn step-type-${option.id}${selected ? " is-selected" : ""}"
+                aria-pressed="${selected ? "true" : "false"}"
+                ${missing ? "disabled" : ""}
+                onclick='event.stopPropagation();setStepType(${JSON.stringify(step.id)}, ${JSON.stringify(option.id)})'>${option.label}</button>`;
+        }).join("")}
+    </div>`;
+}
+
+function setStepType(stepId, value) {
+    if (IS_UAV_TESTING) return;
+
+    const step = all_steps.find(item => item.id === stepId);
+    if (!step || stepIsMissing(step)) return;
+
+    const next = normalizeStepType(value);
+    if (next === null) return;
+    step.step_type = normalizeStepType(step.step_type) === next ? null : next;
+    saveDraftToLocal();
+    renderList();
+}
+
+function setStepTypeFromForm(value) {
+    if (IS_UAV_TESTING) return;
+
+    const step = all_steps.find(item => item.id === active_step_id);
+    if (!step || stepIsMissing(step)) return;
+
+    const next = normalizeStepType(value);
+    if (normalizeStepType(step.step_type) === next) return;
+    step.step_type = next;
+    saveDraftToLocal();
+    renderList();
+}
+
+function updateStepTypeFormUI() {
+    const select = document.getElementById("inpStepType");
+    if (!select) return;
+
+    const step = all_steps.find(item => item.id === active_step_id);
+    if (!step || !editFormOpen) return;
+
+    const missing = stepIsMissing(step);
+    select.disabled = missing;
+    select.value = missing ? "" : (normalizeStepType(step.step_type) || "");
+}
+
+function updateMissingReasonUI() {
+    const group = document.getElementById("missingReasonGroup");
+    const buttons = document.getElementById("missingReasonButtons");
+    if (!group || !buttons) return;
+
+    const step = all_steps.find(item => item.id === active_step_id);
+    if (!step || !editFormOpen || !Number.isNaN(step.start)) {
+        group.style.display = "none";
+        buttons.innerHTML = "";
+        return;
+    }
+
+    group.style.display = "block";
+    buttons.innerHTML = missingReasonButtonsHtml(step);
+}
+
 function toggleStepAmbiguous(stepId) {
     if (IS_UAV_TESTING) return;
 
@@ -1667,6 +1803,8 @@ function renderList() {
                     <strong>${step.name}</strong>
                     <span class="small text-muted text-nowrap">${timeDisplayString}</span>
                 </div>
+                ${missingStepDetected ? `<div class="missing-reason-group mt-2" role="group" aria-label="Missing step reason">${missingReasonButtonsHtml(step)}</div>` : ""}
+                ${stepTypeButtonsHtml(step)}
                 <div class="step-rating-row mt-2">
                     ${ratingControlHtml('C', 'Correctness', 'correctness', scoreCorrectness, false)}
                     ${ratingControlHtml('P', 'Performance', 'performance', scorePerformance, false)}
@@ -1719,6 +1857,8 @@ function renderList() {
     }
 
     updateAmbiguousButtonUI();
+    updateMissingReasonUI();
+    updateStepTypeFormUI();
 }
 
 
