@@ -1559,9 +1559,8 @@ function setMissingReason(stepId, reason) {
     const step = all_steps.find(item => item.id === stepId);
     const next = normalizeMissingReason(reason);
     if (!step || next === null || !Number.isNaN(step.start)) return;
-    if (step.missing_reason === next) return;
 
-    step.missing_reason = next;
+    step.missing_reason = normalizeMissingReason(step.missing_reason) === next ? null : next;
     saveDraftToLocal();
     renderList();
 }
