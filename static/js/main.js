@@ -41,7 +41,8 @@ const ERROR_TYPES = [
     "Measurement_Error",
     "Communication_Error",
     "Safety_Error",
-    "Sequencing_Error"
+    "Sequencing_Error",
+    "Omission_Error"
 ];
 let allowance_start_time = null; // Track live recording toggles
 
