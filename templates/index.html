@@ -290,7 +290,18 @@
                                oninput="document.getElementById('lblCorrectnessVal').innerText = Number(this.value).toFixed(1)">
                         <span id="lblCorrectnessVal" class="badge rounded-pill bg-primary font-monospace" style="min-width: 35px;">1.0</span>
                     </div>
-                    <textarea class="form-control form-control-sm mt-1" id="inpCorrectnessComment" rows="2" placeholder="Comments..."></textarea>
+                    <label class="form-label small fw-bold mt-2 mb-1" for="inpErrorType">Error type</label>
+                    <select id="inpErrorType" class="form-select form-select-sm" onchange="setErrorTypeFromForm(this.value)">
+                        <option value="">Not selected</option>
+                        <option value="Technical_Skill_Error">Technical_Skill_Error</option>
+                        <option value="Assessment_Error">Assessment_Error</option>
+                        <option value="Measurement_Error">Measurement_Error</option>
+                        <option value="Communication_Error">Communication_Error</option>
+                        <option value="Safety_Error">Safety_Error</option>
+                        <option value="Sequencing_Error">Sequencing_Error</option>
+                        <option value="__custom__">Custom</option>
+                    </select>
+                    <textarea class="form-control form-control-sm mt-1" id="inpCorrectnessComment" rows="2" placeholder="Comments..." oninput="syncErrorTypeFromComment()"></textarea>
                 </div>
 
                 <div class="mb-3 border-bottom pb-2 allowance-hide-target">

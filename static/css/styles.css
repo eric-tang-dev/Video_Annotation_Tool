@@ -250,6 +250,33 @@ video {
     color: #fff;
 }
 
+.missing-status-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.missing-status-current {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.missing-status-current.is-empty {
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.missing-reason-group-inline {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.missing-reason-group-inline .missing-reason-btn {
+    width: auto;
+    flex: 1 1 7rem;
+}
+
 /* Delete Button (hidden, slides in when hovered over) */
 .list-delete-btn {
     position: absolute;

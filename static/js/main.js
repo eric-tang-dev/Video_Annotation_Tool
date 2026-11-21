@@ -35,6 +35,14 @@ const STEP_TYPES = [
     { id: "say", label: "Say" },
     { id: "do_say", label: "Do + Say" }
 ];
+const ERROR_TYPES = [
+    "Technical_Skill_Error",
+    "Assessment_Error",
+    "Measurement_Error",
+    "Communication_Error",
+    "Safety_Error",
+    "Sequencing_Error"
+];
 let allowance_start_time = null; // Track live recording toggles
 
 const IS_UAV_TESTING = !!window.IS_UAV_TESTING;
@@ -1082,6 +1090,7 @@ function selectStep(id, options = {}) {
 
     // Populate ratings and comments for each category
     txtCorrectness.value = step.correctness_comment || '';
+    syncErrorTypeFromComment();
     txtPerformance.value = step.performance_comment || '';
     txtDifficulty.value = step.difficulty_comment || '';
 
@@ -1565,6 +1574,51 @@ function setMissingReason(stepId, reason) {
     renderList();
 }
 
+function isPresetErrorType(value) {
+    return ERROR_TYPES.includes((value || "").trim());
+}
+
+function errorTypeForComment(text) {
+    const value = (text || "").trim();
+    if (!value) return "";
+    if (isPresetErrorType(value)) return value;
+    return "__custom__";
+}
+
+function syncErrorTypeFromComment() {
+    const select = document.getElementById("inpErrorType");
+    const textarea = document.getElementById("inpCorrectnessComment");
+    if (!select || !textarea) return;
+    select.value = errorTypeForComment(textarea.value);
+}
+
+function setErrorTypeFromForm(value) {
+    if (IS_UAV_TESTING) return;
+
+    const textarea = document.getElementById("inpCorrectnessComment");
+    const step = all_steps.find(item => item.id === active_step_id);
+    if (!textarea || !step || stepIsMissing(step)) return;
+
+    if (isPresetErrorType(value)) {
+        textarea.value = value;
+    } else if (value === "__custom__") {
+        if (isPresetErrorType(textarea.value)) textarea.value = "";
+    } else if (isPresetErrorType(textarea.value)) {
+        textarea.value = "";
+    }
+
+    step.correctness_comment = textarea.value;
+    saveDraftToLocal();
+    renderList();
+
+    const select = document.getElementById("inpErrorType");
+    if (select) select.value = value === "__custom__" ? "__custom__" : errorTypeForComment(textarea.value);
+    if (value === "__custom__") {
+        const field = document.getElementById("inpCorrectnessComment");
+        if (field) field.focus();
+    }
+}
+
 function normalizeStepType(value) {
     return STEP_TYPES.some(option => option.id === value) ? value : null;
 }
@@ -1761,6 +1815,20 @@ function renderList() {
             : `${formatTime(step.start)} - ${formatTime(step.end)}`;
 
         const isAmbiguous = !!step.ambiguous;
+        const missingStatus = normalizeMissingReason(step.missing_reason);
+        const missingStatusLabel = missingStatus
+            ? (MISSING_REASONS.find(option => option.id === missingStatus)?.label || "No reason selected")
+            : "No reason selected";
+        const ratingSection = missingStepDetected
+            ? `<div class="missing-status-block mt-2">
+                    <div class="missing-status-current${missingStatus ? "" : " is-empty"}">${missingStatusLabel}</div>
+                    <div class="missing-reason-group missing-reason-group-inline">${missingReasonButtonsHtml(step)}</div>
+               </div>`
+            : `<div class="step-rating-row mt-2">
+                    ${ratingControlHtml('C', 'Correctness', 'correctness', scoreCorrectness, false)}
+                    ${ratingControlHtml('P', 'Performance', 'performance', scorePerformance, false)}
+                    ${ratingControlHtml('D', 'Difficulty', 'difficulty', scoreDifficulty, true)}
+               </div>`;
 
         if (IS_UAV_TESTING) {
             div.innerHTML = `
@@ -1774,11 +1842,7 @@ function renderList() {
                     <strong>${step.name}</strong>
                     <span class="small text-muted text-nowrap">${timeDisplayString}</span>
                 </div>
-                <div class="step-rating-row mt-2">
-                    ${ratingControlHtml('C', 'Correctness', 'correctness', scoreCorrectness, false)}
-                    ${ratingControlHtml('P', 'Performance', 'performance', scorePerformance, false)}
-                    ${ratingControlHtml('D', 'Difficulty', 'difficulty', scoreDifficulty, true)}
-                </div>
+                ${ratingSection}
                 <div class="mt-2 d-flex align-items-center gap-2">
                     <button type="button"
                         class="btn btn-sm step-ambiguous-btn${isAmbiguous ? ' is-flagged' : ''}"
