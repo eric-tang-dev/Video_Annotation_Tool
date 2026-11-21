@@ -36,6 +36,7 @@ const STEP_TYPES = [
     { id: "do_say", label: "Do + Say" }
 ];
 const ERROR_TYPES = [
+    "None",
     "Technical_Skill_Error",
     "Assessment_Error",
     "Measurement_Error",
@@ -1090,8 +1091,7 @@ function selectStep(id, options = {}) {
     const txtDifficulty = document.getElementById('inpDifficultyComment');
 
     // Populate ratings and comments for each category
-    txtCorrectness.value = step.correctness_comment || '';
-    syncErrorTypeFromComment();
+    applyCorrectnessCommentToForm(step.correctness_comment || '');
     txtPerformance.value = step.performance_comment || '';
     txtDifficulty.value = step.difficulty_comment || '';
 
@@ -1361,7 +1361,7 @@ function commitEdit() {
         }
 
         // Always update comment and update based on corresponding inputs
-        step.correctness_comment = document.getElementById('inpCorrectnessComment').value;
+        step.correctness_comment = currentCorrectnessCommentFromForm();
         step.performance_comment = document.getElementById('inpPerformanceComment').value;
         step.difficulty_comment = document.getElementById('inpDifficultyComment').value;
 
@@ -1579,45 +1579,63 @@ function isPresetErrorType(value) {
     return ERROR_TYPES.includes((value || "").trim());
 }
 
-function errorTypeForComment(text) {
-    const value = (text || "").trim();
-    if (!value) return "";
-    if (isPresetErrorType(value)) return value;
-    return "__custom__";
+function splitCorrectnessComment(text) {
+    const raw = text || "";
+    const trimmed = raw.trim();
+    if (!trimmed) return { type: "", description: "" };
+
+    for (const preset of ERROR_TYPES) {
+        const prefix = `${preset}: `;
+        if (raw.startsWith(prefix)) {
+            return { type: preset, description: raw.slice(prefix.length) };
+        }
+    }
+
+    if (isPresetErrorType(trimmed)) return { type: trimmed, description: "" };
+    return { type: "", description: raw };
 }
 
-function syncErrorTypeFromComment() {
+function joinCorrectnessComment(type, description) {
+    const desc = description || "";
+    const hasDescription = desc.trim() !== "";
+    if (isPresetErrorType(type)) {
+        return hasDescription ? `${type}: ${desc}` : type;
+    }
+    return desc;
+}
+
+function currentCorrectnessCommentFromForm() {
+    const textarea = document.getElementById("inpCorrectnessComment");
+    const select = document.getElementById("inpErrorType");
+    const description = textarea ? textarea.value : "";
+    if (!select) return description;
+    return joinCorrectnessComment(select.value, description);
+}
+
+function applyCorrectnessCommentToForm(comment) {
+    const parts = splitCorrectnessComment(comment);
     const select = document.getElementById("inpErrorType");
     const textarea = document.getElementById("inpCorrectnessComment");
-    if (!select || !textarea) return;
-    select.value = errorTypeForComment(textarea.value);
+    if (select) select.value = parts.type || "";
+    if (textarea) textarea.value = parts.description || "";
+}
+
+function updateCorrectnessCommentFromForm() {
+    if (IS_UAV_TESTING) return;
+    const step = all_steps.find(item => item.id === active_step_id);
+    if (!step || stepIsMissing(step)) return;
+    step.correctness_comment = currentCorrectnessCommentFromForm();
+    saveDraftToLocal();
 }
 
 function setErrorTypeFromForm(value) {
     if (IS_UAV_TESTING) return;
 
-    const textarea = document.getElementById("inpCorrectnessComment");
     const step = all_steps.find(item => item.id === active_step_id);
-    if (!textarea || !step || stepIsMissing(step)) return;
+    if (!step || stepIsMissing(step)) return;
 
-    if (isPresetErrorType(value)) {
-        textarea.value = value;
-    } else if (value === "__custom__") {
-        if (isPresetErrorType(textarea.value)) textarea.value = "";
-    } else if (isPresetErrorType(textarea.value)) {
-        textarea.value = "";
-    }
-
-    step.correctness_comment = textarea.value;
-    saveDraftToLocal();
+    updateCorrectnessCommentFromForm();
     renderList();
-
-    const select = document.getElementById("inpErrorType");
-    if (select) select.value = value === "__custom__" ? "__custom__" : errorTypeForComment(textarea.value);
-    if (value === "__custom__") {
-        const field = document.getElementById("inpCorrectnessComment");
-        if (field) field.focus();
-    }
 }
 
 function normalizeStepType(value) {

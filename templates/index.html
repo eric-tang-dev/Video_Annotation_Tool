@@ -293,6 +293,7 @@
                     <label class="form-label small fw-bold mt-2 mb-1" for="inpErrorType">Error type</label>
                     <select id="inpErrorType" class="form-select form-select-sm" onchange="setErrorTypeFromForm(this.value)">
                         <option value="">Not selected</option>
+                        <option value="None">None</option>
                         <option value="Technical_Skill_Error">Technical_Skill_Error</option>
                         <option value="Assessment_Error">Assessment_Error</option>
                         <option value="Measurement_Error">Measurement_Error</option>
@@ -300,9 +301,9 @@
                         <option value="Safety_Error">Safety_Error</option>
                         <option value="Sequencing_Error">Sequencing_Error</option>
                         <option value="Omission_Error">Omission_Error</option>
-                        <option value="__custom__">Custom</option>
                     </select>
-                    <textarea class="form-control form-control-sm mt-1" id="inpCorrectnessComment" rows="2" placeholder="Comments..." oninput="syncErrorTypeFromComment()"></textarea>
+                    <label class="form-label small fw-bold mt-2 mb-1" for="inpCorrectnessComment">Error description</label>
+                    <textarea class="form-control form-control-sm" id="inpCorrectnessComment" rows="2" placeholder="Describe what happened..." oninput="updateCorrectnessCommentFromForm()"></textarea>
                 </div>
 
                 <div class="mb-3 border-bottom pb-2 allowance-hide-target">
