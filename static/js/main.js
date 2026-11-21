@@ -1814,6 +1814,14 @@ function renderList() {
             ? "Missing Step" 
             : `${formatTime(step.start)} - ${formatTime(step.end)}`;
 
+        const stepTypeId = normalizeStepType(step.step_type);
+        const stepTypeLabel = stepTypeId
+            ? (STEP_TYPES.find(option => option.id === stepTypeId)?.label || "Not selected")
+            : "Not selected";
+        const stepTypeBadge = (!missingStepDetected && !isAllowance && !isSterile)
+            ? `<span class="step-type-badge step-type-${stepTypeId || "none"}">${stepTypeLabel}</span>`
+            : "";
+
         const isAmbiguous = !!step.ambiguous;
         const missingStatus = normalizeMissingReason(step.missing_reason);
         const missingStatusLabel = missingStatus
@@ -1842,7 +1850,10 @@ function renderList() {
             div.innerHTML = `
                 <div class="d-flex justify-content-between align-items-start gap-2">
                     <strong>${step.name}</strong>
-                    <span class="small text-muted text-nowrap">${timeDisplayString}</span>
+                    <div class="step-meta">
+                        <span class="small text-muted text-nowrap">${timeDisplayString}</span>
+                        ${stepTypeBadge}
+                    </div>
                 </div>
                 ${ratingSection}
                 <div class="mt-2 d-flex align-items-center gap-2">

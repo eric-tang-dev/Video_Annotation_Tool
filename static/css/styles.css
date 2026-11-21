@@ -95,6 +95,44 @@ video {
     border-left: 4px solid #8A2BE2; 
 }
 
+.step-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.step-type-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.2;
+    padding: 2px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.step-type-do {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.step-type-say {
+    background: #f3e8ff;
+    color: #7e22ce;
+}
+
+.step-type-do_say {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.step-type-none {
+    background: #e9ecef;
+    color: #6c757d;
+}
+
 .step-rating-row {
     display: flex;
     flex-wrap: wrap;
