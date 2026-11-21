@@ -1824,6 +1824,8 @@ function renderList() {
                     <div class="missing-status-current${missingStatus ? "" : " is-empty"}">${missingStatusLabel}</div>
                     <div class="missing-reason-group missing-reason-group-inline">${missingReasonButtonsHtml(step)}</div>
                </div>`
+            : isAllowance
+            ? ""
             : `<div class="step-rating-row mt-2">
                     ${ratingControlHtml('C', 'Correctness', 'correctness', scoreCorrectness, false)}
                     ${ratingControlHtml('P', 'Performance', 'performance', scorePerformance, false)}
