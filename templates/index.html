@@ -12,7 +12,9 @@
 
 <body class="bg-dark{% if is_uav_testing %} uav-testing-mode{% endif %}">
 
+{% if not local_demo %}
 <script src="https://cdnapisec.kaltura.com/p/6514622/embedPlaykitJs/uiconf_id/58010592"></script>
+{% endif %}
 
 <div class="container-fluid h-100 d-flex flex-column p-0">
 
@@ -58,12 +60,15 @@
         <!-- Switch Video (brings us to grid) and Save (to GCS) Buttons -->
         <div class="col header-actions">
             <span class="small text-light-emphasis expert-label">Expert ID: {{ expert_id }}</span>
-        
+            {% if local_demo %}
+            <span class="badge bg-warning text-dark align-self-center">Local demo</span>
+            {% else %}
             <a href="/switch-expert" class="btn btn-outline-light btn-sm">Switch Expert</a>
         
             <a href="/select-video?entry_id={{ selected_entry_id }}" class="btn btn-outline-light btn-sm">
                 Switch Video
             </a>
+            {% endif %}
         
             <button class="btn btn-warning btn-sm" onclick="saveData(false)">
                 Save
@@ -87,7 +92,112 @@
             
             <!-- Video Player -->
             <div class="video-wrapper flex-grow-1 d-flex justify-content-center align-items-center w-100 bg-black">
-                {% if video_file %}
+                {% if local_demo %}
+                <canvas id="localDemoCanvas" width="960" height="480" aria-label="Local demo clock"></canvas>
+                <script>
+                    (function () {
+                        const canvas = document.getElementById('localDemoCanvas');
+                        const ctx = canvas.getContext('2d');
+                        const duration = 20;
+                        let current = 0;
+                        let playing = false;
+                        let lastFrame = 0;
+                        let rate = 1;
+                        const listeners = {};
+
+                        function emit(name, payload) {
+                            (listeners[name] || []).forEach(fn => {
+                                try { fn(payload); } catch (err) { console.error(err); }
+                            });
+                        }
+
+                        function clockText(seconds) {
+                            const pad = (n, width) => String(n).padStart(width, '0');
+                            const m = Math.floor(seconds / 60);
+                            const s = Math.floor(seconds % 60);
+                            const ms = Math.floor((seconds % 1) * 1000);
+                            return pad(m, 2) + ':' + pad(s, 2) + '.' + pad(ms, 3);
+                        }
+
+                        function drawClock() {
+                            const w = canvas.width;
+                            const h = canvas.height;
+                            ctx.fillStyle = '#141414';
+                            ctx.fillRect(0, 0, w, h);
+                            ctx.fillStyle = '#f8f9fa';
+                            ctx.font = '64px ui-monospace, SFMono-Regular, Menlo, monospace';
+                            ctx.fillText(clockText(current), 48, 150);
+                            ctx.font = '22px sans-serif';
+                            ctx.fillStyle = '#ced4da';
+                            ctx.fillText('Local demo clock  ·  20 seconds  ·  nothing is saved', 48, 200);
+                            ctx.font = '18px sans-serif';
+                            ctx.fillStyle = '#ffc107';
+                            ctx.fillText('Yellow bar is a 0.25s sterile breach. Open it and edit the times.', 48, 248);
+                            const rulerX = 48;
+                            const rulerW = w - 96;
+                            const rulerY = h - 80;
+                            ctx.fillStyle = '#2b2b2b';
+                            ctx.fillRect(rulerX, rulerY, rulerW, 28);
+                            ctx.fillStyle = '#ff4d4d';
+                            ctx.fillRect(rulerX + (current / duration) * rulerW, rulerY - 8, 2, 44);
+                        }
+
+                        const player = {
+                            get duration() { return duration; },
+                            get currentTime() { return current; },
+                            set currentTime(t) {
+                                current = Math.max(0, Math.min(duration, Number(t) || 0));
+                                if (current >= duration) {
+                                    playing = false;
+                                    emit('pause');
+                                }
+                                drawClock();
+                                emit('timeupdate');
+                            },
+                            get playbackRate() { return rate; },
+                            set playbackRate(next) {
+                                const value = Number(next);
+                                if (Number.isFinite(value) && value > 0) rate = value;
+                            },
+                            play() {
+                                if (current >= duration) current = 0;
+                                playing = true;
+                                lastFrame = 0;
+                                emit('play');
+                                emit('playing');
+                            },
+                            pause() {
+                                playing = false;
+                                emit('pause');
+                            },
+                            addEventListener(name, fn) {
+                                (listeners[name] = listeners[name] || []).push(fn);
+                            }
+                        };
+
+                        function tick(ts) {
+                            if (playing) {
+                                if (!lastFrame) lastFrame = ts;
+                                current = Math.min(duration, current + ((ts - lastFrame) / 1000) * rate);
+                                lastFrame = ts;
+                                if (current >= duration) {
+                                    current = duration;
+                                    playing = false;
+                                    emit('pause');
+                                    emit('ended');
+                                }
+                                drawClock();
+                                emit('timeupdate');
+                            }
+                            requestAnimationFrame(tick);
+                        }
+
+                        window.kalturaPlayerInstance = player;
+                        drawClock();
+                        requestAnimationFrame(tick);
+                    })();
+                </script>
+                {% elif video_file %}
                 <!--
                   DEMO: player fills the video pane.
                   Revert by replacing the style below with the previous dimensions:
@@ -373,6 +483,7 @@
     window.IS_COMPLETED = {{ (saved_data.completed if saved_data else false) | tojson | safe }};
     window.CURRENT_EXPERT_ID = "{{ expert_id }}";
     window.IS_UAV_TESTING = {{ is_uav_testing | tojson | safe }};
+    window.LOCAL_DEMO = {{ local_demo|default(false) | tojson }};
 </script>
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">

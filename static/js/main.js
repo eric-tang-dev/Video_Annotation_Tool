@@ -16,9 +16,10 @@ const STERILE_BREACH_DURATION = 0.5;
 const STERILE_BREACH_RATING = 0.0;
 const STERILE_BREACH_COMMENTS = [
     "contamination",
-    "touching the one-inch border",
+    "touching beyond the 1-inch border",
     "grabbing the wrong part of the glove",
-    "paper falling back onto the gloves"
+    "paper falling back onto the gloves",
+    "Reaching across the sterile field"
 ];
 
 const ALLOWANCE_STEP_NAME = "Allowance";
@@ -126,6 +127,7 @@ function buildCurrentVideoPayload() {
     It is used for draft recovery if the page refreshes or the browser is interrupted.
 */
 function saveDraftToLocal() {
+    if (window.LOCAL_DEMO) return;
     const key = getDraftStorageKey();
     if (!key) return;
 
@@ -145,6 +147,7 @@ function saveDraftToLocal() {
     It returns the inner annotation JSON structure if found, otherwise null.
 */
 function loadDraftFromLocal() {
+    if (window.LOCAL_DEMO) return null;
     const key = getDraftStorageKey();
     if (!key) return null;
 
@@ -846,6 +849,11 @@ function toggleAllowanceStep() {
         3. If successful, clear the local browser draft
 */
 function saveData(markComplete = false) {
+    if (window.LOCAL_DEMO) {
+        showSaveToast("Local demo only. Nothing was saved.");
+        return;
+    }
+
     // check completion status
     if (markComplete) {
         isCompleted = true;
@@ -1164,12 +1172,6 @@ function selectStep(id, options = {}) {
         step.correctness_rating = STERILE_BREACH_RATING; // 0.0
         step.performance_rating = STERILE_BREACH_RATING; // 0.0
         step.difficulty_rating = STERILE_BREACH_RATING; // 0.0
-        
-        // do not compute timestamps if they are NaN
-        if (!isNaN(step.start) && !isNaN(step.end)) {
-            step.end = Math.max(step.start + STERILE_BREACH_DURATION, step.end);
-            document.getElementById('inpEnd').value = formatTime(step.end);
-        }
 
         document.getElementById('inpActionName').value = step.name;
 
@@ -1185,13 +1187,11 @@ function selectStep(id, options = {}) {
         if (lblDifficulty) lblDifficulty.innerText = "0.0";
 
         if (fieldTitle) fieldTitle.innerText = "Reason for Sterile Breach";
-        if (startInput) startInput.disabled = true;
-        if (endInput) endInput.disabled = true;
-
-        // lock timestamp editing
-        const nudgeButtons = form.querySelectorAll('.nudge-btn');
-        nudgeButtons.forEach(btn => {
-            btn.disabled = true;
+        // Timestamps stay editable, same as a procedural step.
+        if (startInput) startInput.disabled = false;
+        if (endInput) endInput.disabled = false;
+        form.querySelectorAll('.nudge-btn').forEach(btn => {
+            btn.disabled = false;
         });
 
         // restore the rewatch button for other non-missing steps since we can jump to the breach event timestamps
@@ -1416,7 +1416,7 @@ function commitEdit() {
         // validate timestamps (parseTimeStr can return null)
         if ((tStart !== null) && (tEnd !== null) && (tEnd > tStart)) {
             step.start = tStart;
-            step.end = isSterile ? Math.max(tEnd, tStart + STERILE_BREACH_DURATION) : tEnd;        
+            step.end = tEnd;        
         } 
             else {
             alert("Invalid Time Format (MM:SS.mmm) or End time is before Start time.");
@@ -1473,8 +1473,11 @@ function renderTimeline() {
         const width = ((step.end - step.start) / video_length) * 100;
 
         const el = document.createElement('div');
+        const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
         if (step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME) {
             el.className = `t-block bg-success border-success ${step.id === active_step_id ? 'active' : ''}`;
+        } else if (isSterile) {
+            el.className = `t-block t-block-sterile ${step.id === active_step_id ? 'active' : ''}`;
         } else {
             el.className = `t-block ${step.id === active_step_id ? 'active' : ''}`;
         }
@@ -1760,6 +1763,7 @@ function renderList() {
         }
 
         div.className = `action-item p-2 mb-1 border rounded ${backgroundClass} ${step.id === active_step_id ? 'active' : ''}`;
+        div.dataset.stepId = String(step.id);
 
         // Calculate ratings for the step (used for pill colors / border)
         const scoreCorrectness = step.correctness_rating ?? RATING_DEFAULT;
@@ -1851,7 +1855,7 @@ function renderList() {
                     <div class="missing-status-current${missingStatus ? "" : " is-empty"}">${missingStatusLabel}</div>
                     <div class="missing-reason-group missing-reason-group-inline">${missingReasonButtonsHtml(step)}</div>
                </div>`
-            : isAllowance
+            : (isAllowance || isSterile)
             ? ""
             : `<div class="step-rating-row mt-2">
                     ${ratingControlHtml('C', 'Correctness', 'correctness', scoreCorrectness, false)}
@@ -1864,13 +1868,13 @@ function renderList() {
                 <div class="d-flex justify-content-between">
                     <strong>${step.name}</strong>
                 </div>
-                <div class="small text-muted">${timeDisplayString}</div>`;
+                <div class="small text-muted step-time-label">${timeDisplayString}</div>`;
         } else {
             div.innerHTML = `
                 <div class="d-flex justify-content-between align-items-start gap-2">
                     <strong>${step.name}</strong>
                     <div class="step-meta">
-                        <span class="small text-muted text-nowrap">${timeDisplayString}</span>
+                        <span class="small text-muted text-nowrap step-time-label">${timeDisplayString}</span>
                         ${stepTypeBadge}
                     </div>
                 </div>
@@ -1937,6 +1941,20 @@ function renderList() {
         4. Re-render the timeline and update the step's timestamps.
         5. This happens 60+ times a second, creating a "scrubbing" animation. 
 */
+function syncTimestampFields(step) {
+    const startInput = document.getElementById('inpStart');
+    const endInput = document.getElementById('inpEnd');
+    if (startInput && !isNaN(step.start)) startInput.value = formatTime(step.start);
+    if (endInput && !isNaN(step.end)) endInput.value = formatTime(step.end);
+
+    const label = document.querySelector(
+        `.action-item[data-step-id="${CSS.escape(String(step.id))}"] .step-time-label`
+    );
+    if (label && !isNaN(step.start) && !isNaN(step.end)) {
+        label.textContent = `${formatTime(step.start)} - ${formatTime(step.end)}`;
+    }
+}
+
 function addHandle(parent, step, side) {
     const h = document.createElement('div');
     h.className = `t-handle`;
@@ -1988,9 +2006,7 @@ function addHandle(parent, step, side) {
             renderTimeline(); // Re-render timeline to update block 
 
 
-            // Update the step's start/end timestamps
-            document.getElementById('inpStart').value = formatTime(step.start);
-            document.getElementById('inpEnd').value = formatTime(step.end);
+            syncTimestampFields(step);
         };
         
         // Remove window event listeners 
@@ -2001,6 +2017,7 @@ function addHandle(parent, step, side) {
 
             // Save updated draft after timestamp drag completes
             saveDraftToLocal();
+            renderList();
         };
         
         // Attach to Window to allow mouse to go anywhere, and keep dragging
@@ -2206,11 +2223,11 @@ function nudgeTime(type, amount) {
 
 
     // 3. Update the UI
-    document.getElementById('inpStart').value = formatTime(step.start);
-    document.getElementById('inpEnd').value = formatTime(step.end);
+    syncTimestampFields(step);
     
     // 4. Update the Visuals
     renderTimeline(); // Redraws the gray block/needles
+    renderList();
     
     // 5. Jump video to show the change (Optional but helpful)
     video.currentTime = newTime; 

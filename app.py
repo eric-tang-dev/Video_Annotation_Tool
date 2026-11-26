@@ -570,6 +570,51 @@ def save_results():
         return jsonify({"success": False, "message": str(exc)}), 500
 
 
+LOCAL_DEMO_SAVED = {
+    "timestamps": [[1.0, 4.5], [8.0, 8.25], [12.5, 16.0]],
+    "actions": [
+        "Unwrap sterile package",
+        "Sterile Breach",
+        "Apply the glove to the non-dominant hand",
+    ],
+    "correctness_evaluation": [1.0, 0.0, 0.9],
+    "performance_evaluation": [1.0, 0.0, 0.8],
+    "difficulty_evaluation": [0.2, 0.0, 0.3],
+    "correctness_comments": ["", "", ""],
+    "performance_comments": ["", "", ""],
+    "difficulty_comments": ["", "touching beyond the 1-inch border", ""],
+    "ambiguous": [False, False, False],
+    "step_type": ["do", None, "do_say"],
+    "missing_reason": [None, None, None],
+    "completed": False,
+}
+
+
+@app.route('/local-demo')
+def local_demo():
+    """Annotation screen with a local clock instead of Kaltura. Nothing is saved."""
+    video = {
+        "entry_id": "local-demo",
+        "video_name": "local_demo",
+        "category": "sterile-gloves",
+    }
+    return render_template(
+        'index.html',
+        video_file=True,
+        video_name=video["video_name"],
+        saved_data=LOCAL_DEMO_SAVED,
+        kaltura_video=video,
+        all_videos=[video],
+        step_options_by_category=STEP_OPTIONS_BY_CATEGORY,
+        selected_entry_id=video["entry_id"],
+        expert_id="local-demo",
+        is_uav_testing=False,
+        prev_video=None,
+        next_video=None,
+        local_demo=True,
+    )
+
+
 @app.route('/expert-login', methods=['GET', 'POST'])
 def expert_login():
     if request.method == 'POST':
