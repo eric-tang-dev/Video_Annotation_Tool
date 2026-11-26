@@ -574,35 +574,36 @@ def save_results():
 LOCAL_DEMO_EXPERTS = ("shen1", "dagne_1")
 
 LOCAL_DEMO_SAVED = {
-    "timestamps": [[1.0, 4.5], [8.0, 8.25], [12.5, 16.0]],
+    "timestamps": [[1.0, 4.5], [8.0, 8.25], [12.5, 16.0], [None, None]],
     "actions": [
         "Unwrap sterile package",
         "Sterile Breach",
         "Apply the glove to the non-dominant hand",
+        "Introduce yourself",
     ],
-    "correctness_evaluation": [1.0, 0.0, 0.9],
-    "performance_evaluation": [1.0, 0.0, 0.8],
-    "difficulty_evaluation": [0.2, 0.0, 0.3],
-    "correctness_comments": ["", "", ""],
-    "performance_comments": ["", "", ""],
-    "difficulty_comments": ["", "touching beyond the 1-inch border", ""],
-    "ambiguous": [False, False, False],
-    "step_type": ["do", None, "do_say"],
-    "missing_reason": [None, None, None],
+    "correctness_evaluation": [1.0, 0.0, 0.9, 0.0],
+    "performance_evaluation": [1.0, 0.0, 0.8, 0.0],
+    "difficulty_evaluation": [0.2, 0.0, 0.3, 0.0],
+    "correctness_comments": ["", "", "", ""],
+    "performance_comments": ["", "", "", ""],
+    "difficulty_comments": ["", "touching the one-inch border", "", ""],
+    "ambiguous": [False, False, False, False],
+    "step_type": ["do", None, "do_say", None],
+    "missing_reason": [None, None, None, "not_done"],
     "completed": False,
 }
 
 # Distinct seeds so the demo shows which account loaded before any draft exists.
 LOCAL_DEMO_SEEDS = {
     "shen1": {
-        "correctness_evaluation": [1.0, 0.0, 0.9],
-        "correctness_comments": ["shen seed comment", "", ""],
-        "difficulty_comments": ["", "shen seed: touching beyond the 1-inch border", ""],
+        "correctness_evaluation": [1.0, 0.0, 0.9, 0.0],
+        "correctness_comments": ["shen seed comment", "", "", ""],
+        "difficulty_comments": ["", "shen seed: touching the one-inch border", "", ""],
     },
     "dagne_1": {
-        "correctness_evaluation": [0.4, 0.0, 0.6],
-        "correctness_comments": ["dagne seed comment", "", ""],
-        "difficulty_comments": ["", "dagne seed: paper falling back onto the gloves", ""],
+        "correctness_evaluation": [0.4, 0.0, 0.6, 0.0],
+        "correctness_comments": ["dagne seed comment", "", "", ""],
+        "difficulty_comments": ["", "dagne seed: paper falling back onto the gloves", "", ""],
     },
 }
 

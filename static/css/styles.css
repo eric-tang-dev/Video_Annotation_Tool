@@ -95,6 +95,28 @@ video {
     border-left: 4px solid #8A2BE2; 
 }
 
+.action-item.step-sterile,
+.action-item.step-sterile:hover,
+.action-item.step-sterile.active {
+    background: #f8d7da;
+    border-left: 4px solid #dc3545 !important;
+}
+
+.action-item.step-sterile.active {
+    background: #f1c2c7;
+}
+
+.action-item.step-missing,
+.action-item.step-missing:hover,
+.action-item.step-missing.active {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107 !important;
+}
+
+.action-item.step-missing.active {
+    background: #ffe8a3;
+}
+
 .step-meta {
     display: flex;
     flex-direction: column;
@@ -283,9 +305,9 @@ video {
 
 .missing-reason-btn.is-selected {
     font-weight: 800;
-    background: #495057;
-    border-color: #343a40;
-    color: #fff;
+    background: #ffc107;
+    border-color: #d39e00;
+    color: #212529;
 }
 
 .missing-status-block {
@@ -393,19 +415,19 @@ video {
     box-sizing: border-box;
 }
 
-/* Same block as a procedural step, colored for a sterile breach. */
+/* Same block as a procedural step, colored red for a sterile breach. */
 .t-block-sterile {
     background: repeating-linear-gradient(
         45deg,
-        rgba(255, 193, 7, 0.45),
-        rgba(255, 193, 7, 0.45) 10px,
-        rgba(255, 193, 7, 0.18) 10px,
-        rgba(255, 193, 7, 0.18) 20px
+        rgba(220, 53, 69, 0.55),
+        rgba(220, 53, 69, 0.55) 10px,
+        rgba(220, 53, 69, 0.22) 10px,
+        rgba(220, 53, 69, 0.22) 20px
     );
-    border-top-color: #d39e00;
-    border-bottom-color: #d39e00;
-    border-left-color: #856404;
-    border-right-color: #856404;
+    border-top-color: #b02a37;
+    border-bottom-color: #b02a37;
+    border-left-color: #842029;
+    border-right-color: #842029;
 }
 
 #missing-step-options {

@@ -134,8 +134,8 @@
                             ctx.fillStyle = '#ced4da';
                             ctx.fillText('Local demo clock  ·  20 seconds  ·  drafts stay with this expert', 48, 200);
                             ctx.font = '18px sans-serif';
-                            ctx.fillStyle = '#ffc107';
-                            ctx.fillText('Yellow bar is a 0.25s sterile breach. Open it and edit the times.', 48, 248);
+                            ctx.fillStyle = '#dc3545';
+                            ctx.fillText('Red bar is a 0.25s sterile breach. Open it and edit the times.', 48, 248);
                             const rulerX = 48;
                             const rulerW = w - 96;
                             const rulerY = h - 80;
@@ -264,7 +264,7 @@
                     Sterile Breach
                 </button>
                 <div class="btn-group dropup ms-1" id="missing-step-menu">
-                    <button type="button" class="btn btn-outline-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="add-missing-step-btn">
+                    <button type="button" class="btn btn-warning text-dark btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="add-missing-step-btn">
                         Add Missing Step
                     </button>
                     <ul class="dropdown-menu" id="missing-step-options"></ul>

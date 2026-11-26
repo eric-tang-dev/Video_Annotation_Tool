@@ -1853,16 +1853,16 @@ function renderList() {
     }).forEach(step => {
         const div = document.createElement('div');
 
-        // if step is missing, give slight red tinted background. if step is a sterile breach, give it a yellow tinted background.
+        // Missing steps are yellow. Sterile breaches are red.
         const missingStepDetected = isNaN(step.start);
         const isSterile = step.isSterileBreach || step.name === STERILE_BREACH_NAME;
         const isAllowance = step.isAllowanceStep || step.name === ALLOWANCE_STEP_NAME; 
 
         let backgroundClass = '';
         if (missingStepDetected) {
-            backgroundClass = 'bg-danger-subtle';
+            backgroundClass = 'step-missing';
         } else if (isSterile) {
-            backgroundClass = 'bg-warning-subtle';
+            backgroundClass = 'step-sterile';
         }  else if (isAllowance) {
             backgroundClass = 'bg-success-subtle border-success text-success-emphasis'; 
         }
@@ -2921,7 +2921,9 @@ function renderSAGraph() {
             height: plotHeight,
             fill: isAllowance
                 ? 'rgba(25, 135, 84, 0.10)'
-                : (index % 2 === 0 ? '#f8f9fa' : '#eef2f6'),
+                : ((step.isSterileBreach || step.name === STERILE_BREACH_NAME)
+                    ? 'rgba(220, 53, 69, 0.18)'
+                    : (index % 2 === 0 ? '#f8f9fa' : '#eef2f6')),
             stroke: isActive ? '#8A2BE2' : 'none',
             'stroke-width': isActive ? 2 : 0,
             'pointer-events': 'none'
