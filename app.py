@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 from pathlib import Path
@@ -570,6 +571,8 @@ def save_results():
         return jsonify({"success": False, "message": str(exc)}), 500
 
 
+LOCAL_DEMO_EXPERTS = ("shen1", "dagne_1")
+
 LOCAL_DEMO_SAVED = {
     "timestamps": [[1.0, 4.5], [8.0, 8.25], [12.5, 16.0]],
     "actions": [
@@ -589,10 +592,38 @@ LOCAL_DEMO_SAVED = {
     "completed": False,
 }
 
+# Distinct seeds so the demo shows which account loaded before any draft exists.
+LOCAL_DEMO_SEEDS = {
+    "shen1": {
+        "correctness_evaluation": [1.0, 0.0, 0.9],
+        "correctness_comments": ["shen seed comment", "", ""],
+        "difficulty_comments": ["", "shen seed: touching beyond the 1-inch border", ""],
+    },
+    "dagne_1": {
+        "correctness_evaluation": [0.4, 0.0, 0.6],
+        "correctness_comments": ["dagne seed comment", "", ""],
+        "difficulty_comments": ["", "dagne seed: paper falling back onto the gloves", ""],
+    },
+}
+
+
+def local_demo_saved(expert_id: str) -> dict:
+    saved = copy.deepcopy(LOCAL_DEMO_SAVED)
+    saved.update(LOCAL_DEMO_SEEDS[expert_id])
+    return saved
+
 
 @app.route('/local-demo')
 def local_demo():
-    """Annotation screen with a local clock instead of Kaltura. Nothing is saved."""
+    """Annotation screen with a local clock instead of Kaltura.
+
+    Nothing is written to GCS. Browser drafts are kept per demo expert so
+    switching between shen1 and dagne_1 can be checked on this page.
+    """
+    expert_id = request.args.get("expert", "shen1").strip()
+    if expert_id not in LOCAL_DEMO_EXPERTS:
+        expert_id = "shen1"
+
     video = {
         "entry_id": "local-demo",
         "video_name": "local_demo",
@@ -602,16 +633,17 @@ def local_demo():
         'index.html',
         video_file=True,
         video_name=video["video_name"],
-        saved_data=LOCAL_DEMO_SAVED,
+        saved_data=local_demo_saved(expert_id),
         kaltura_video=video,
         all_videos=[video],
         step_options_by_category=STEP_OPTIONS_BY_CATEGORY,
         selected_entry_id=video["entry_id"],
-        expert_id="local-demo",
+        expert_id=expert_id,
         is_uav_testing=False,
         prev_video=None,
         next_video=None,
         local_demo=True,
+        local_demo_experts=LOCAL_DEMO_EXPERTS,
     )
 
 

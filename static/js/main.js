@@ -77,12 +77,14 @@ let saData = {
 };
 
 
-// This function returns the current video's stable browser draft key
+// Drafts are per expert and per video. A shared video-only key let one
+// account's unsaved work load after Switch Expert and then be saved
+// into the other account's file.
 function getDraftStorageKey() {
     const entryId = (window.CURRENT_ENTRY_ID || "").trim();
-    if (!entryId) return null;
-    if (IS_UAV_TESTING) return `draft:uav_testing:${entryId}`;
-    return `draft:${entryId}`;
+    const expertId = (window.CURRENT_EXPERT_ID || "").trim();
+    if (!entryId || !expertId) return null;
+    return `draft:${expertId}:${entryId}`;
 }
 
 
@@ -127,12 +129,12 @@ function buildCurrentVideoPayload() {
     It is used for draft recovery if the page refreshes or the browser is interrupted.
 */
 function saveDraftToLocal() {
-    if (window.LOCAL_DEMO) return;
     const key = getDraftStorageKey();
     if (!key) return;
 
     const draft = {
         entry_id: window.CURRENT_ENTRY_ID,
+        expert_id: (window.CURRENT_EXPERT_ID || "").trim(),
         video_name: CURRENT_VIDEO_NAME,
         updated_at: new Date().toISOString(),
         data: buildCurrentVideoPayload()
@@ -147,7 +149,6 @@ function saveDraftToLocal() {
     It returns the inner annotation JSON structure if found, otherwise null.
 */
 function loadDraftFromLocal() {
-    if (window.LOCAL_DEMO) return null;
     const key = getDraftStorageKey();
     if (!key) return null;
 
@@ -157,6 +158,9 @@ function loadDraftFromLocal() {
     try {
         const parsed = JSON.parse(raw);
         if (!parsed || !parsed.data) return null;
+        const expertId = (window.CURRENT_EXPERT_ID || "").trim();
+        if (!parsed.expert_id || parsed.expert_id !== expertId) return null;
+        if (parsed.entry_id && parsed.entry_id !== window.CURRENT_ENTRY_ID) return null;
         return parsed.data;
     } catch (err) {
         console.error("Failed to parse local draft:", err);

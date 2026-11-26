@@ -62,6 +62,9 @@
             <span class="small text-light-emphasis expert-label">Expert ID: {{ expert_id }}</span>
             {% if local_demo %}
             <span class="badge bg-warning text-dark align-self-center">Local demo</span>
+            {% for demo_expert in local_demo_experts|default([]) %}
+            <a href="/local-demo?expert={{ demo_expert }}" class="btn btn-sm {% if demo_expert == expert_id %}btn-warning{% else %}btn-outline-light{% endif %}">{{ demo_expert }}</a>
+            {% endfor %}
             {% else %}
             <a href="/switch-expert" class="btn btn-outline-light btn-sm">Switch Expert</a>
         
@@ -129,7 +132,7 @@
                             ctx.fillText(clockText(current), 48, 150);
                             ctx.font = '22px sans-serif';
                             ctx.fillStyle = '#ced4da';
-                            ctx.fillText('Local demo clock  ·  20 seconds  ·  nothing is saved', 48, 200);
+                            ctx.fillText('Local demo clock  ·  20 seconds  ·  drafts stay with this expert', 48, 200);
                             ctx.font = '18px sans-serif';
                             ctx.fillStyle = '#ffc107';
                             ctx.fillText('Yellow bar is a 0.25s sterile breach. Open it and edit the times.', 48, 248);
