@@ -758,10 +758,8 @@ function addSterileBreachStep() {
     selectStep(newStep.id);
 }
 
-function checklistStepsNotYetLogged() {
-    const options = (window.STEP_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
-    const used = new Set(all_steps.map(step => step.name));
-    return options.filter(name => !used.has(name));
+function checklistStepsForCurrentVideo() {
+    return (window.STEP_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
 }
 
 function populateMissingStepMenu() {
@@ -769,11 +767,11 @@ function populateMissingStepMenu() {
     if (!list) return;
 
     list.innerHTML = "";
-    const names = checklistStepsNotYetLogged();
+    const names = checklistStepsForCurrentVideo();
 
     if (names.length === 0) {
         const empty = document.createElement("li");
-        empty.innerHTML = '<span class="dropdown-item-text text-muted small">Every checklist step is already logged</span>';
+        empty.innerHTML = '<span class="dropdown-item-text text-muted small">No checklist steps for this video</span>';
         list.appendChild(empty);
     } else {
         names.forEach(name => {
