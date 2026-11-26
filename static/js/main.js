@@ -15,11 +15,19 @@ const STERILE_BREACH_NAME = "Sterile Breach";
 const STERILE_BREACH_DURATION = 0.5;
 const STERILE_BREACH_RATING = 0.0;
 const STERILE_BREACH_COMMENTS = [
-    "contamination",
-    "touching beyond the 1-inch border",
-    "grabbing the wrong part of the glove",
-    "paper falling back onto the gloves",
-    "Reaching across the sterile field"
+    "Hands below waistline",
+    "Hands above shoulder level",
+    "Reaching across sterile field",
+    "Leaning over sterile field",
+    "Touching beyond the one-inch border",
+    "Touching nonsterile surface",
+    "Improper sterile glove handling",
+    "Sterile glove contamination",
+    "Sterile equipment contamination",
+    "Improper sterile package opening",
+    "Sterile field contamination",
+    "Sterile drape contamination",
+    "Uncorrected contamination"
 ];
 
 const ALLOWANCE_STEP_NAME = "Allowance";
