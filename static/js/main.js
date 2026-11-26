@@ -185,6 +185,11 @@ if (sterileBreachBtn) {
     });
 }
 
+const missingStepMenu = document.getElementById("missing-step-menu");
+if (missingStepMenu) {
+    missingStepMenu.addEventListener("show.bs.dropdown", populateMissingStepMenu);
+}
+
 
 let video = {
     play() {
@@ -749,6 +754,82 @@ function addSterileBreachStep() {
     selectStep(newStep.id);
 }
 
+function checklistStepsNotYetLogged() {
+    const options = (window.STEP_OPTIONS_BY_CATEGORY || {})[window.CURRENT_VIDEO_CATEGORY] || [];
+    const used = new Set(all_steps.map(step => step.name));
+    return options.filter(name => !used.has(name));
+}
+
+function populateMissingStepMenu() {
+    const list = document.getElementById("missing-step-options");
+    if (!list) return;
+
+    list.innerHTML = "";
+    const names = checklistStepsNotYetLogged();
+
+    if (names.length === 0) {
+        const empty = document.createElement("li");
+        empty.innerHTML = '<span class="dropdown-item-text text-muted small">Every checklist step is already logged</span>';
+        list.appendChild(empty);
+    } else {
+        names.forEach(name => {
+            const item = document.createElement("li");
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "dropdown-item";
+            button.textContent = name;
+            button.addEventListener("click", () => addMissingStep(name));
+            item.appendChild(button);
+            list.appendChild(item);
+        });
+    }
+
+    const divider = document.createElement("li");
+    divider.innerHTML = '<hr class="dropdown-divider">';
+    list.appendChild(divider);
+
+    const customItem = document.createElement("li");
+    const customButton = document.createElement("button");
+    customButton.type = "button";
+    customButton.className = "dropdown-item";
+    customButton.textContent = "Custom...";
+    customButton.addEventListener("click", () => addMissingStep(""));
+    customItem.appendChild(customButton);
+    list.appendChild(customItem);
+}
+
+function addMissingStep(name) {
+    const newStep = {
+        id: Date.now(),
+        name: name || "",
+        start: NaN,
+        end: NaN,
+        correctness_rating: 0.0,
+        performance_rating: 0.0,
+        difficulty_rating: 0.0,
+        correctness_comment: "",
+        performance_comment: "",
+        difficulty_comment: "",
+        ambiguous: false,
+        missing_reason: null,
+        step_type: null,
+        isSterileBreach: false
+    };
+
+    all_steps.push(newStep);
+    saveDraftToLocal();
+    renderTimeline();
+    renderList();
+    selectStep(newStep.id);
+
+    if (!name) {
+        setTimeout(() => {
+            const input = document.getElementById("inpActionName");
+            if (input) input.focus();
+        }, 30);
+    }
+}
+
 // This function handles the toggle behavior of the "Allowance" step recording button. 
 // It uses the allowance_start_time variable to track whether we are currently recording an allowance step or not. 
 // Depending on the state, it either starts a new allowance step or ends the current one and saves it.
@@ -1146,6 +1227,7 @@ function selectStep(id, options = {}) {
         if (sliderPerformance) sliderPerformance.disabled = true;
         if (sliderDifficulty) sliderDifficulty.disabled = true;
         if (actionSelect) actionSelect.disabled = false; // allow action selection for missing steps (not locked to preset)
+        if (customActionInput) customActionInput.disabled = false;
 
         if (startInput) { startInput.value = "Missing"; startInput.disabled = true; }
         if (endInput) { endInput.value = "Missing"; endInput.disabled = true; }
@@ -1384,6 +1466,19 @@ function commitEdit() {
             step.correctness_rating = ALLOWANCE_DEFAULT_RATING; // 0.5
             step.performance_rating = ALLOWANCE_DEFAULT_RATING; // 0.5
             step.difficulty_rating = ALLOWANCE_DEFAULT_RATING;  // 0.5
+        } else if (isNaN(step.start) || isNaN(step.end)) {
+            const nextName = selectedStepValue === '__custom__'
+                ? customStepValue
+                : (selectedStepValue || customStepValue);
+            if (!nextName) {
+                alert("Choose a step name for the missing step.");
+                return;
+            }
+            step.name = nextName;
+            step.correctness_rating = 0.0;
+            step.performance_rating = 0.0;
+            step.difficulty_rating = 0.0;
+            step.step_type = null;
         } else {
             step.name =
                 selectedStepValue === '__custom__'
