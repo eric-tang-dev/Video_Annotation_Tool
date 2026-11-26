@@ -19,7 +19,7 @@ const STERILE_BREACH_COMMENTS = [
     "Hands above shoulder level",
     "Reaching across sterile field",
     "Leaning over sterile field",
-    "Touching beyond the one-inch border",
+    "touching the one-inch border",
     "Touching nonsterile surface",
     "Improper sterile glove handling",
     "Sterile glove contamination",
